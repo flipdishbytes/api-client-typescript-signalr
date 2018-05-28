@@ -1,0 +1,21 @@
+machine:
+  node:
+    version: 8.9.4
+  npm:
+    version: 5.6.0
+dependencies:
+  pre:
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+  override:
+    - npm install
+test:
+  override:
+    - echo "test"
+deployment:
+  production:
+    branch: master
+    commands:
+      - npm run build
+      - npm version 1.0.$CIRCLE_BUILD_NUM --no-git-tag-version
+      - npm version
+      - npm publish --access public
