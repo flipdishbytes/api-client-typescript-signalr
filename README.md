@@ -30,3 +30,4 @@ function onOrderCreated(order: OrderCreatedEvent) {
     console.log("Order created result:");
     console.log(order);
 }
+```
