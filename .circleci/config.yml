@@ -1,7 +1,9 @@
 version: 2
 
 defaults: &defaults
-  working_directory: ~/api-client-typescript-signalr
+  environment:
+      WORK_DIR: ~/api-client-typescript-signalr 
+  working_directory: $WORK_DIR
   docker:
     - image: circleci/node:8.9.1
 
@@ -25,16 +27,16 @@ jobs:
         - run: npm run build
 
         - persist_to_workspace:
-            root: ~/repo
+            root: $WORK_DIR
             paths: .
     deploy:
     <<: *defaults
     steps:
         - attach_workspace:
-            at: ~/repo
+            at: $WORK_DIR
         - run:
             name: Authenticate with registry
-            command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+            command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > $WORK_DIR/.npmrc
         - run:
             name: Versioning
             command: npm version 1.0.$CIRCLE_BUILD_NUM --no-git-tag-version
