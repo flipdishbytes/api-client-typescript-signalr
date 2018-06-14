@@ -46,18 +46,13 @@ jobs:
             command: npm publish --access public
 workflows:
   version: 2
-  deploy:
+  build-deploy:
     jobs:
       - build:
-          filters:
-            tags:
-              only: /^v.*/
       - deploy:
           requires:
             - build
           filters:
-            tags:
-              only: /^v.*/
             branches:
-              ignore: /.*/
+              only: master
 
