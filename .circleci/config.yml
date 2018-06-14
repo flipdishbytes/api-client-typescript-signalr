@@ -78,9 +78,10 @@ jobs:
     - run: echo "test"
     # Deployment
     # Your existing circle.yml file contains deployment steps.
-    # The config translation tool does not support translating deployment steps
-    # since deployment in CircleCI 2.0 are better handled through workflows.
-    # See the documentation for more information https://circleci.com/docs/2.0/workflows/
+    - run: npm run build
+    - run: npm version 1.0.$CIRCLE_BUILD_NUM --no-git-tag-version
+    - run: npm version
+    - run: npm publish --access public
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # Save test results
