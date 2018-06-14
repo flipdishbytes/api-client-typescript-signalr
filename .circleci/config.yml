@@ -36,7 +36,7 @@ jobs:
             at: ~/api-client-typescript-signalr
         - run:
             name: Authenticate with registry
-            command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/api-client-typescript-signalr/.npmrc
+            command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" >> ~/api-client-typescript-signalr/.npmrc
         - run:
             name: Versioning
             command: npm version 1.0.$CIRCLE_BUILD_NUM --no-git-tag-version
