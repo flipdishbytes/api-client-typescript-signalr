@@ -1,4 +1,4 @@
-import { Connection, hubConnection, Proxy } from "signalr-no-jquery";
+import { Connection, hubConnection, Proxy } from "@flipdish/signalr-no-jquery";
 import * as Flipdish from "@flipdish/api-client-typescript";
 
 let defaultBasePath = "https://api.flipdish.co";
@@ -48,8 +48,10 @@ export class SignalR {
         this.StoreHub = new StoreHub(this.activeConnection.createHubProxy("StoreHub"));
 	    
         this.WebhookHub = new WebhookHub(this.activeConnection.createHubProxy("WebhookHub"));
-	    
-        this.activeConnection.start({extraHeaders:[{key:"Authorization", value:`Bearer ${bearerToken}`}]}, onConnectionStarted);
+        
+        var options = bearerToken ? { withCredentials :true, extraHeaders:[ {key:"Authorization", value:`Bearer ${bearerToken}`} ] } : undefined;
+        
+        this.activeConnection.start(options, onConnectionStarted);
     }
 }
 
