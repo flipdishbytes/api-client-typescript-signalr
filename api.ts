@@ -28,8 +28,8 @@ export class SignalR {
 	
     public WebhookHub: WebhookHub;
 	
-    public constructor(onConnectionStarted?:() => void){
-        this.activeConnection = hubConnection(defaultBasePath);
+    public constructor(basePath?:string, bearerToken?:string, onConnectionStarted?:() => void){
+        this.activeConnection = hubConnection(basePath ? basePath : defaultBasePath);
 
         this.AuthorizationHub = new AuthorizationHub(this.activeConnection.createHubProxy('AuthorizationHub'));
         
@@ -49,7 +49,7 @@ export class SignalR {
 	    
         this.WebhookHub = new WebhookHub(this.activeConnection.createHubProxy("WebhookHub"));
 	    
-        this.activeConnection.start(undefined, onConnectionStarted);
+        this.activeConnection.start({extraHeaders:[{key:"Authorization", value:`Bearer ${bearerToken}`}]}, onConnectionStarted);
     }
 }
 
