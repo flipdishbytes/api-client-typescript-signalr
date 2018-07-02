@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "@flipdish/api-client-typescript": "^1.0.42",
-    "@flipdish/signalr-no-jquery": "^1.0.10"
+    "@flipdish/signalr-no-jquery": "^1.0.11"
   }
 }
