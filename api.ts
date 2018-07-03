@@ -48,10 +48,8 @@ export class SignalR {
         this.StoreHub = new StoreHub(this.activeConnection.createHubProxy("StoreHub"));
 	    
         this.WebhookHub = new WebhookHub(this.activeConnection.createHubProxy("WebhookHub"));
-        
-        var options = bearerToken ? { withCredentials :true, extraHeaders:[ {key:"Authorization", value:`Bearer ${bearerToken}`} ] } : undefined;
-        
-        this.activeConnection.start(options, onConnectionStarted);
+	    
+        this.activeConnection.start({extraHeaders:[{key:"Authorization", value:`Bearer ${bearerToken}`}]}, onConnectionStarted);
     }
 }
 
@@ -1042,4 +1040,5 @@ export class WebhookHub {
     
 }
 /* WebhookHub End */
+
 
