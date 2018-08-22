@@ -4,53 +4,96 @@ import * as Flipdish from "@flipdish/api-client-typescript";
 let defaultBasePath = "https://api.flipdish.co";
 
 /**
+* This class defines signalr configuration
+*/
+export class SignalRConfiguration {
+  public BasePath?: string;
+  public BearerToken?: string;
+  public Log: boolean;
+
+  public constructor(basePath?: string, bearerToken?: string, log: boolean = false) {
+    this.BasePath = basePath;
+    this.BearerToken = bearerToken;
+    this.Log = log;
+  }
+};
+
+/**
 * This should be created once per web app and stored somehow.
-* Please don't create more than once
+* Please don't create more than once (need to call .Start() to start connection)
 */
 export class SignalR {
-    private activeConnection: Connection;
+  private static ActiveConnection: Connection;
+  private extraHeaders: any;
+  private signalRConfiguration: SignalRConfiguration;
+  private started: boolean;
 
-    public AuthorizationHub: AuthorizationHub;
+  public AuthorizationHub: AuthorizationHub;
+  
+  public CampaignHub: CampaignHub;
+  
+  public CustomerHub: CustomerHub;
+  
+  public MenuHub: MenuHub;
+  
+  public OrderHub: OrderHub;
+  
+  public PhoneCallHub: PhoneCallHub;
+  
+  public PrinterHub: PrinterHub;
+  
+  public StoreHub: StoreHub;
+  
+  public WebhookHub: WebhookHub;
+  
+  public constructor(signalRConfiguration?:SignalRConfiguration){
+    this.signalRConfiguration = signalRConfiguration;
+
+	if(!SignalR.ActiveConnection){
+		SignalR.ActiveConnection = hubConnection(signalRConfiguration.BasePath ? signalRConfiguration.BasePath : defaultBasePath);
+	}
+
+    this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
-    public CampaignHub: CampaignHub;
+    this.CampaignHub = new CampaignHub(SignalR.ActiveConnection.createHubProxy("CampaignHub"), signalRConfiguration.Log);
 	
-    public CustomerHub: CustomerHub;
+    this.CustomerHub = new CustomerHub(SignalR.ActiveConnection.createHubProxy("CustomerHub"), signalRConfiguration.Log);
 	
-    public MenuHub: MenuHub;
+    this.MenuHub = new MenuHub(SignalR.ActiveConnection.createHubProxy("MenuHub"), signalRConfiguration.Log);
 	
-    public OrderHub: OrderHub;
+    this.OrderHub = new OrderHub(SignalR.ActiveConnection.createHubProxy("OrderHub"), signalRConfiguration.Log);
 	
-    public PhoneCallHub: PhoneCallHub;
+    this.PhoneCallHub = new PhoneCallHub(SignalR.ActiveConnection.createHubProxy("PhoneCallHub"), signalRConfiguration.Log);
 	
-    public PrinterHub: PrinterHub;
+    this.PrinterHub = new PrinterHub(SignalR.ActiveConnection.createHubProxy("PrinterHub"), signalRConfiguration.Log);
 	
-    public StoreHub: StoreHub;
+    this.StoreHub = new StoreHub(SignalR.ActiveConnection.createHubProxy("StoreHub"), signalRConfiguration.Log);
 	
-    public WebhookHub: WebhookHub;
+    this.WebhookHub = new WebhookHub(SignalR.ActiveConnection.createHubProxy("WebhookHub"), signalRConfiguration.Log);
 	
-    public constructor(basePath?:string, bearerToken?:string, onConnectionStarted?:() => void){
-        this.activeConnection = hubConnection(basePath ? basePath : defaultBasePath);
+    var extraHeaders = signalRConfiguration.BearerToken ? { extraHeaders: [{ key: "Authorization", value: `Bearer ${signalRConfiguration.BearerToken}` }] } : {};
+  }
 
-        this.AuthorizationHub = new AuthorizationHub(this.activeConnection.createHubProxy('AuthorizationHub'));
-        
-        this.CampaignHub = new CampaignHub(this.activeConnection.createHubProxy("CampaignHub"));
-	    
-        this.CustomerHub = new CustomerHub(this.activeConnection.createHubProxy("CustomerHub"));
-	    
-        this.MenuHub = new MenuHub(this.activeConnection.createHubProxy("MenuHub"));
-	    
-        this.OrderHub = new OrderHub(this.activeConnection.createHubProxy("OrderHub"));
-	    
-        this.PhoneCallHub = new PhoneCallHub(this.activeConnection.createHubProxy("PhoneCallHub"));
-	    
-        this.PrinterHub = new PrinterHub(this.activeConnection.createHubProxy("PrinterHub"));
-	    
-        this.StoreHub = new StoreHub(this.activeConnection.createHubProxy("StoreHub"));
-	    
-        this.WebhookHub = new WebhookHub(this.activeConnection.createHubProxy("WebhookHub"));
-	    
-        this.activeConnection.start({extraHeaders:[{key:"Authorization", value:`Bearer ${bearerToken}`}]}, onConnectionStarted);
+  /**
+  * Returns true when this method is called the first time
+  * In all other cases returns false
+  */
+  public Start(OnConnectionStarted?: () => void) : boolean {
+    if (!this.started) {
+      if (this.signalRConfiguration.Log) {
+        console.log("Starting connection...")
+      }
+      SignalR.ActiveConnection.start(this.extraHeaders, OnConnectionStarted);
+	  this.started = true;
+      return true;
     }
+    else {
+      if (this.signalRConfiguration.Log) {
+        console.log("Connection already started...")
+      }
+      return false;
+    }
+  }
 }
 
 /**
@@ -89,22 +132,26 @@ export class AuthorizationReply {
 * This hub should be implemented by default, no auto generation
 */
 export class AuthorizationHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
 
-    public constructor(proxy: Proxy){
-        this.proxy = proxy;
-        this.proxy.on("x", () => {}); //This is so that the hub gets registered with the server
-    }
+  public constructor(proxy: Proxy, log: boolean){
+    this.proxy = proxy;
+	this.log = log;
+    this.proxy.on("x", () => {}); //This is so that the hub gets registered with the server
+  }
 
-    /**
-     * Authenticate with the server
-     * @param contractVersion version of contracts to use
-     * @param done when authentication reply is received
-     * @param error when an error occurs during a call
-     */
-    public authenticate(): Promise<any> {
-        return this.proxy.invoke("Authenticate", "1.0");
-    }
+  /**
+   * Authenticate with the server
+   * @param done when authentication reply is received
+   * @param error when an error occurs during a call
+   */
+  public authenticate(): Promise<AuthorizationReply> {
+    if(this.log){
+	  console.log("Authenticating...");
+	}
+    return this.proxy.invoke("Authenticate", "1.0");
+  }
 }
 
 /* CampaignHub Start */
@@ -113,42 +160,42 @@ export class AuthorizationHub {
  * LoyaltyCampaignCreated Subscription Callback
 */
 export interface LoyaltyCampaignCreatedCallback{
-    (data: Flipdish.LoyaltyCampaignCreatedEvent): void;
+  (data: Flipdish.LoyaltyCampaignCreatedEvent): void;
 }
 
 /**
  * LoyaltyCampaignDeleted Subscription Callback
 */
 export interface LoyaltyCampaignDeletedCallback{
-    (data: Flipdish.LoyaltyCampaignDeletedEvent): void;
+  (data: Flipdish.LoyaltyCampaignDeletedEvent): void;
 }
 
 /**
  * LoyaltyCampaignUpdated Subscription Callback
 */
 export interface LoyaltyCampaignUpdatedCallback{
-    (data: Flipdish.LoyaltyCampaignUpdatedEvent): void;
+  (data: Flipdish.LoyaltyCampaignUpdatedEvent): void;
 }
 
 /**
  * RetentionCampaignCreated Subscription Callback
 */
 export interface RetentionCampaignCreatedCallback{
-    (data: Flipdish.RetentionCampaignCreatedEvent): void;
+  (data: Flipdish.RetentionCampaignCreatedEvent): void;
 }
 
 /**
  * RetentionCampaignDeleted Subscription Callback
 */
 export interface RetentionCampaignDeletedCallback{
-    (data: Flipdish.RetentionCampaignDeletedEvent): void;
+  (data: Flipdish.RetentionCampaignDeletedEvent): void;
 }
 
 /**
  * RetentionCampaignUpdated Subscription Callback
 */
 export interface RetentionCampaignUpdatedCallback{
-    (data: Flipdish.RetentionCampaignUpdatedEvent): void;
+  (data: Flipdish.RetentionCampaignUpdatedEvent): void;
 }
 
 
@@ -156,146 +203,184 @@ export interface RetentionCampaignUpdatedCallback{
  * CampaignHub
  */
 export class CampaignHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private LoyaltyCampaignCreatedCallback: LoyaltyCampaignCreatedCallback;
+  
+  private LoyaltyCampaignDeletedCallback: LoyaltyCampaignDeletedCallback;
+  
+  private LoyaltyCampaignUpdatedCallback: LoyaltyCampaignUpdatedCallback;
+  
+  private RetentionCampaignCreatedCallback: RetentionCampaignCreatedCallback;
+  
+  private RetentionCampaignDeletedCallback: RetentionCampaignDeletedCallback;
+  
+  private RetentionCampaignUpdatedCallback: RetentionCampaignUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private LoyaltyCampaignCreatedCallbacks: LoyaltyCampaignCreatedCallback[];
+    this.LoyaltyCampaignCreatedCallback = undefined;
     
-    private LoyaltyCampaignDeletedCallbacks: LoyaltyCampaignDeletedCallback[];
+    this.LoyaltyCampaignDeletedCallback = undefined;
     
-    private LoyaltyCampaignUpdatedCallbacks: LoyaltyCampaignUpdatedCallback[];
+    this.LoyaltyCampaignUpdatedCallback = undefined;
     
-    private RetentionCampaignCreatedCallbacks: RetentionCampaignCreatedCallback[];
+    this.RetentionCampaignCreatedCallback = undefined;
     
-    private RetentionCampaignDeletedCallbacks: RetentionCampaignDeletedCallback[];
+    this.RetentionCampaignDeletedCallback = undefined;
     
-    private RetentionCampaignUpdatedCallbacks: RetentionCampaignUpdatedCallback[];
+    this.RetentionCampaignUpdatedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.LoyaltyCampaignCreatedCallbacks = new Array<LoyaltyCampaignCreatedCallback>();
-        
-        this.LoyaltyCampaignDeletedCallbacks = new Array<LoyaltyCampaignDeletedCallback>();
-        
-        this.LoyaltyCampaignUpdatedCallbacks = new Array<LoyaltyCampaignUpdatedCallback>();
-        
-        this.RetentionCampaignCreatedCallbacks = new Array<RetentionCampaignCreatedCallback>();
-        
-        this.RetentionCampaignDeletedCallbacks = new Array<RetentionCampaignDeletedCallback>();
-        
-        this.RetentionCampaignUpdatedCallbacks = new Array<RetentionCampaignUpdatedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("campaign.loyalty.created", (eventData:SignalrEvent) => {
-            var data:Flipdish.LoyaltyCampaignCreatedEvent = JSON.parse(eventData.Body);
-            this.LoyaltyCampaignCreatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("campaign.loyalty.deleted", (eventData:SignalrEvent) => {
-            var data:Flipdish.LoyaltyCampaignDeletedEvent = JSON.parse(eventData.Body);
-            this.LoyaltyCampaignDeletedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("campaign.loyalty.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.LoyaltyCampaignUpdatedEvent = JSON.parse(eventData.Body);
-            this.LoyaltyCampaignUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("campaign.retention.created", (eventData:SignalrEvent) => {
-            var data:Flipdish.RetentionCampaignCreatedEvent = JSON.parse(eventData.Body);
-            this.RetentionCampaignCreatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("campaign.retention.deleted", (eventData:SignalrEvent) => {
-            var data:Flipdish.RetentionCampaignDeletedEvent = JSON.parse(eventData.Body);
-            this.RetentionCampaignDeletedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("campaign.retention.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.RetentionCampaignUpdatedEvent = JSON.parse(eventData.Body);
-            this.RetentionCampaignUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnLoyaltyCampaignCreated(callback: LoyaltyCampaignCreatedCallback){
-        this.LoyaltyCampaignCreatedCallbacks.push(callback);
-    }
-    public OffLoyaltyCampaignCreated(callback: LoyaltyCampaignCreatedCallback){
-        var index:number = this.LoyaltyCampaignCreatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.LoyaltyCampaignCreatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnLoyaltyCampaignDeleted(callback: LoyaltyCampaignDeletedCallback){
-        this.LoyaltyCampaignDeletedCallbacks.push(callback);
-    }
-    public OffLoyaltyCampaignDeleted(callback: LoyaltyCampaignDeletedCallback){
-        var index:number = this.LoyaltyCampaignDeletedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.LoyaltyCampaignDeletedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnLoyaltyCampaignUpdated(callback: LoyaltyCampaignUpdatedCallback){
-        this.LoyaltyCampaignUpdatedCallbacks.push(callback);
-    }
-    public OffLoyaltyCampaignUpdated(callback: LoyaltyCampaignUpdatedCallback){
-        var index:number = this.LoyaltyCampaignUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.LoyaltyCampaignUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnRetentionCampaignCreated(callback: RetentionCampaignCreatedCallback){
-        this.RetentionCampaignCreatedCallbacks.push(callback);
-    }
-    public OffRetentionCampaignCreated(callback: RetentionCampaignCreatedCallback){
-        var index:number = this.RetentionCampaignCreatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.RetentionCampaignCreatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnRetentionCampaignDeleted(callback: RetentionCampaignDeletedCallback){
-        this.RetentionCampaignDeletedCallbacks.push(callback);
-    }
-    public OffRetentionCampaignDeleted(callback: RetentionCampaignDeletedCallback){
-        var index:number = this.RetentionCampaignDeletedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.RetentionCampaignDeletedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnRetentionCampaignUpdated(callback: RetentionCampaignUpdatedCallback){
-        this.RetentionCampaignUpdatedCallbacks.push(callback);
-    }
-    public OffRetentionCampaignUpdated(callback: RetentionCampaignUpdatedCallback){
-        var index:number = this.RetentionCampaignUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.RetentionCampaignUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("campaign.loyalty.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.LoyaltyCampaignCreatedEvent = JSON.parse(eventData.Body);
+	  if(this.LoyaltyCampaignCreatedCallback){
+	    if(this.log){
+	      console.log("campaign.loyalty.created received");
+		  console.log(eventData.Body);
+	    }
+	    this.LoyaltyCampaignCreatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("campaign.loyalty.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.LoyaltyCampaignDeletedEvent = JSON.parse(eventData.Body);
+	  if(this.LoyaltyCampaignDeletedCallback){
+	    if(this.log){
+	      console.log("campaign.loyalty.deleted received");
+		  console.log(eventData.Body);
+	    }
+	    this.LoyaltyCampaignDeletedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("campaign.loyalty.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.LoyaltyCampaignUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.LoyaltyCampaignUpdatedCallback){
+	    if(this.log){
+	      console.log("campaign.loyalty.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.LoyaltyCampaignUpdatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("campaign.retention.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.RetentionCampaignCreatedEvent = JSON.parse(eventData.Body);
+	  if(this.RetentionCampaignCreatedCallback){
+	    if(this.log){
+	      console.log("campaign.retention.created received");
+		  console.log(eventData.Body);
+	    }
+	    this.RetentionCampaignCreatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("campaign.retention.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.RetentionCampaignDeletedEvent = JSON.parse(eventData.Body);
+	  if(this.RetentionCampaignDeletedCallback){
+	    if(this.log){
+	      console.log("campaign.retention.deleted received");
+		  console.log(eventData.Body);
+	    }
+	    this.RetentionCampaignDeletedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("campaign.retention.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.RetentionCampaignUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.RetentionCampaignUpdatedCallback){
+	    if(this.log){
+	      console.log("campaign.retention.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.RetentionCampaignUpdatedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnLoyaltyCampaignCreated(callback: LoyaltyCampaignCreatedCallback){
+    if(this.log){
+	  console.log("campaign.loyalty.created subscribed");
+	}
+    this.LoyaltyCampaignCreatedCallback = callback;
+  }
+  public OffLoyaltyCampaignCreated(callback: LoyaltyCampaignCreatedCallback){
+    if(this.log){
+	  console.log("campaign.loyalty.created unsubscribed");
+	}
+	this.LoyaltyCampaignCreatedCallback = undefined;
+  }
+  
+  public OnLoyaltyCampaignDeleted(callback: LoyaltyCampaignDeletedCallback){
+    if(this.log){
+	  console.log("campaign.loyalty.deleted subscribed");
+	}
+    this.LoyaltyCampaignDeletedCallback = callback;
+  }
+  public OffLoyaltyCampaignDeleted(callback: LoyaltyCampaignDeletedCallback){
+    if(this.log){
+	  console.log("campaign.loyalty.deleted unsubscribed");
+	}
+	this.LoyaltyCampaignDeletedCallback = undefined;
+  }
+  
+  public OnLoyaltyCampaignUpdated(callback: LoyaltyCampaignUpdatedCallback){
+    if(this.log){
+	  console.log("campaign.loyalty.updated subscribed");
+	}
+    this.LoyaltyCampaignUpdatedCallback = callback;
+  }
+  public OffLoyaltyCampaignUpdated(callback: LoyaltyCampaignUpdatedCallback){
+    if(this.log){
+	  console.log("campaign.loyalty.updated unsubscribed");
+	}
+	this.LoyaltyCampaignUpdatedCallback = undefined;
+  }
+  
+  public OnRetentionCampaignCreated(callback: RetentionCampaignCreatedCallback){
+    if(this.log){
+	  console.log("campaign.retention.created subscribed");
+	}
+    this.RetentionCampaignCreatedCallback = callback;
+  }
+  public OffRetentionCampaignCreated(callback: RetentionCampaignCreatedCallback){
+    if(this.log){
+	  console.log("campaign.retention.created unsubscribed");
+	}
+	this.RetentionCampaignCreatedCallback = undefined;
+  }
+  
+  public OnRetentionCampaignDeleted(callback: RetentionCampaignDeletedCallback){
+    if(this.log){
+	  console.log("campaign.retention.deleted subscribed");
+	}
+    this.RetentionCampaignDeletedCallback = callback;
+  }
+  public OffRetentionCampaignDeleted(callback: RetentionCampaignDeletedCallback){
+    if(this.log){
+	  console.log("campaign.retention.deleted unsubscribed");
+	}
+	this.RetentionCampaignDeletedCallback = undefined;
+  }
+  
+  public OnRetentionCampaignUpdated(callback: RetentionCampaignUpdatedCallback){
+    if(this.log){
+	  console.log("campaign.retention.updated subscribed");
+	}
+    this.RetentionCampaignUpdatedCallback = callback;
+  }
+  public OffRetentionCampaignUpdated(callback: RetentionCampaignUpdatedCallback){
+    if(this.log){
+	  console.log("campaign.retention.updated unsubscribed");
+	}
+	this.RetentionCampaignUpdatedCallback = undefined;
+  }
+  
 }
 /* CampaignHub End */
 
@@ -306,21 +391,21 @@ export class CampaignHub {
  * CustomerCreated Subscription Callback
 */
 export interface CustomerCreatedCallback{
-    (data: Flipdish.CustomerCreatedEvent): void;
+  (data: Flipdish.CustomerCreatedEvent): void;
 }
 
 /**
  * CustomerUpdated Subscription Callback
 */
 export interface CustomerUpdatedCallback{
-    (data: Flipdish.CustomerUpdatedEvent): void;
+  (data: Flipdish.CustomerUpdatedEvent): void;
 }
 
 /**
  * CustomerConsentUpdated Subscription Callback
 */
 export interface CustomerConsentUpdatedCallback{
-    (data: Flipdish.CustomerConsentUpdatedEvent): void;
+  (data: Flipdish.CustomerConsentUpdatedEvent): void;
 }
 
 
@@ -328,80 +413,100 @@ export interface CustomerConsentUpdatedCallback{
  * CustomerHub
  */
 export class CustomerHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private CustomerCreatedCallback: CustomerCreatedCallback;
+  
+  private CustomerUpdatedCallback: CustomerUpdatedCallback;
+  
+  private CustomerConsentUpdatedCallback: CustomerConsentUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private CustomerCreatedCallbacks: CustomerCreatedCallback[];
+    this.CustomerCreatedCallback = undefined;
     
-    private CustomerUpdatedCallbacks: CustomerUpdatedCallback[];
+    this.CustomerUpdatedCallback = undefined;
     
-    private CustomerConsentUpdatedCallbacks: CustomerConsentUpdatedCallback[];
+    this.CustomerConsentUpdatedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.CustomerCreatedCallbacks = new Array<CustomerCreatedCallback>();
-        
-        this.CustomerUpdatedCallbacks = new Array<CustomerUpdatedCallback>();
-        
-        this.CustomerConsentUpdatedCallbacks = new Array<CustomerConsentUpdatedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("customer.created", (eventData:SignalrEvent) => {
-            var data:Flipdish.CustomerCreatedEvent = JSON.parse(eventData.Body);
-            this.CustomerCreatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("customer.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.CustomerUpdatedEvent = JSON.parse(eventData.Body);
-            this.CustomerUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("customer.consent.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.CustomerConsentUpdatedEvent = JSON.parse(eventData.Body);
-            this.CustomerConsentUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnCustomerCreated(callback: CustomerCreatedCallback){
-        this.CustomerCreatedCallbacks.push(callback);
-    }
-    public OffCustomerCreated(callback: CustomerCreatedCallback){
-        var index:number = this.CustomerCreatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.CustomerCreatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnCustomerUpdated(callback: CustomerUpdatedCallback){
-        this.CustomerUpdatedCallbacks.push(callback);
-    }
-    public OffCustomerUpdated(callback: CustomerUpdatedCallback){
-        var index:number = this.CustomerUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.CustomerUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnCustomerConsentUpdated(callback: CustomerConsentUpdatedCallback){
-        this.CustomerConsentUpdatedCallbacks.push(callback);
-    }
-    public OffCustomerConsentUpdated(callback: CustomerConsentUpdatedCallback){
-        var index:number = this.CustomerConsentUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.CustomerConsentUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("customer.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.CustomerCreatedEvent = JSON.parse(eventData.Body);
+	  if(this.CustomerCreatedCallback){
+	    if(this.log){
+	      console.log("customer.created received");
+		  console.log(eventData.Body);
+	    }
+	    this.CustomerCreatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("customer.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.CustomerUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.CustomerUpdatedCallback){
+	    if(this.log){
+	      console.log("customer.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.CustomerUpdatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("customer.consent.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.CustomerConsentUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.CustomerConsentUpdatedCallback){
+	    if(this.log){
+	      console.log("customer.consent.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.CustomerConsentUpdatedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnCustomerCreated(callback: CustomerCreatedCallback){
+    if(this.log){
+	  console.log("customer.created subscribed");
+	}
+    this.CustomerCreatedCallback = callback;
+  }
+  public OffCustomerCreated(callback: CustomerCreatedCallback){
+    if(this.log){
+	  console.log("customer.created unsubscribed");
+	}
+	this.CustomerCreatedCallback = undefined;
+  }
+  
+  public OnCustomerUpdated(callback: CustomerUpdatedCallback){
+    if(this.log){
+	  console.log("customer.updated subscribed");
+	}
+    this.CustomerUpdatedCallback = callback;
+  }
+  public OffCustomerUpdated(callback: CustomerUpdatedCallback){
+    if(this.log){
+	  console.log("customer.updated unsubscribed");
+	}
+	this.CustomerUpdatedCallback = undefined;
+  }
+  
+  public OnCustomerConsentUpdated(callback: CustomerConsentUpdatedCallback){
+    if(this.log){
+	  console.log("customer.consent.updated subscribed");
+	}
+    this.CustomerConsentUpdatedCallback = callback;
+  }
+  public OffCustomerConsentUpdated(callback: CustomerConsentUpdatedCallback){
+    if(this.log){
+	  console.log("customer.consent.updated unsubscribed");
+	}
+	this.CustomerConsentUpdatedCallback = undefined;
+  }
+  
 }
 /* CustomerHub End */
 
@@ -412,14 +517,14 @@ export class CustomerHub {
  * MenuCreated Subscription Callback
 */
 export interface MenuCreatedCallback{
-    (data: Flipdish.MenuCreatedEvent): void;
+  (data: Flipdish.MenuCreatedEvent): void;
 }
 
 /**
  * MenuUpdated Subscription Callback
 */
 export interface MenuUpdatedCallback{
-    (data: Flipdish.MenuUpdatedEvent): void;
+  (data: Flipdish.MenuUpdatedEvent): void;
 }
 
 
@@ -427,58 +532,72 @@ export interface MenuUpdatedCallback{
  * MenuHub
  */
 export class MenuHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private MenuCreatedCallback: MenuCreatedCallback;
+  
+  private MenuUpdatedCallback: MenuUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private MenuCreatedCallbacks: MenuCreatedCallback[];
+    this.MenuCreatedCallback = undefined;
     
-    private MenuUpdatedCallbacks: MenuUpdatedCallback[];
+    this.MenuUpdatedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.MenuCreatedCallbacks = new Array<MenuCreatedCallback>();
-        
-        this.MenuUpdatedCallbacks = new Array<MenuUpdatedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("menu.created", (eventData:SignalrEvent) => {
-            var data:Flipdish.MenuCreatedEvent = JSON.parse(eventData.Body);
-            this.MenuCreatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("menu.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.MenuUpdatedEvent = JSON.parse(eventData.Body);
-            this.MenuUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnMenuCreated(callback: MenuCreatedCallback){
-        this.MenuCreatedCallbacks.push(callback);
-    }
-    public OffMenuCreated(callback: MenuCreatedCallback){
-        var index:number = this.MenuCreatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.MenuCreatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnMenuUpdated(callback: MenuUpdatedCallback){
-        this.MenuUpdatedCallbacks.push(callback);
-    }
-    public OffMenuUpdated(callback: MenuUpdatedCallback){
-        var index:number = this.MenuUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.MenuUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("menu.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuCreatedEvent = JSON.parse(eventData.Body);
+	  if(this.MenuCreatedCallback){
+	    if(this.log){
+	      console.log("menu.created received");
+		  console.log(eventData.Body);
+	    }
+	    this.MenuCreatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("menu.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.MenuUpdatedCallback){
+	    if(this.log){
+	      console.log("menu.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.MenuUpdatedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnMenuCreated(callback: MenuCreatedCallback){
+    if(this.log){
+	  console.log("menu.created subscribed");
+	}
+    this.MenuCreatedCallback = callback;
+  }
+  public OffMenuCreated(callback: MenuCreatedCallback){
+    if(this.log){
+	  console.log("menu.created unsubscribed");
+	}
+	this.MenuCreatedCallback = undefined;
+  }
+  
+  public OnMenuUpdated(callback: MenuUpdatedCallback){
+    if(this.log){
+	  console.log("menu.updated subscribed");
+	}
+    this.MenuUpdatedCallback = callback;
+  }
+  public OffMenuUpdated(callback: MenuUpdatedCallback){
+    if(this.log){
+	  console.log("menu.updated unsubscribed");
+	}
+	this.MenuUpdatedCallback = undefined;
+  }
+  
 }
 /* MenuHub End */
 
@@ -489,42 +608,42 @@ export class MenuHub {
  * OrderCreated Subscription Callback
 */
 export interface OrderCreatedCallback{
-    (data: Flipdish.OrderCreatedEvent): void;
+  (data: Flipdish.OrderCreatedEvent): void;
 }
 
 /**
  * OrderRejected Subscription Callback
 */
 export interface OrderRejectedCallback{
-    (data: Flipdish.OrderRejectedEvent): void;
+  (data: Flipdish.OrderRejectedEvent): void;
 }
 
 /**
  * OrderAccepted Subscription Callback
 */
 export interface OrderAcceptedCallback{
-    (data: Flipdish.OrderAcceptedEvent): void;
+  (data: Flipdish.OrderAcceptedEvent): void;
 }
 
 /**
  * OrderRefunded Subscription Callback
 */
 export interface OrderRefundedCallback{
-    (data: Flipdish.OrderRefundedEvent): void;
+  (data: Flipdish.OrderRefundedEvent): void;
 }
 
 /**
  * OrderTipUpdated Subscription Callback
 */
 export interface OrderTipUpdatedCallback{
-    (data: Flipdish.OrderTipUpdatedEvent): void;
+  (data: Flipdish.OrderTipUpdatedEvent): void;
 }
 
 /**
  * OrderRatingUpdated Subscription Callback
 */
 export interface OrderRatingUpdatedCallback{
-    (data: Flipdish.OrderRatingUpdatedEvent): void;
+  (data: Flipdish.OrderRatingUpdatedEvent): void;
 }
 
 
@@ -532,146 +651,184 @@ export interface OrderRatingUpdatedCallback{
  * OrderHub
  */
 export class OrderHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private OrderCreatedCallback: OrderCreatedCallback;
+  
+  private OrderRejectedCallback: OrderRejectedCallback;
+  
+  private OrderAcceptedCallback: OrderAcceptedCallback;
+  
+  private OrderRefundedCallback: OrderRefundedCallback;
+  
+  private OrderTipUpdatedCallback: OrderTipUpdatedCallback;
+  
+  private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private OrderCreatedCallbacks: OrderCreatedCallback[];
+    this.OrderCreatedCallback = undefined;
     
-    private OrderRejectedCallbacks: OrderRejectedCallback[];
+    this.OrderRejectedCallback = undefined;
     
-    private OrderAcceptedCallbacks: OrderAcceptedCallback[];
+    this.OrderAcceptedCallback = undefined;
     
-    private OrderRefundedCallbacks: OrderRefundedCallback[];
+    this.OrderRefundedCallback = undefined;
     
-    private OrderTipUpdatedCallbacks: OrderTipUpdatedCallback[];
+    this.OrderTipUpdatedCallback = undefined;
     
-    private OrderRatingUpdatedCallbacks: OrderRatingUpdatedCallback[];
+    this.OrderRatingUpdatedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.OrderCreatedCallbacks = new Array<OrderCreatedCallback>();
-        
-        this.OrderRejectedCallbacks = new Array<OrderRejectedCallback>();
-        
-        this.OrderAcceptedCallbacks = new Array<OrderAcceptedCallback>();
-        
-        this.OrderRefundedCallbacks = new Array<OrderRefundedCallback>();
-        
-        this.OrderTipUpdatedCallbacks = new Array<OrderTipUpdatedCallback>();
-        
-        this.OrderRatingUpdatedCallbacks = new Array<OrderRatingUpdatedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("order.created", (eventData:SignalrEvent) => {
-            var data:Flipdish.OrderCreatedEvent = JSON.parse(eventData.Body);
-            this.OrderCreatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("order.rejected", (eventData:SignalrEvent) => {
-            var data:Flipdish.OrderRejectedEvent = JSON.parse(eventData.Body);
-            this.OrderRejectedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("order.accepted", (eventData:SignalrEvent) => {
-            var data:Flipdish.OrderAcceptedEvent = JSON.parse(eventData.Body);
-            this.OrderAcceptedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("order.refunded", (eventData:SignalrEvent) => {
-            var data:Flipdish.OrderRefundedEvent = JSON.parse(eventData.Body);
-            this.OrderRefundedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("order.tip.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.OrderTipUpdatedEvent = JSON.parse(eventData.Body);
-            this.OrderTipUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("order.rating.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.OrderRatingUpdatedEvent = JSON.parse(eventData.Body);
-            this.OrderRatingUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnOrderCreated(callback: OrderCreatedCallback){
-        this.OrderCreatedCallbacks.push(callback);
-    }
-    public OffOrderCreated(callback: OrderCreatedCallback){
-        var index:number = this.OrderCreatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.OrderCreatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnOrderRejected(callback: OrderRejectedCallback){
-        this.OrderRejectedCallbacks.push(callback);
-    }
-    public OffOrderRejected(callback: OrderRejectedCallback){
-        var index:number = this.OrderRejectedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.OrderRejectedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnOrderAccepted(callback: OrderAcceptedCallback){
-        this.OrderAcceptedCallbacks.push(callback);
-    }
-    public OffOrderAccepted(callback: OrderAcceptedCallback){
-        var index:number = this.OrderAcceptedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.OrderAcceptedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnOrderRefunded(callback: OrderRefundedCallback){
-        this.OrderRefundedCallbacks.push(callback);
-    }
-    public OffOrderRefunded(callback: OrderRefundedCallback){
-        var index:number = this.OrderRefundedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.OrderRefundedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnOrderTipUpdated(callback: OrderTipUpdatedCallback){
-        this.OrderTipUpdatedCallbacks.push(callback);
-    }
-    public OffOrderTipUpdated(callback: OrderTipUpdatedCallback){
-        var index:number = this.OrderTipUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.OrderTipUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
-        this.OrderRatingUpdatedCallbacks.push(callback);
-    }
-    public OffOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
-        var index:number = this.OrderRatingUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.OrderRatingUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("order.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderCreatedEvent = JSON.parse(eventData.Body);
+	  if(this.OrderCreatedCallback){
+	    if(this.log){
+	      console.log("order.created received");
+		  console.log(eventData.Body);
+	    }
+	    this.OrderCreatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("order.rejected", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderRejectedEvent = JSON.parse(eventData.Body);
+	  if(this.OrderRejectedCallback){
+	    if(this.log){
+	      console.log("order.rejected received");
+		  console.log(eventData.Body);
+	    }
+	    this.OrderRejectedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("order.accepted", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderAcceptedEvent = JSON.parse(eventData.Body);
+	  if(this.OrderAcceptedCallback){
+	    if(this.log){
+	      console.log("order.accepted received");
+		  console.log(eventData.Body);
+	    }
+	    this.OrderAcceptedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("order.refunded", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderRefundedEvent = JSON.parse(eventData.Body);
+	  if(this.OrderRefundedCallback){
+	    if(this.log){
+	      console.log("order.refunded received");
+		  console.log(eventData.Body);
+	    }
+	    this.OrderRefundedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("order.tip.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderTipUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.OrderTipUpdatedCallback){
+	    if(this.log){
+	      console.log("order.tip.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.OrderTipUpdatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("order.rating.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderRatingUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.OrderRatingUpdatedCallback){
+	    if(this.log){
+	      console.log("order.rating.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.OrderRatingUpdatedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnOrderCreated(callback: OrderCreatedCallback){
+    if(this.log){
+	  console.log("order.created subscribed");
+	}
+    this.OrderCreatedCallback = callback;
+  }
+  public OffOrderCreated(callback: OrderCreatedCallback){
+    if(this.log){
+	  console.log("order.created unsubscribed");
+	}
+	this.OrderCreatedCallback = undefined;
+  }
+  
+  public OnOrderRejected(callback: OrderRejectedCallback){
+    if(this.log){
+	  console.log("order.rejected subscribed");
+	}
+    this.OrderRejectedCallback = callback;
+  }
+  public OffOrderRejected(callback: OrderRejectedCallback){
+    if(this.log){
+	  console.log("order.rejected unsubscribed");
+	}
+	this.OrderRejectedCallback = undefined;
+  }
+  
+  public OnOrderAccepted(callback: OrderAcceptedCallback){
+    if(this.log){
+	  console.log("order.accepted subscribed");
+	}
+    this.OrderAcceptedCallback = callback;
+  }
+  public OffOrderAccepted(callback: OrderAcceptedCallback){
+    if(this.log){
+	  console.log("order.accepted unsubscribed");
+	}
+	this.OrderAcceptedCallback = undefined;
+  }
+  
+  public OnOrderRefunded(callback: OrderRefundedCallback){
+    if(this.log){
+	  console.log("order.refunded subscribed");
+	}
+    this.OrderRefundedCallback = callback;
+  }
+  public OffOrderRefunded(callback: OrderRefundedCallback){
+    if(this.log){
+	  console.log("order.refunded unsubscribed");
+	}
+	this.OrderRefundedCallback = undefined;
+  }
+  
+  public OnOrderTipUpdated(callback: OrderTipUpdatedCallback){
+    if(this.log){
+	  console.log("order.tip.updated subscribed");
+	}
+    this.OrderTipUpdatedCallback = callback;
+  }
+  public OffOrderTipUpdated(callback: OrderTipUpdatedCallback){
+    if(this.log){
+	  console.log("order.tip.updated unsubscribed");
+	}
+	this.OrderTipUpdatedCallback = undefined;
+  }
+  
+  public OnOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
+    if(this.log){
+	  console.log("order.rating.updated subscribed");
+	}
+    this.OrderRatingUpdatedCallback = callback;
+  }
+  public OffOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
+    if(this.log){
+	  console.log("order.rating.updated unsubscribed");
+	}
+	this.OrderRatingUpdatedCallback = undefined;
+  }
+  
 }
 /* OrderHub End */
 
@@ -682,14 +839,14 @@ export class OrderHub {
  * PhoneCallStarted Subscription Callback
 */
 export interface PhoneCallStartedCallback{
-    (data: Flipdish.PhoneCallStartedEvent): void;
+  (data: Flipdish.PhoneCallStartedEvent): void;
 }
 
 /**
  * PhoneCallEnded Subscription Callback
 */
 export interface PhoneCallEndedCallback{
-    (data: Flipdish.PhoneCallEndedEvent): void;
+  (data: Flipdish.PhoneCallEndedEvent): void;
 }
 
 
@@ -697,58 +854,72 @@ export interface PhoneCallEndedCallback{
  * PhoneCallHub
  */
 export class PhoneCallHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private PhoneCallStartedCallback: PhoneCallStartedCallback;
+  
+  private PhoneCallEndedCallback: PhoneCallEndedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private PhoneCallStartedCallbacks: PhoneCallStartedCallback[];
+    this.PhoneCallStartedCallback = undefined;
     
-    private PhoneCallEndedCallbacks: PhoneCallEndedCallback[];
+    this.PhoneCallEndedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.PhoneCallStartedCallbacks = new Array<PhoneCallStartedCallback>();
-        
-        this.PhoneCallEndedCallbacks = new Array<PhoneCallEndedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("phone_call.started", (eventData:SignalrEvent) => {
-            var data:Flipdish.PhoneCallStartedEvent = JSON.parse(eventData.Body);
-            this.PhoneCallStartedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("phone_call.ended", (eventData:SignalrEvent) => {
-            var data:Flipdish.PhoneCallEndedEvent = JSON.parse(eventData.Body);
-            this.PhoneCallEndedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnPhoneCallStarted(callback: PhoneCallStartedCallback){
-        this.PhoneCallStartedCallbacks.push(callback);
-    }
-    public OffPhoneCallStarted(callback: PhoneCallStartedCallback){
-        var index:number = this.PhoneCallStartedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.PhoneCallStartedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnPhoneCallEnded(callback: PhoneCallEndedCallback){
-        this.PhoneCallEndedCallbacks.push(callback);
-    }
-    public OffPhoneCallEnded(callback: PhoneCallEndedCallback){
-        var index:number = this.PhoneCallEndedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.PhoneCallEndedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("phone_call.started", (eventData:SignalrEvent) => {
+      var data:Flipdish.PhoneCallStartedEvent = JSON.parse(eventData.Body);
+	  if(this.PhoneCallStartedCallback){
+	    if(this.log){
+	      console.log("phone_call.started received");
+		  console.log(eventData.Body);
+	    }
+	    this.PhoneCallStartedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("phone_call.ended", (eventData:SignalrEvent) => {
+      var data:Flipdish.PhoneCallEndedEvent = JSON.parse(eventData.Body);
+	  if(this.PhoneCallEndedCallback){
+	    if(this.log){
+	      console.log("phone_call.ended received");
+		  console.log(eventData.Body);
+	    }
+	    this.PhoneCallEndedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnPhoneCallStarted(callback: PhoneCallStartedCallback){
+    if(this.log){
+	  console.log("phone_call.started subscribed");
+	}
+    this.PhoneCallStartedCallback = callback;
+  }
+  public OffPhoneCallStarted(callback: PhoneCallStartedCallback){
+    if(this.log){
+	  console.log("phone_call.started unsubscribed");
+	}
+	this.PhoneCallStartedCallback = undefined;
+  }
+  
+  public OnPhoneCallEnded(callback: PhoneCallEndedCallback){
+    if(this.log){
+	  console.log("phone_call.ended subscribed");
+	}
+    this.PhoneCallEndedCallback = callback;
+  }
+  public OffPhoneCallEnded(callback: PhoneCallEndedCallback){
+    if(this.log){
+	  console.log("phone_call.ended unsubscribed");
+	}
+	this.PhoneCallEndedCallback = undefined;
+  }
+  
 }
 /* PhoneCallHub End */
 
@@ -759,28 +930,28 @@ export class PhoneCallHub {
  * PrinterTurnedOn Subscription Callback
 */
 export interface PrinterTurnedOnCallback{
-    (data: Flipdish.PrinterTurnedOnEvent): void;
+  (data: Flipdish.PrinterTurnedOnEvent): void;
 }
 
 /**
  * PrinterTurnedOff Subscription Callback
 */
 export interface PrinterTurnedOffCallback{
-    (data: Flipdish.PrinterTurnedOffEvent): void;
+  (data: Flipdish.PrinterTurnedOffEvent): void;
 }
 
 /**
  * PrinterAssignedToStore Subscription Callback
 */
 export interface PrinterAssignedToStoreCallback{
-    (data: Flipdish.PrinterAssignedToStoreEvent): void;
+  (data: Flipdish.PrinterAssignedToStoreEvent): void;
 }
 
 /**
  * PrinterUnassignedFromStore Subscription Callback
 */
 export interface PrinterUnassignedFromStoreCallback{
-    (data: Flipdish.PrinterUnassignedFromStoreEvent): void;
+  (data: Flipdish.PrinterUnassignedFromStoreEvent): void;
 }
 
 
@@ -788,102 +959,128 @@ export interface PrinterUnassignedFromStoreCallback{
  * PrinterHub
  */
 export class PrinterHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private PrinterTurnedOnCallback: PrinterTurnedOnCallback;
+  
+  private PrinterTurnedOffCallback: PrinterTurnedOffCallback;
+  
+  private PrinterAssignedToStoreCallback: PrinterAssignedToStoreCallback;
+  
+  private PrinterUnassignedFromStoreCallback: PrinterUnassignedFromStoreCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private PrinterTurnedOnCallbacks: PrinterTurnedOnCallback[];
+    this.PrinterTurnedOnCallback = undefined;
     
-    private PrinterTurnedOffCallbacks: PrinterTurnedOffCallback[];
+    this.PrinterTurnedOffCallback = undefined;
     
-    private PrinterAssignedToStoreCallbacks: PrinterAssignedToStoreCallback[];
+    this.PrinterAssignedToStoreCallback = undefined;
     
-    private PrinterUnassignedFromStoreCallbacks: PrinterUnassignedFromStoreCallback[];
+    this.PrinterUnassignedFromStoreCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.PrinterTurnedOnCallbacks = new Array<PrinterTurnedOnCallback>();
-        
-        this.PrinterTurnedOffCallbacks = new Array<PrinterTurnedOffCallback>();
-        
-        this.PrinterAssignedToStoreCallbacks = new Array<PrinterAssignedToStoreCallback>();
-        
-        this.PrinterUnassignedFromStoreCallbacks = new Array<PrinterUnassignedFromStoreCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("printer.turned_on", (eventData:SignalrEvent) => {
-            var data:Flipdish.PrinterTurnedOnEvent = JSON.parse(eventData.Body);
-            this.PrinterTurnedOnCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("printer.turned_off", (eventData:SignalrEvent) => {
-            var data:Flipdish.PrinterTurnedOffEvent = JSON.parse(eventData.Body);
-            this.PrinterTurnedOffCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("printer.assigned_to_store", (eventData:SignalrEvent) => {
-            var data:Flipdish.PrinterAssignedToStoreEvent = JSON.parse(eventData.Body);
-            this.PrinterAssignedToStoreCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("printer.unassigned_from_store", (eventData:SignalrEvent) => {
-            var data:Flipdish.PrinterUnassignedFromStoreEvent = JSON.parse(eventData.Body);
-            this.PrinterUnassignedFromStoreCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnPrinterTurnedOn(callback: PrinterTurnedOnCallback){
-        this.PrinterTurnedOnCallbacks.push(callback);
-    }
-    public OffPrinterTurnedOn(callback: PrinterTurnedOnCallback){
-        var index:number = this.PrinterTurnedOnCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.PrinterTurnedOnCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnPrinterTurnedOff(callback: PrinterTurnedOffCallback){
-        this.PrinterTurnedOffCallbacks.push(callback);
-    }
-    public OffPrinterTurnedOff(callback: PrinterTurnedOffCallback){
-        var index:number = this.PrinterTurnedOffCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.PrinterTurnedOffCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnPrinterAssignedToStore(callback: PrinterAssignedToStoreCallback){
-        this.PrinterAssignedToStoreCallbacks.push(callback);
-    }
-    public OffPrinterAssignedToStore(callback: PrinterAssignedToStoreCallback){
-        var index:number = this.PrinterAssignedToStoreCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.PrinterAssignedToStoreCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnPrinterUnassignedFromStore(callback: PrinterUnassignedFromStoreCallback){
-        this.PrinterUnassignedFromStoreCallbacks.push(callback);
-    }
-    public OffPrinterUnassignedFromStore(callback: PrinterUnassignedFromStoreCallback){
-        var index:number = this.PrinterUnassignedFromStoreCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.PrinterUnassignedFromStoreCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("printer.turned_on", (eventData:SignalrEvent) => {
+      var data:Flipdish.PrinterTurnedOnEvent = JSON.parse(eventData.Body);
+	  if(this.PrinterTurnedOnCallback){
+	    if(this.log){
+	      console.log("printer.turned_on received");
+		  console.log(eventData.Body);
+	    }
+	    this.PrinterTurnedOnCallback(data);
+	  }
+    });
+      
+    this.proxy.on("printer.turned_off", (eventData:SignalrEvent) => {
+      var data:Flipdish.PrinterTurnedOffEvent = JSON.parse(eventData.Body);
+	  if(this.PrinterTurnedOffCallback){
+	    if(this.log){
+	      console.log("printer.turned_off received");
+		  console.log(eventData.Body);
+	    }
+	    this.PrinterTurnedOffCallback(data);
+	  }
+    });
+      
+    this.proxy.on("printer.assigned_to_store", (eventData:SignalrEvent) => {
+      var data:Flipdish.PrinterAssignedToStoreEvent = JSON.parse(eventData.Body);
+	  if(this.PrinterAssignedToStoreCallback){
+	    if(this.log){
+	      console.log("printer.assigned_to_store received");
+		  console.log(eventData.Body);
+	    }
+	    this.PrinterAssignedToStoreCallback(data);
+	  }
+    });
+      
+    this.proxy.on("printer.unassigned_from_store", (eventData:SignalrEvent) => {
+      var data:Flipdish.PrinterUnassignedFromStoreEvent = JSON.parse(eventData.Body);
+	  if(this.PrinterUnassignedFromStoreCallback){
+	    if(this.log){
+	      console.log("printer.unassigned_from_store received");
+		  console.log(eventData.Body);
+	    }
+	    this.PrinterUnassignedFromStoreCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnPrinterTurnedOn(callback: PrinterTurnedOnCallback){
+    if(this.log){
+	  console.log("printer.turned_on subscribed");
+	}
+    this.PrinterTurnedOnCallback = callback;
+  }
+  public OffPrinterTurnedOn(callback: PrinterTurnedOnCallback){
+    if(this.log){
+	  console.log("printer.turned_on unsubscribed");
+	}
+	this.PrinterTurnedOnCallback = undefined;
+  }
+  
+  public OnPrinterTurnedOff(callback: PrinterTurnedOffCallback){
+    if(this.log){
+	  console.log("printer.turned_off subscribed");
+	}
+    this.PrinterTurnedOffCallback = callback;
+  }
+  public OffPrinterTurnedOff(callback: PrinterTurnedOffCallback){
+    if(this.log){
+	  console.log("printer.turned_off unsubscribed");
+	}
+	this.PrinterTurnedOffCallback = undefined;
+  }
+  
+  public OnPrinterAssignedToStore(callback: PrinterAssignedToStoreCallback){
+    if(this.log){
+	  console.log("printer.assigned_to_store subscribed");
+	}
+    this.PrinterAssignedToStoreCallback = callback;
+  }
+  public OffPrinterAssignedToStore(callback: PrinterAssignedToStoreCallback){
+    if(this.log){
+	  console.log("printer.assigned_to_store unsubscribed");
+	}
+	this.PrinterAssignedToStoreCallback = undefined;
+  }
+  
+  public OnPrinterUnassignedFromStore(callback: PrinterUnassignedFromStoreCallback){
+    if(this.log){
+	  console.log("printer.unassigned_from_store subscribed");
+	}
+    this.PrinterUnassignedFromStoreCallback = callback;
+  }
+  public OffPrinterUnassignedFromStore(callback: PrinterUnassignedFromStoreCallback){
+    if(this.log){
+	  console.log("printer.unassigned_from_store unsubscribed");
+	}
+	this.PrinterUnassignedFromStoreCallback = undefined;
+  }
+  
 }
 /* PrinterHub End */
 
@@ -894,7 +1091,7 @@ export class PrinterHub {
  * StoreOpeningHoursUpdated Subscription Callback
 */
 export interface StoreOpeningHoursUpdatedCallback{
-    (data: Flipdish.StoreOpeningHoursUpdatedEvent): void;
+  (data: Flipdish.StoreOpeningHoursUpdatedEvent): void;
 }
 
 
@@ -902,36 +1099,44 @@ export interface StoreOpeningHoursUpdatedCallback{
  * StoreHub
  */
 export class StoreHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private StoreOpeningHoursUpdatedCallback: StoreOpeningHoursUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private StoreOpeningHoursUpdatedCallbacks: StoreOpeningHoursUpdatedCallback[];
+    this.StoreOpeningHoursUpdatedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.StoreOpeningHoursUpdatedCallbacks = new Array<StoreOpeningHoursUpdatedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("store.opening_hours.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.StoreOpeningHoursUpdatedEvent = JSON.parse(eventData.Body);
-            this.StoreOpeningHoursUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnStoreOpeningHoursUpdated(callback: StoreOpeningHoursUpdatedCallback){
-        this.StoreOpeningHoursUpdatedCallbacks.push(callback);
-    }
-    public OffStoreOpeningHoursUpdated(callback: StoreOpeningHoursUpdatedCallback){
-        var index:number = this.StoreOpeningHoursUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.StoreOpeningHoursUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("store.opening_hours.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreOpeningHoursUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.StoreOpeningHoursUpdatedCallback){
+	    if(this.log){
+	      console.log("store.opening_hours.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.StoreOpeningHoursUpdatedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnStoreOpeningHoursUpdated(callback: StoreOpeningHoursUpdatedCallback){
+    if(this.log){
+	  console.log("store.opening_hours.updated subscribed");
+	}
+    this.StoreOpeningHoursUpdatedCallback = callback;
+  }
+  public OffStoreOpeningHoursUpdated(callback: StoreOpeningHoursUpdatedCallback){
+    if(this.log){
+	  console.log("store.opening_hours.updated unsubscribed");
+	}
+	this.StoreOpeningHoursUpdatedCallback = undefined;
+  }
+  
 }
 /* StoreHub End */
 
@@ -942,21 +1147,21 @@ export class StoreHub {
  * WebhookSubscriptionCreated Subscription Callback
 */
 export interface WebhookSubscriptionCreatedCallback{
-    (data: Flipdish.WebhookSubscriptionCreatedEvent): void;
+  (data: Flipdish.WebhookSubscriptionCreatedEvent): void;
 }
 
 /**
  * WebhookSubscriptionUpdated Subscription Callback
 */
 export interface WebhookSubscriptionUpdatedCallback{
-    (data: Flipdish.WebhookSubscriptionUpdatedEvent): void;
+  (data: Flipdish.WebhookSubscriptionUpdatedEvent): void;
 }
 
 /**
  * WebhookSubscriptionDeleted Subscription Callback
 */
 export interface WebhookSubscriptionDeletedCallback{
-    (data: Flipdish.WebhookSubscriptionDeletedEvent): void;
+  (data: Flipdish.WebhookSubscriptionDeletedEvent): void;
 }
 
 
@@ -964,81 +1169,99 @@ export interface WebhookSubscriptionDeletedCallback{
  * WebhookHub
  */
 export class WebhookHub {
-    private proxy: Proxy;
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private WebhookSubscriptionCreatedCallback: WebhookSubscriptionCreatedCallback;
+  
+  private WebhookSubscriptionUpdatedCallback: WebhookSubscriptionUpdatedCallback;
+  
+  private WebhookSubscriptionDeletedCallback: WebhookSubscriptionDeletedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
     
-    private WebhookSubscriptionCreatedCallbacks: WebhookSubscriptionCreatedCallback[];
+    this.WebhookSubscriptionCreatedCallback = undefined;
     
-    private WebhookSubscriptionUpdatedCallbacks: WebhookSubscriptionUpdatedCallback[];
+    this.WebhookSubscriptionUpdatedCallback = undefined;
     
-    private WebhookSubscriptionDeletedCallbacks: WebhookSubscriptionDeletedCallback[];
+    this.WebhookSubscriptionDeletedCallback = undefined;
     
-    public constructor(proxy: Proxy){
-        
-        this.WebhookSubscriptionCreatedCallbacks = new Array<WebhookSubscriptionCreatedCallback>();
-        
-        this.WebhookSubscriptionUpdatedCallbacks = new Array<WebhookSubscriptionUpdatedCallback>();
-        
-        this.WebhookSubscriptionDeletedCallbacks = new Array<WebhookSubscriptionDeletedCallback>();
-        
-        this.proxy = proxy;
-        
-        this.proxy.on("webhook_subscription.created", (eventData:SignalrEvent) => {
-            var data:Flipdish.WebhookSubscriptionCreatedEvent = JSON.parse(eventData.Body);
-            this.WebhookSubscriptionCreatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("webhook_subscription.updated", (eventData:SignalrEvent) => {
-            var data:Flipdish.WebhookSubscriptionUpdatedEvent = JSON.parse(eventData.Body);
-            this.WebhookSubscriptionUpdatedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-        this.proxy.on("webhook_subscription.deleted", (eventData:SignalrEvent) => {
-            var data:Flipdish.WebhookSubscriptionDeletedEvent = JSON.parse(eventData.Body);
-            this.WebhookSubscriptionDeletedCallbacks.forEach(callback => {
-                callback(data);
-            });
-        });
-        
-    }
+    this.proxy = proxy;
+	this.log = log;
     
-    public OnWebhookSubscriptionCreated(callback: WebhookSubscriptionCreatedCallback){
-        this.WebhookSubscriptionCreatedCallbacks.push(callback);
-    }
-    public OffWebhookSubscriptionCreated(callback: WebhookSubscriptionCreatedCallback){
-        var index:number = this.WebhookSubscriptionCreatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.WebhookSubscriptionCreatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnWebhookSubscriptionUpdated(callback: WebhookSubscriptionUpdatedCallback){
-        this.WebhookSubscriptionUpdatedCallbacks.push(callback);
-    }
-    public OffWebhookSubscriptionUpdated(callback: WebhookSubscriptionUpdatedCallback){
-        var index:number = this.WebhookSubscriptionUpdatedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.WebhookSubscriptionUpdatedCallbacks.splice(index, 1);
-         }
-    }
-    
-    public OnWebhookSubscriptionDeleted(callback: WebhookSubscriptionDeletedCallback){
-        this.WebhookSubscriptionDeletedCallbacks.push(callback);
-    }
-    public OffWebhookSubscriptionDeleted(callback: WebhookSubscriptionDeletedCallback){
-        var index:number = this.WebhookSubscriptionDeletedCallbacks.indexOf(callback, 0);
-
-        if (index > -1) {
-            this.WebhookSubscriptionDeletedCallbacks.splice(index, 1);
-         }
-    }
-    
+    this.proxy.on("webhook_subscription.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.WebhookSubscriptionCreatedEvent = JSON.parse(eventData.Body);
+	  if(this.WebhookSubscriptionCreatedCallback){
+	    if(this.log){
+	      console.log("webhook_subscription.created received");
+		  console.log(eventData.Body);
+	    }
+	    this.WebhookSubscriptionCreatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("webhook_subscription.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.WebhookSubscriptionUpdatedEvent = JSON.parse(eventData.Body);
+	  if(this.WebhookSubscriptionUpdatedCallback){
+	    if(this.log){
+	      console.log("webhook_subscription.updated received");
+		  console.log(eventData.Body);
+	    }
+	    this.WebhookSubscriptionUpdatedCallback(data);
+	  }
+    });
+      
+    this.proxy.on("webhook_subscription.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.WebhookSubscriptionDeletedEvent = JSON.parse(eventData.Body);
+	  if(this.WebhookSubscriptionDeletedCallback){
+	    if(this.log){
+	      console.log("webhook_subscription.deleted received");
+		  console.log(eventData.Body);
+	    }
+	    this.WebhookSubscriptionDeletedCallback(data);
+	  }
+    });
+      
+  }
+  
+  public OnWebhookSubscriptionCreated(callback: WebhookSubscriptionCreatedCallback){
+    if(this.log){
+	  console.log("webhook_subscription.created subscribed");
+	}
+    this.WebhookSubscriptionCreatedCallback = callback;
+  }
+  public OffWebhookSubscriptionCreated(callback: WebhookSubscriptionCreatedCallback){
+    if(this.log){
+	  console.log("webhook_subscription.created unsubscribed");
+	}
+	this.WebhookSubscriptionCreatedCallback = undefined;
+  }
+  
+  public OnWebhookSubscriptionUpdated(callback: WebhookSubscriptionUpdatedCallback){
+    if(this.log){
+	  console.log("webhook_subscription.updated subscribed");
+	}
+    this.WebhookSubscriptionUpdatedCallback = callback;
+  }
+  public OffWebhookSubscriptionUpdated(callback: WebhookSubscriptionUpdatedCallback){
+    if(this.log){
+	  console.log("webhook_subscription.updated unsubscribed");
+	}
+	this.WebhookSubscriptionUpdatedCallback = undefined;
+  }
+  
+  public OnWebhookSubscriptionDeleted(callback: WebhookSubscriptionDeletedCallback){
+    if(this.log){
+	  console.log("webhook_subscription.deleted subscribed");
+	}
+    this.WebhookSubscriptionDeletedCallback = callback;
+  }
+  public OffWebhookSubscriptionDeleted(callback: WebhookSubscriptionDeletedCallback){
+    if(this.log){
+	  console.log("webhook_subscription.deleted unsubscribed");
+	}
+	this.WebhookSubscriptionDeletedCallback = undefined;
+  }
+  
 }
 /* WebhookHub End */
-
-
