@@ -30,6 +30,8 @@ export class SignalR {
 
   public AuthorizationHub: AuthorizationHub;
   
+  public AnalyticsHub: AnalyticsHub;
+  
   public CampaignHub: CampaignHub;
   
   public CustomerHub: CustomerHub;
@@ -55,6 +57,8 @@ export class SignalR {
 
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
+    this.AnalyticsHub = new AnalyticsHub(SignalR.ActiveConnection.createHubProxy("AnalyticsHub"), signalRConfiguration.Log);
+	
     this.CampaignHub = new CampaignHub(SignalR.ActiveConnection.createHubProxy("CampaignHub"), signalRConfiguration.Log);
 	
     this.CustomerHub = new CustomerHub(SignalR.ActiveConnection.createHubProxy("CustomerHub"), signalRConfiguration.Log);
@@ -153,6 +157,62 @@ export class AuthorizationHub {
     return this.proxy.invoke("Authenticate", "1.0");
   }
 }
+
+/* AnalyticsHub Start */
+
+/**
+ * AnalyticsClient Subscription Callback
+*/
+export interface AnalyticsClientCallback{
+  (data: Flipdish.AnalyticsClientEvent): void;
+}
+
+
+/**
+ * AnalyticsHub
+ */
+export class AnalyticsHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private AnalyticsClientCallback: AnalyticsClientCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.AnalyticsClientCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("analytics.website", (eventData:SignalrEvent) => {
+      var data:Flipdish.AnalyticsClientEvent = JSON.parse(eventData.Body);
+      if(this.AnalyticsClientCallback){
+        if(this.log){
+          console.log("analytics.website received");
+          console.log(eventData.Body);
+        }
+        this.AnalyticsClientCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnAnalyticsClient(callback: AnalyticsClientCallback){
+    if(this.log){
+      console.log("analytics.website subscribed");
+    }
+    this.AnalyticsClientCallback = callback;
+  }
+  public OffAnalyticsClient(callback: AnalyticsClientCallback){
+    if(this.log){
+      console.log("analytics.website unsubscribed");
+    }
+	this.AnalyticsClientCallback = undefined;
+  }
+  
+}
+/* AnalyticsHub End */
+
 
 /* CampaignHub Start */
 
