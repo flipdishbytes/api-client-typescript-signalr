@@ -27,7 +27,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@flipdish/api-client-typescript": "^1.0.42",
+    "@flipdish/api-client-typescript": "^1.0.56",
     "@flipdish/signalr-no-jquery": "^1.0.12"
   }
 }
