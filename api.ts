@@ -87,8 +87,8 @@ export class SignalR {
       if (this.signalRConfiguration.Log) {
         console.log("Starting connection...")
       }
-      SignalR.ActiveConnection.start(this.extraHeaders, OnConnectionStarted);
       this.started = true;
+      SignalR.ActiveConnection.start(this.extraHeaders, OnConnectionStarted);
       return true;
     }
     else {
@@ -97,6 +97,13 @@ export class SignalR {
       }
       return false;
     }
+  }
+  /**
+  * Closes the existing connection so that you can open another one
+  */
+  public Stop() {
+    SignalR.ActiveConnection.stop(false, true);
+    SignalR.ActiveConnection = undefined;
   }
 }
 
