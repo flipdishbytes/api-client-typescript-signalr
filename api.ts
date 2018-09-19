@@ -98,12 +98,13 @@ export class SignalR {
       return false;
     }
   }
+  
   /**
   * Closes the existing connection so that you can open another one
   */
   public Stop() {
     SignalR.ActiveConnection.stop(false, true);
-    SignalR.ActiveConnection = undefined;
+	SignalR.ActiveConnection = undefined;
   }
 }
 
