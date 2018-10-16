@@ -30,6 +30,8 @@ export class SignalR {
 
   public AuthorizationHub: AuthorizationHub;
   
+  public StoreGroupHub: StoreGroupHub;
+  
   public AnalyticsHub: AnalyticsHub;
   
   public CampaignHub: CampaignHub;
@@ -57,6 +59,8 @@ export class SignalR {
 
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
+    this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
+	
     this.AnalyticsHub = new AnalyticsHub(SignalR.ActiveConnection.createHubProxy("AnalyticsHub"), signalRConfiguration.Log);
 	
     this.CampaignHub = new CampaignHub(SignalR.ActiveConnection.createHubProxy("CampaignHub"), signalRConfiguration.Log);
@@ -165,6 +169,132 @@ export class AuthorizationHub {
     return this.proxy.invoke("Authenticate", "1.0");
   }
 }
+
+/* StoreGroupHub Start */
+
+/**
+ * StoreGroupCreated Subscription Callback
+*/
+export interface StoreGroupCreatedCallback{
+  (data: Flipdish.StoreGroupCreatedEvent): void;
+}
+
+/**
+ * StoreGroupUpdated Subscription Callback
+*/
+export interface StoreGroupUpdatedCallback{
+  (data: Flipdish.StoreGroupUpdatedEvent): void;
+}
+
+/**
+ * StoreGroupDeleted Subscription Callback
+*/
+export interface StoreGroupDeletedCallback{
+  (data: Flipdish.StoreGroupDeletedEvent): void;
+}
+
+
+/**
+ * StoreGroupHub
+ */
+export class StoreGroupHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private StoreGroupCreatedCallback: StoreGroupCreatedCallback;
+  
+  private StoreGroupUpdatedCallback: StoreGroupUpdatedCallback;
+  
+  private StoreGroupDeletedCallback: StoreGroupDeletedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.StoreGroupCreatedCallback = undefined;
+    
+    this.StoreGroupUpdatedCallback = undefined;
+    
+    this.StoreGroupDeletedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("store_group.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreGroupCreatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreGroupCreatedCallback){
+        if(this.log){
+          console.log("store_group.created received");
+          console.log(eventData.Body);
+        }
+        this.StoreGroupCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store_group.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreGroupUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreGroupUpdatedCallback){
+        if(this.log){
+          console.log("store_group.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreGroupUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store_group.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreGroupDeletedEvent = JSON.parse(eventData.Body);
+      if(this.StoreGroupDeletedCallback){
+        if(this.log){
+          console.log("store_group.deleted received");
+          console.log(eventData.Body);
+        }
+        this.StoreGroupDeletedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnStoreGroupCreated(callback: StoreGroupCreatedCallback){
+    if(this.log){
+      console.log("store_group.created subscribed");
+    }
+    this.StoreGroupCreatedCallback = callback;
+  }
+  public OffStoreGroupCreated(callback: StoreGroupCreatedCallback){
+    if(this.log){
+      console.log("store_group.created unsubscribed");
+    }
+	this.StoreGroupCreatedCallback = undefined;
+  }
+  
+  public OnStoreGroupUpdated(callback: StoreGroupUpdatedCallback){
+    if(this.log){
+      console.log("store_group.updated subscribed");
+    }
+    this.StoreGroupUpdatedCallback = callback;
+  }
+  public OffStoreGroupUpdated(callback: StoreGroupUpdatedCallback){
+    if(this.log){
+      console.log("store_group.updated unsubscribed");
+    }
+	this.StoreGroupUpdatedCallback = undefined;
+  }
+  
+  public OnStoreGroupDeleted(callback: StoreGroupDeletedCallback){
+    if(this.log){
+      console.log("store_group.deleted subscribed");
+    }
+    this.StoreGroupDeletedCallback = callback;
+  }
+  public OffStoreGroupDeleted(callback: StoreGroupDeletedCallback){
+    if(this.log){
+      console.log("store_group.deleted unsubscribed");
+    }
+	this.StoreGroupDeletedCallback = undefined;
+  }
+  
+}
+/* StoreGroupHub End */
+
 
 /* AnalyticsHub Start */
 
@@ -1156,10 +1286,59 @@ export class PrinterHub {
 /* StoreHub Start */
 
 /**
+ * StoreCreated Subscription Callback
+*/
+export interface StoreCreatedCallback{
+  (data: Flipdish.StoreCreatedEvent): void;
+}
+
+/**
+ * StoreUpdated Subscription Callback
+*/
+export interface StoreUpdatedCallback{
+  (data: Flipdish.StoreUpdatedEvent): void;
+}
+
+/**
+ * StoreDeleted Subscription Callback
+*/
+export interface StoreDeletedCallback{
+  (data: Flipdish.StoreDeletedEvent): void;
+}
+
+/**
  * StoreOpeningHoursUpdated Subscription Callback
 */
 export interface StoreOpeningHoursUpdatedCallback{
   (data: Flipdish.StoreOpeningHoursUpdatedEvent): void;
+}
+
+/**
+ * StoreDeliveryZoneUpdated Subscription Callback
+*/
+export interface StoreDeliveryZoneUpdatedCallback{
+  (data: Flipdish.StoreDeliveryZoneUpdatedEvent): void;
+}
+
+/**
+ * StoreGroupCreated Subscription Callback
+*/
+export interface StoreGroupCreatedCallback{
+  (data: Flipdish.StoreGroupCreatedEvent): void;
+}
+
+/**
+ * StoreGroupUpdated Subscription Callback
+*/
+export interface StoreGroupUpdatedCallback{
+  (data: Flipdish.StoreGroupUpdatedEvent): void;
+}
+
+/**
+ * StoreGroupDeleted Subscription Callback
+*/
+export interface StoreGroupDeletedCallback{
+  (data: Flipdish.StoreGroupDeletedEvent): void;
 }
 
 
@@ -1170,15 +1349,76 @@ export class StoreHub {
   private proxy: Proxy;
   private log: boolean;
   
+  private StoreCreatedCallback: StoreCreatedCallback;
+  
+  private StoreUpdatedCallback: StoreUpdatedCallback;
+  
+  private StoreDeletedCallback: StoreDeletedCallback;
+  
   private StoreOpeningHoursUpdatedCallback: StoreOpeningHoursUpdatedCallback;
+  
+  private StoreDeliveryZoneUpdatedCallback: StoreDeliveryZoneUpdatedCallback;
+  
+  private StoreGroupCreatedCallback: StoreGroupCreatedCallback;
+  
+  private StoreGroupUpdatedCallback: StoreGroupUpdatedCallback;
+  
+  private StoreGroupDeletedCallback: StoreGroupDeletedCallback;
   
   public constructor(proxy: Proxy, log: boolean){
     
+    this.StoreCreatedCallback = undefined;
+    
+    this.StoreUpdatedCallback = undefined;
+    
+    this.StoreDeletedCallback = undefined;
+    
     this.StoreOpeningHoursUpdatedCallback = undefined;
+    
+    this.StoreDeliveryZoneUpdatedCallback = undefined;
+    
+    this.StoreGroupCreatedCallback = undefined;
+    
+    this.StoreGroupUpdatedCallback = undefined;
+    
+    this.StoreGroupDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
+    this.proxy.on("store.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreCreatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreCreatedCallback){
+        if(this.log){
+          console.log("store.created received");
+          console.log(eventData.Body);
+        }
+        this.StoreCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreUpdatedCallback){
+        if(this.log){
+          console.log("store.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreDeletedEvent = JSON.parse(eventData.Body);
+      if(this.StoreDeletedCallback){
+        if(this.log){
+          console.log("store.deleted received");
+          console.log(eventData.Body);
+        }
+        this.StoreDeletedCallback(data);
+      }
+    });
+      
     this.proxy.on("store.opening_hours.updated", (eventData:SignalrEvent) => {
       var data:Flipdish.StoreOpeningHoursUpdatedEvent = JSON.parse(eventData.Body);
       if(this.StoreOpeningHoursUpdatedCallback){
@@ -1190,6 +1430,89 @@ export class StoreHub {
       }
     });
       
+    this.proxy.on("store.delivery_zone.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreDeliveryZoneUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreDeliveryZoneUpdatedCallback){
+        if(this.log){
+          console.log("store.delivery_zone.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreDeliveryZoneUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store_group.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreGroupCreatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreGroupCreatedCallback){
+        if(this.log){
+          console.log("store_group.created received");
+          console.log(eventData.Body);
+        }
+        this.StoreGroupCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store_group.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreGroupUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreGroupUpdatedCallback){
+        if(this.log){
+          console.log("store_group.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreGroupUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store_group.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreGroupDeletedEvent = JSON.parse(eventData.Body);
+      if(this.StoreGroupDeletedCallback){
+        if(this.log){
+          console.log("store_group.deleted received");
+          console.log(eventData.Body);
+        }
+        this.StoreGroupDeletedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnStoreCreated(callback: StoreCreatedCallback){
+    if(this.log){
+      console.log("store.created subscribed");
+    }
+    this.StoreCreatedCallback = callback;
+  }
+  public OffStoreCreated(callback: StoreCreatedCallback){
+    if(this.log){
+      console.log("store.created unsubscribed");
+    }
+	this.StoreCreatedCallback = undefined;
+  }
+  
+  public OnStoreUpdated(callback: StoreUpdatedCallback){
+    if(this.log){
+      console.log("store.updated subscribed");
+    }
+    this.StoreUpdatedCallback = callback;
+  }
+  public OffStoreUpdated(callback: StoreUpdatedCallback){
+    if(this.log){
+      console.log("store.updated unsubscribed");
+    }
+	this.StoreUpdatedCallback = undefined;
+  }
+  
+  public OnStoreDeleted(callback: StoreDeletedCallback){
+    if(this.log){
+      console.log("store.deleted subscribed");
+    }
+    this.StoreDeletedCallback = callback;
+  }
+  public OffStoreDeleted(callback: StoreDeletedCallback){
+    if(this.log){
+      console.log("store.deleted unsubscribed");
+    }
+	this.StoreDeletedCallback = undefined;
   }
   
   public OnStoreOpeningHoursUpdated(callback: StoreOpeningHoursUpdatedCallback){
@@ -1203,6 +1526,58 @@ export class StoreHub {
       console.log("store.opening_hours.updated unsubscribed");
     }
 	this.StoreOpeningHoursUpdatedCallback = undefined;
+  }
+  
+  public OnStoreDeliveryZoneUpdated(callback: StoreDeliveryZoneUpdatedCallback){
+    if(this.log){
+      console.log("store.delivery_zone.updated subscribed");
+    }
+    this.StoreDeliveryZoneUpdatedCallback = callback;
+  }
+  public OffStoreDeliveryZoneUpdated(callback: StoreDeliveryZoneUpdatedCallback){
+    if(this.log){
+      console.log("store.delivery_zone.updated unsubscribed");
+    }
+	this.StoreDeliveryZoneUpdatedCallback = undefined;
+  }
+  
+  public OnStoreGroupCreated(callback: StoreGroupCreatedCallback){
+    if(this.log){
+      console.log("store_group.created subscribed");
+    }
+    this.StoreGroupCreatedCallback = callback;
+  }
+  public OffStoreGroupCreated(callback: StoreGroupCreatedCallback){
+    if(this.log){
+      console.log("store_group.created unsubscribed");
+    }
+	this.StoreGroupCreatedCallback = undefined;
+  }
+  
+  public OnStoreGroupUpdated(callback: StoreGroupUpdatedCallback){
+    if(this.log){
+      console.log("store_group.updated subscribed");
+    }
+    this.StoreGroupUpdatedCallback = callback;
+  }
+  public OffStoreGroupUpdated(callback: StoreGroupUpdatedCallback){
+    if(this.log){
+      console.log("store_group.updated unsubscribed");
+    }
+	this.StoreGroupUpdatedCallback = undefined;
+  }
+  
+  public OnStoreGroupDeleted(callback: StoreGroupDeletedCallback){
+    if(this.log){
+      console.log("store_group.deleted subscribed");
+    }
+    this.StoreGroupDeletedCallback = callback;
+  }
+  public OffStoreGroupDeleted(callback: StoreGroupDeletedCallback){
+    if(this.log){
+      console.log("store_group.deleted unsubscribed");
+    }
+	this.StoreGroupDeletedCallback = undefined;
   }
   
 }
