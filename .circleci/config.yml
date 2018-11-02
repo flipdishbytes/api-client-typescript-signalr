@@ -25,6 +25,7 @@ jobs:
                 - node_modules
             key: v1-dependencies-
         - run: npm run build
+        - run: rm -f api.ts
         - run:
             name: Versioning
             command: npm version 1.0.$CIRCLE_BUILD_NUM --no-git-tag-version
