@@ -1314,10 +1314,24 @@ export interface StoreOpeningHoursUpdatedCallback{
 }
 
 /**
- * StoreDeliveryZoneUpdated Subscription Callback
+ * DeliveryZoneCreated Subscription Callback
 */
-export interface StoreDeliveryZoneUpdatedCallback{
-  (data: Flipdish.StoreDeliveryZoneUpdatedEvent): void;
+export interface DeliveryZoneCreatedCallback{
+  (data: Flipdish.DeliveryZoneCreatedEvent): void;
+}
+
+/**
+ * DeliveryZoneUpdated Subscription Callback
+*/
+export interface DeliveryZoneUpdatedCallback{
+  (data: Flipdish.DeliveryZoneUpdatedEvent): void;
+}
+
+/**
+ * DeliveryZoneDeleted Subscription Callback
+*/
+export interface DeliveryZoneDeletedCallback{
+  (data: Flipdish.DeliveryZoneDeletedEvent): void;
 }
 
 /**
@@ -1357,7 +1371,11 @@ export class StoreHub {
   
   private StoreOpeningHoursUpdatedCallback: StoreOpeningHoursUpdatedCallback;
   
-  private StoreDeliveryZoneUpdatedCallback: StoreDeliveryZoneUpdatedCallback;
+  private DeliveryZoneCreatedCallback: DeliveryZoneCreatedCallback;
+  
+  private DeliveryZoneUpdatedCallback: DeliveryZoneUpdatedCallback;
+  
+  private DeliveryZoneDeletedCallback: DeliveryZoneDeletedCallback;
   
   private StoreGroupCreatedCallback: StoreGroupCreatedCallback;
   
@@ -1375,7 +1393,11 @@ export class StoreHub {
     
     this.StoreOpeningHoursUpdatedCallback = undefined;
     
-    this.StoreDeliveryZoneUpdatedCallback = undefined;
+    this.DeliveryZoneCreatedCallback = undefined;
+    
+    this.DeliveryZoneUpdatedCallback = undefined;
+    
+    this.DeliveryZoneDeletedCallback = undefined;
     
     this.StoreGroupCreatedCallback = undefined;
     
@@ -1430,14 +1452,36 @@ export class StoreHub {
       }
     });
       
+    this.proxy.on("store.delivery_zone.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.DeliveryZoneCreatedEvent = JSON.parse(eventData.Body);
+      if(this.DeliveryZoneCreatedCallback){
+        if(this.log){
+          console.log("store.delivery_zone.created received");
+          console.log(eventData.Body);
+        }
+        this.DeliveryZoneCreatedCallback(data);
+      }
+    });
+      
     this.proxy.on("store.delivery_zone.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.StoreDeliveryZoneUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.StoreDeliveryZoneUpdatedCallback){
+      var data:Flipdish.DeliveryZoneUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.DeliveryZoneUpdatedCallback){
         if(this.log){
           console.log("store.delivery_zone.updated received");
           console.log(eventData.Body);
         }
-        this.StoreDeliveryZoneUpdatedCallback(data);
+        this.DeliveryZoneUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.delivery_zone.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.DeliveryZoneDeletedEvent = JSON.parse(eventData.Body);
+      if(this.DeliveryZoneDeletedCallback){
+        if(this.log){
+          console.log("store.delivery_zone.deleted received");
+          console.log(eventData.Body);
+        }
+        this.DeliveryZoneDeletedCallback(data);
       }
     });
       
@@ -1528,17 +1572,43 @@ export class StoreHub {
 	this.StoreOpeningHoursUpdatedCallback = undefined;
   }
   
-  public OnStoreDeliveryZoneUpdated(callback: StoreDeliveryZoneUpdatedCallback){
+  public OnDeliveryZoneCreated(callback: DeliveryZoneCreatedCallback){
+    if(this.log){
+      console.log("store.delivery_zone.created subscribed");
+    }
+    this.DeliveryZoneCreatedCallback = callback;
+  }
+  public OffDeliveryZoneCreated(callback: DeliveryZoneCreatedCallback){
+    if(this.log){
+      console.log("store.delivery_zone.created unsubscribed");
+    }
+	this.DeliveryZoneCreatedCallback = undefined;
+  }
+  
+  public OnDeliveryZoneUpdated(callback: DeliveryZoneUpdatedCallback){
     if(this.log){
       console.log("store.delivery_zone.updated subscribed");
     }
-    this.StoreDeliveryZoneUpdatedCallback = callback;
+    this.DeliveryZoneUpdatedCallback = callback;
   }
-  public OffStoreDeliveryZoneUpdated(callback: StoreDeliveryZoneUpdatedCallback){
+  public OffDeliveryZoneUpdated(callback: DeliveryZoneUpdatedCallback){
     if(this.log){
       console.log("store.delivery_zone.updated unsubscribed");
     }
-	this.StoreDeliveryZoneUpdatedCallback = undefined;
+	this.DeliveryZoneUpdatedCallback = undefined;
+  }
+  
+  public OnDeliveryZoneDeleted(callback: DeliveryZoneDeletedCallback){
+    if(this.log){
+      console.log("store.delivery_zone.deleted subscribed");
+    }
+    this.DeliveryZoneDeletedCallback = callback;
+  }
+  public OffDeliveryZoneDeleted(callback: DeliveryZoneDeletedCallback){
+    if(this.log){
+      console.log("store.delivery_zone.deleted unsubscribed");
+    }
+	this.DeliveryZoneDeletedCallback = undefined;
   }
   
   public OnStoreGroupCreated(callback: StoreGroupCreatedCallback){
