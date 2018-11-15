@@ -1307,6 +1307,13 @@ export interface StoreDeletedCallback{
 }
 
 /**
+ * StoreAddressUpdated Subscription Callback
+*/
+export interface StoreAddressUpdatedCallback{
+  (data: Flipdish.StoreAddressUpdatedEvent): void;
+}
+
+/**
  * StoreOpeningHoursUpdated Subscription Callback
 */
 export interface StoreOpeningHoursUpdatedCallback{
@@ -1369,6 +1376,8 @@ export class StoreHub {
   
   private StoreDeletedCallback: StoreDeletedCallback;
   
+  private StoreAddressUpdatedCallback: StoreAddressUpdatedCallback;
+  
   private StoreOpeningHoursUpdatedCallback: StoreOpeningHoursUpdatedCallback;
   
   private DeliveryZoneCreatedCallback: DeliveryZoneCreatedCallback;
@@ -1390,6 +1399,8 @@ export class StoreHub {
     this.StoreUpdatedCallback = undefined;
     
     this.StoreDeletedCallback = undefined;
+    
+    this.StoreAddressUpdatedCallback = undefined;
     
     this.StoreOpeningHoursUpdatedCallback = undefined;
     
@@ -1438,6 +1449,17 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.address.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreAddressUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreAddressUpdatedCallback){
+        if(this.log){
+          console.log("store.address.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreAddressUpdatedCallback(data);
       }
     });
       
@@ -1557,6 +1579,19 @@ export class StoreHub {
       console.log("store.deleted unsubscribed");
     }
 	this.StoreDeletedCallback = undefined;
+  }
+  
+  public OnStoreAddressUpdated(callback: StoreAddressUpdatedCallback){
+    if(this.log){
+      console.log("store.address.updated subscribed");
+    }
+    this.StoreAddressUpdatedCallback = callback;
+  }
+  public OffStoreAddressUpdated(callback: StoreAddressUpdatedCallback){
+    if(this.log){
+      console.log("store.address.updated unsubscribed");
+    }
+	this.StoreAddressUpdatedCallback = undefined;
   }
   
   public OnStoreOpeningHoursUpdated(callback: StoreOpeningHoursUpdatedCallback){
