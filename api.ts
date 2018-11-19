@@ -1362,6 +1362,20 @@ export interface StoreGroupDeletedCallback{
   (data: Flipdish.StoreGroupDeletedEvent): void;
 }
 
+/**
+ * StoreBusinessHoursOverrideCreated Subscription Callback
+*/
+export interface StoreBusinessHoursOverrideCreatedCallback{
+  (data: Flipdish.StoreBusinessHoursOverrideCreatedEvent): void;
+}
+
+/**
+ * StoreBusinessHoursOverrideDeleted Subscription Callback
+*/
+export interface StoreBusinessHoursOverrideDeletedCallback{
+  (data: Flipdish.StoreBusinessHoursOverrideDeletedEvent): void;
+}
+
 
 /**
  * StoreHub
@@ -1392,6 +1406,10 @@ export class StoreHub {
   
   private StoreGroupDeletedCallback: StoreGroupDeletedCallback;
   
+  private StoreBusinessHoursOverrideCreatedCallback: StoreBusinessHoursOverrideCreatedCallback;
+  
+  private StoreBusinessHoursOverrideDeletedCallback: StoreBusinessHoursOverrideDeletedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.StoreCreatedCallback = undefined;
@@ -1415,6 +1433,10 @@ export class StoreHub {
     this.StoreGroupUpdatedCallback = undefined;
     
     this.StoreGroupDeletedCallback = undefined;
+    
+    this.StoreBusinessHoursOverrideCreatedCallback = undefined;
+    
+    this.StoreBusinessHoursOverrideDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -1537,6 +1559,28 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreGroupDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.business_hours_override.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreBusinessHoursOverrideCreatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreBusinessHoursOverrideCreatedCallback){
+        if(this.log){
+          console.log("store.business_hours_override.created received");
+          console.log(eventData.Body);
+        }
+        this.StoreBusinessHoursOverrideCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.business_hours_override.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreBusinessHoursOverrideDeletedEvent = JSON.parse(eventData.Body);
+      if(this.StoreBusinessHoursOverrideDeletedCallback){
+        if(this.log){
+          console.log("store.business_hours_override.deleted received");
+          console.log(eventData.Body);
+        }
+        this.StoreBusinessHoursOverrideDeletedCallback(data);
       }
     });
       
@@ -1683,6 +1727,32 @@ export class StoreHub {
       console.log("store_group.deleted unsubscribed");
     }
 	this.StoreGroupDeletedCallback = undefined;
+  }
+  
+  public OnStoreBusinessHoursOverrideCreated(callback: StoreBusinessHoursOverrideCreatedCallback){
+    if(this.log){
+      console.log("store.business_hours_override.created subscribed");
+    }
+    this.StoreBusinessHoursOverrideCreatedCallback = callback;
+  }
+  public OffStoreBusinessHoursOverrideCreated(callback: StoreBusinessHoursOverrideCreatedCallback){
+    if(this.log){
+      console.log("store.business_hours_override.created unsubscribed");
+    }
+	this.StoreBusinessHoursOverrideCreatedCallback = undefined;
+  }
+  
+  public OnStoreBusinessHoursOverrideDeleted(callback: StoreBusinessHoursOverrideDeletedCallback){
+    if(this.log){
+      console.log("store.business_hours_override.deleted subscribed");
+    }
+    this.StoreBusinessHoursOverrideDeletedCallback = callback;
+  }
+  public OffStoreBusinessHoursOverrideDeleted(callback: StoreBusinessHoursOverrideDeletedCallback){
+    if(this.log){
+      console.log("store.business_hours_override.deleted unsubscribed");
+    }
+	this.StoreBusinessHoursOverrideDeletedCallback = undefined;
   }
   
 }
