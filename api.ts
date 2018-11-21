@@ -725,6 +725,90 @@ export interface MenuUpdatedCallback{
   (data: Flipdish.MenuUpdatedEvent): void;
 }
 
+/**
+ * MenuSectionCreated Subscription Callback
+*/
+export interface MenuSectionCreatedCallback{
+  (data: Flipdish.MenuSectionCreatedEvent): void;
+}
+
+/**
+ * MenuSectionUpdated Subscription Callback
+*/
+export interface MenuSectionUpdatedCallback{
+  (data: Flipdish.MenuSectionUpdatedEvent): void;
+}
+
+/**
+ * MenuSectionDeleted Subscription Callback
+*/
+export interface MenuSectionDeletedCallback{
+  (data: Flipdish.MenuSectionDeletedEvent): void;
+}
+
+/**
+ * MenuSectionItemCreated Subscription Callback
+*/
+export interface MenuSectionItemCreatedCallback{
+  (data: Flipdish.MenuSectionItemCreatedEvent): void;
+}
+
+/**
+ * MenuSectionItemUpdated Subscription Callback
+*/
+export interface MenuSectionItemUpdatedCallback{
+  (data: Flipdish.MenuSectionItemUpdatedEvent): void;
+}
+
+/**
+ * MenuSectionItemDeleted Subscription Callback
+*/
+export interface MenuSectionItemDeletedCallback{
+  (data: Flipdish.MenuSectionItemDeletedEvent): void;
+}
+
+/**
+ * MenuItemOptionSetCreated Subscription Callback
+*/
+export interface MenuItemOptionSetCreatedCallback{
+  (data: Flipdish.MenuItemOptionSetCreatedEvent): void;
+}
+
+/**
+ * MenuItemOptionSetUpdated Subscription Callback
+*/
+export interface MenuItemOptionSetUpdatedCallback{
+  (data: Flipdish.MenuItemOptionSetUpdatedEvent): void;
+}
+
+/**
+ * MenuItemOptionSetDeleted Subscription Callback
+*/
+export interface MenuItemOptionSetDeletedCallback{
+  (data: Flipdish.MenuItemOptionSetDeletedEvent): void;
+}
+
+/**
+ * MenuItemOptionSetItemCreated Subscription Callback
+*/
+export interface MenuItemOptionSetItemCreatedCallback{
+  (data: Flipdish.MenuItemOptionSetItemCreatedEvent): void;
+}
+
+/**
+ * MenuItemOptionSetItemUpdated Subscription Callback
+*/
+export interface MenuItemOptionSetItemUpdatedCallback{
+  (data: Flipdish.MenuItemOptionSetItemUpdatedEvent): void;
+}
+
+/**
+ * MenuItemOptionSetItemDeleted Subscription Callback
+*/
+export interface MenuItemOptionSetItemDeletedCallback{
+  (data: Flipdish.MenuItemOptionSetItemDeletedEvent): void;
+}
+
 
 /**
  * MenuHub
@@ -737,11 +821,59 @@ export class MenuHub {
   
   private MenuUpdatedCallback: MenuUpdatedCallback;
   
+  private MenuSectionCreatedCallback: MenuSectionCreatedCallback;
+  
+  private MenuSectionUpdatedCallback: MenuSectionUpdatedCallback;
+  
+  private MenuSectionDeletedCallback: MenuSectionDeletedCallback;
+  
+  private MenuSectionItemCreatedCallback: MenuSectionItemCreatedCallback;
+  
+  private MenuSectionItemUpdatedCallback: MenuSectionItemUpdatedCallback;
+  
+  private MenuSectionItemDeletedCallback: MenuSectionItemDeletedCallback;
+  
+  private MenuItemOptionSetCreatedCallback: MenuItemOptionSetCreatedCallback;
+  
+  private MenuItemOptionSetUpdatedCallback: MenuItemOptionSetUpdatedCallback;
+  
+  private MenuItemOptionSetDeletedCallback: MenuItemOptionSetDeletedCallback;
+  
+  private MenuItemOptionSetItemCreatedCallback: MenuItemOptionSetItemCreatedCallback;
+  
+  private MenuItemOptionSetItemUpdatedCallback: MenuItemOptionSetItemUpdatedCallback;
+  
+  private MenuItemOptionSetItemDeletedCallback: MenuItemOptionSetItemDeletedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.MenuCreatedCallback = undefined;
     
     this.MenuUpdatedCallback = undefined;
+    
+    this.MenuSectionCreatedCallback = undefined;
+    
+    this.MenuSectionUpdatedCallback = undefined;
+    
+    this.MenuSectionDeletedCallback = undefined;
+    
+    this.MenuSectionItemCreatedCallback = undefined;
+    
+    this.MenuSectionItemUpdatedCallback = undefined;
+    
+    this.MenuSectionItemDeletedCallback = undefined;
+    
+    this.MenuItemOptionSetCreatedCallback = undefined;
+    
+    this.MenuItemOptionSetUpdatedCallback = undefined;
+    
+    this.MenuItemOptionSetDeletedCallback = undefined;
+    
+    this.MenuItemOptionSetItemCreatedCallback = undefined;
+    
+    this.MenuItemOptionSetItemUpdatedCallback = undefined;
+    
+    this.MenuItemOptionSetItemDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -765,6 +897,138 @@ export class MenuHub {
           console.log(eventData.Body);
         }
         this.MenuUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.section.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuSectionCreatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuSectionCreatedCallback){
+        if(this.log){
+          console.log("menu.section.created received");
+          console.log(eventData.Body);
+        }
+        this.MenuSectionCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.section.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuSectionUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuSectionUpdatedCallback){
+        if(this.log){
+          console.log("menu.section.updated received");
+          console.log(eventData.Body);
+        }
+        this.MenuSectionUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.section.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuSectionDeletedEvent = JSON.parse(eventData.Body);
+      if(this.MenuSectionDeletedCallback){
+        if(this.log){
+          console.log("menu.section.deleted received");
+          console.log(eventData.Body);
+        }
+        this.MenuSectionDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.section_item.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuSectionItemCreatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuSectionItemCreatedCallback){
+        if(this.log){
+          console.log("menu.section_item.created received");
+          console.log(eventData.Body);
+        }
+        this.MenuSectionItemCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.section_item.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuSectionItemUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuSectionItemUpdatedCallback){
+        if(this.log){
+          console.log("menu.section_item.updated received");
+          console.log(eventData.Body);
+        }
+        this.MenuSectionItemUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.section_item.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuSectionItemDeletedEvent = JSON.parse(eventData.Body);
+      if(this.MenuSectionItemDeletedCallback){
+        if(this.log){
+          console.log("menu.section_item.deleted received");
+          console.log(eventData.Body);
+        }
+        this.MenuSectionItemDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.option_set.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuItemOptionSetCreatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuItemOptionSetCreatedCallback){
+        if(this.log){
+          console.log("menu.option_set.created received");
+          console.log(eventData.Body);
+        }
+        this.MenuItemOptionSetCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.option_set.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuItemOptionSetUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuItemOptionSetUpdatedCallback){
+        if(this.log){
+          console.log("menu.option_set.updated received");
+          console.log(eventData.Body);
+        }
+        this.MenuItemOptionSetUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.option_set.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuItemOptionSetDeletedEvent = JSON.parse(eventData.Body);
+      if(this.MenuItemOptionSetDeletedCallback){
+        if(this.log){
+          console.log("menu.option_set.deleted received");
+          console.log(eventData.Body);
+        }
+        this.MenuItemOptionSetDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.option_set_item.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuItemOptionSetItemCreatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuItemOptionSetItemCreatedCallback){
+        if(this.log){
+          console.log("menu.option_set_item.created received");
+          console.log(eventData.Body);
+        }
+        this.MenuItemOptionSetItemCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.option_set_item.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuItemOptionSetItemUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuItemOptionSetItemUpdatedCallback){
+        if(this.log){
+          console.log("menu.option_set_item.updated received");
+          console.log(eventData.Body);
+        }
+        this.MenuItemOptionSetItemUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.option_set_item.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuItemOptionSetItemDeletedEvent = JSON.parse(eventData.Body);
+      if(this.MenuItemOptionSetItemDeletedCallback){
+        if(this.log){
+          console.log("menu.option_set_item.deleted received");
+          console.log(eventData.Body);
+        }
+        this.MenuItemOptionSetItemDeletedCallback(data);
       }
     });
       
@@ -794,6 +1058,162 @@ export class MenuHub {
       console.log("menu.updated unsubscribed");
     }
 	this.MenuUpdatedCallback = undefined;
+  }
+  
+  public OnMenuSectionCreated(callback: MenuSectionCreatedCallback){
+    if(this.log){
+      console.log("menu.section.created subscribed");
+    }
+    this.MenuSectionCreatedCallback = callback;
+  }
+  public OffMenuSectionCreated(callback: MenuSectionCreatedCallback){
+    if(this.log){
+      console.log("menu.section.created unsubscribed");
+    }
+	this.MenuSectionCreatedCallback = undefined;
+  }
+  
+  public OnMenuSectionUpdated(callback: MenuSectionUpdatedCallback){
+    if(this.log){
+      console.log("menu.section.updated subscribed");
+    }
+    this.MenuSectionUpdatedCallback = callback;
+  }
+  public OffMenuSectionUpdated(callback: MenuSectionUpdatedCallback){
+    if(this.log){
+      console.log("menu.section.updated unsubscribed");
+    }
+	this.MenuSectionUpdatedCallback = undefined;
+  }
+  
+  public OnMenuSectionDeleted(callback: MenuSectionDeletedCallback){
+    if(this.log){
+      console.log("menu.section.deleted subscribed");
+    }
+    this.MenuSectionDeletedCallback = callback;
+  }
+  public OffMenuSectionDeleted(callback: MenuSectionDeletedCallback){
+    if(this.log){
+      console.log("menu.section.deleted unsubscribed");
+    }
+	this.MenuSectionDeletedCallback = undefined;
+  }
+  
+  public OnMenuSectionItemCreated(callback: MenuSectionItemCreatedCallback){
+    if(this.log){
+      console.log("menu.section_item.created subscribed");
+    }
+    this.MenuSectionItemCreatedCallback = callback;
+  }
+  public OffMenuSectionItemCreated(callback: MenuSectionItemCreatedCallback){
+    if(this.log){
+      console.log("menu.section_item.created unsubscribed");
+    }
+	this.MenuSectionItemCreatedCallback = undefined;
+  }
+  
+  public OnMenuSectionItemUpdated(callback: MenuSectionItemUpdatedCallback){
+    if(this.log){
+      console.log("menu.section_item.updated subscribed");
+    }
+    this.MenuSectionItemUpdatedCallback = callback;
+  }
+  public OffMenuSectionItemUpdated(callback: MenuSectionItemUpdatedCallback){
+    if(this.log){
+      console.log("menu.section_item.updated unsubscribed");
+    }
+	this.MenuSectionItemUpdatedCallback = undefined;
+  }
+  
+  public OnMenuSectionItemDeleted(callback: MenuSectionItemDeletedCallback){
+    if(this.log){
+      console.log("menu.section_item.deleted subscribed");
+    }
+    this.MenuSectionItemDeletedCallback = callback;
+  }
+  public OffMenuSectionItemDeleted(callback: MenuSectionItemDeletedCallback){
+    if(this.log){
+      console.log("menu.section_item.deleted unsubscribed");
+    }
+	this.MenuSectionItemDeletedCallback = undefined;
+  }
+  
+  public OnMenuItemOptionSetCreated(callback: MenuItemOptionSetCreatedCallback){
+    if(this.log){
+      console.log("menu.option_set.created subscribed");
+    }
+    this.MenuItemOptionSetCreatedCallback = callback;
+  }
+  public OffMenuItemOptionSetCreated(callback: MenuItemOptionSetCreatedCallback){
+    if(this.log){
+      console.log("menu.option_set.created unsubscribed");
+    }
+	this.MenuItemOptionSetCreatedCallback = undefined;
+  }
+  
+  public OnMenuItemOptionSetUpdated(callback: MenuItemOptionSetUpdatedCallback){
+    if(this.log){
+      console.log("menu.option_set.updated subscribed");
+    }
+    this.MenuItemOptionSetUpdatedCallback = callback;
+  }
+  public OffMenuItemOptionSetUpdated(callback: MenuItemOptionSetUpdatedCallback){
+    if(this.log){
+      console.log("menu.option_set.updated unsubscribed");
+    }
+	this.MenuItemOptionSetUpdatedCallback = undefined;
+  }
+  
+  public OnMenuItemOptionSetDeleted(callback: MenuItemOptionSetDeletedCallback){
+    if(this.log){
+      console.log("menu.option_set.deleted subscribed");
+    }
+    this.MenuItemOptionSetDeletedCallback = callback;
+  }
+  public OffMenuItemOptionSetDeleted(callback: MenuItemOptionSetDeletedCallback){
+    if(this.log){
+      console.log("menu.option_set.deleted unsubscribed");
+    }
+	this.MenuItemOptionSetDeletedCallback = undefined;
+  }
+  
+  public OnMenuItemOptionSetItemCreated(callback: MenuItemOptionSetItemCreatedCallback){
+    if(this.log){
+      console.log("menu.option_set_item.created subscribed");
+    }
+    this.MenuItemOptionSetItemCreatedCallback = callback;
+  }
+  public OffMenuItemOptionSetItemCreated(callback: MenuItemOptionSetItemCreatedCallback){
+    if(this.log){
+      console.log("menu.option_set_item.created unsubscribed");
+    }
+	this.MenuItemOptionSetItemCreatedCallback = undefined;
+  }
+  
+  public OnMenuItemOptionSetItemUpdated(callback: MenuItemOptionSetItemUpdatedCallback){
+    if(this.log){
+      console.log("menu.option_set_item.updated subscribed");
+    }
+    this.MenuItemOptionSetItemUpdatedCallback = callback;
+  }
+  public OffMenuItemOptionSetItemUpdated(callback: MenuItemOptionSetItemUpdatedCallback){
+    if(this.log){
+      console.log("menu.option_set_item.updated unsubscribed");
+    }
+	this.MenuItemOptionSetItemUpdatedCallback = undefined;
+  }
+  
+  public OnMenuItemOptionSetItemDeleted(callback: MenuItemOptionSetItemDeletedCallback){
+    if(this.log){
+      console.log("menu.option_set_item.deleted subscribed");
+    }
+    this.MenuItemOptionSetItemDeletedCallback = callback;
+  }
+  public OffMenuItemOptionSetItemDeleted(callback: MenuItemOptionSetItemDeletedCallback){
+    if(this.log){
+      console.log("menu.option_set_item.deleted unsubscribed");
+    }
+	this.MenuItemOptionSetItemDeletedCallback = undefined;
   }
   
 }
