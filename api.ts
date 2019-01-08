@@ -32,6 +32,8 @@ export class SignalR {
   
   public StoreGroupHub: StoreGroupHub;
   
+  public VoucherHub: VoucherHub;
+  
   public AnalyticsHub: AnalyticsHub;
   
   public CampaignHub: CampaignHub;
@@ -60,6 +62,8 @@ export class SignalR {
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
+	
+    this.VoucherHub = new VoucherHub(SignalR.ActiveConnection.createHubProxy("VoucherHub"), signalRConfiguration.Log);
 	
     this.AnalyticsHub = new AnalyticsHub(SignalR.ActiveConnection.createHubProxy("AnalyticsHub"), signalRConfiguration.Log);
 	
@@ -294,6 +298,132 @@ export class StoreGroupHub {
   
 }
 /* StoreGroupHub End */
+
+
+/* VoucherHub Start */
+
+/**
+ * VoucherCreated Subscription Callback
+*/
+export interface VoucherCreatedCallback{
+  (data: Flipdish.VoucherCreatedEvent): void;
+}
+
+/**
+ * VoucherDeleted Subscription Callback
+*/
+export interface VoucherDeletedCallback{
+  (data: Flipdish.VoucherDeletedEvent): void;
+}
+
+/**
+ * VoucherUpdated Subscription Callback
+*/
+export interface VoucherUpdatedCallback{
+  (data: Flipdish.VoucherUpdatedEvent): void;
+}
+
+
+/**
+ * VoucherHub
+ */
+export class VoucherHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private VoucherCreatedCallback: VoucherCreatedCallback;
+  
+  private VoucherDeletedCallback: VoucherDeletedCallback;
+  
+  private VoucherUpdatedCallback: VoucherUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.VoucherCreatedCallback = undefined;
+    
+    this.VoucherDeletedCallback = undefined;
+    
+    this.VoucherUpdatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("voucher.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.VoucherCreatedEvent = JSON.parse(eventData.Body);
+      if(this.VoucherCreatedCallback){
+        if(this.log){
+          console.log("voucher.created received");
+          console.log(eventData.Body);
+        }
+        this.VoucherCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("voucher.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.VoucherDeletedEvent = JSON.parse(eventData.Body);
+      if(this.VoucherDeletedCallback){
+        if(this.log){
+          console.log("voucher.deleted received");
+          console.log(eventData.Body);
+        }
+        this.VoucherDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("voucher.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.VoucherUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.VoucherUpdatedCallback){
+        if(this.log){
+          console.log("voucher.updated received");
+          console.log(eventData.Body);
+        }
+        this.VoucherUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnVoucherCreated(callback: VoucherCreatedCallback){
+    if(this.log){
+      console.log("voucher.created subscribed");
+    }
+    this.VoucherCreatedCallback = callback;
+  }
+  public OffVoucherCreated(callback: VoucherCreatedCallback){
+    if(this.log){
+      console.log("voucher.created unsubscribed");
+    }
+	this.VoucherCreatedCallback = undefined;
+  }
+  
+  public OnVoucherDeleted(callback: VoucherDeletedCallback){
+    if(this.log){
+      console.log("voucher.deleted subscribed");
+    }
+    this.VoucherDeletedCallback = callback;
+  }
+  public OffVoucherDeleted(callback: VoucherDeletedCallback){
+    if(this.log){
+      console.log("voucher.deleted unsubscribed");
+    }
+	this.VoucherDeletedCallback = undefined;
+  }
+  
+  public OnVoucherUpdated(callback: VoucherUpdatedCallback){
+    if(this.log){
+      console.log("voucher.updated subscribed");
+    }
+    this.VoucherUpdatedCallback = callback;
+  }
+  public OffVoucherUpdated(callback: VoucherUpdatedCallback){
+    if(this.log){
+      console.log("voucher.updated unsubscribed");
+    }
+	this.VoucherUpdatedCallback = undefined;
+  }
+  
+}
+/* VoucherHub End */
 
 
 /* AnalyticsHub Start */
