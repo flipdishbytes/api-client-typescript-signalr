@@ -32,6 +32,8 @@ export class SignalR {
   
   public StoreGroupHub: StoreGroupHub;
   
+  public TeammateHub: TeammateHub;
+  
   public VoucherHub: VoucherHub;
   
   public AnalyticsHub: AnalyticsHub;
@@ -62,6 +64,8 @@ export class SignalR {
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
+	
+    this.TeammateHub = new TeammateHub(SignalR.ActiveConnection.createHubProxy("TeammateHub"), signalRConfiguration.Log);
 	
     this.VoucherHub = new VoucherHub(SignalR.ActiveConnection.createHubProxy("VoucherHub"), signalRConfiguration.Log);
 	
@@ -298,6 +302,167 @@ export class StoreGroupHub {
   
 }
 /* StoreGroupHub End */
+
+
+/* TeammateHub Start */
+
+/**
+ * TeammateInviteSent Subscription Callback
+*/
+export interface TeammateInviteSentCallback{
+  (data: Flipdish.TeammateInviteSentEvent): void;
+}
+
+/**
+ * TeammateInviteAccepted Subscription Callback
+*/
+export interface TeammateInviteAcceptedCallback{
+  (data: Flipdish.TeammateInviteAcceptedEvent): void;
+}
+
+/**
+ * TeammateUpdated Subscription Callback
+*/
+export interface TeammateUpdatedCallback{
+  (data: Flipdish.TeammateUpdatedEvent): void;
+}
+
+/**
+ * TeammateDeleted Subscription Callback
+*/
+export interface TeammateDeletedCallback{
+  (data: Flipdish.TeammateDeletedEvent): void;
+}
+
+
+/**
+ * TeammateHub
+ */
+export class TeammateHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private TeammateInviteSentCallback: TeammateInviteSentCallback;
+  
+  private TeammateInviteAcceptedCallback: TeammateInviteAcceptedCallback;
+  
+  private TeammateUpdatedCallback: TeammateUpdatedCallback;
+  
+  private TeammateDeletedCallback: TeammateDeletedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.TeammateInviteSentCallback = undefined;
+    
+    this.TeammateInviteAcceptedCallback = undefined;
+    
+    this.TeammateUpdatedCallback = undefined;
+    
+    this.TeammateDeletedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("teammate.invite.sent", (eventData:SignalrEvent) => {
+      var data:Flipdish.TeammateInviteSentEvent = JSON.parse(eventData.Body);
+      if(this.TeammateInviteSentCallback){
+        if(this.log){
+          console.log("teammate.invite.sent received");
+          console.log(eventData.Body);
+        }
+        this.TeammateInviteSentCallback(data);
+      }
+    });
+      
+    this.proxy.on("teammate.invite.accepted", (eventData:SignalrEvent) => {
+      var data:Flipdish.TeammateInviteAcceptedEvent = JSON.parse(eventData.Body);
+      if(this.TeammateInviteAcceptedCallback){
+        if(this.log){
+          console.log("teammate.invite.accepted received");
+          console.log(eventData.Body);
+        }
+        this.TeammateInviteAcceptedCallback(data);
+      }
+    });
+      
+    this.proxy.on("teammate.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.TeammateUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.TeammateUpdatedCallback){
+        if(this.log){
+          console.log("teammate.updated received");
+          console.log(eventData.Body);
+        }
+        this.TeammateUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("teammate.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.TeammateDeletedEvent = JSON.parse(eventData.Body);
+      if(this.TeammateDeletedCallback){
+        if(this.log){
+          console.log("teammate.deleted received");
+          console.log(eventData.Body);
+        }
+        this.TeammateDeletedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnTeammateInviteSent(callback: TeammateInviteSentCallback){
+    if(this.log){
+      console.log("teammate.invite.sent subscribed");
+    }
+    this.TeammateInviteSentCallback = callback;
+  }
+  public OffTeammateInviteSent(callback: TeammateInviteSentCallback){
+    if(this.log){
+      console.log("teammate.invite.sent unsubscribed");
+    }
+	this.TeammateInviteSentCallback = undefined;
+  }
+  
+  public OnTeammateInviteAccepted(callback: TeammateInviteAcceptedCallback){
+    if(this.log){
+      console.log("teammate.invite.accepted subscribed");
+    }
+    this.TeammateInviteAcceptedCallback = callback;
+  }
+  public OffTeammateInviteAccepted(callback: TeammateInviteAcceptedCallback){
+    if(this.log){
+      console.log("teammate.invite.accepted unsubscribed");
+    }
+	this.TeammateInviteAcceptedCallback = undefined;
+  }
+  
+  public OnTeammateUpdated(callback: TeammateUpdatedCallback){
+    if(this.log){
+      console.log("teammate.updated subscribed");
+    }
+    this.TeammateUpdatedCallback = callback;
+  }
+  public OffTeammateUpdated(callback: TeammateUpdatedCallback){
+    if(this.log){
+      console.log("teammate.updated unsubscribed");
+    }
+	this.TeammateUpdatedCallback = undefined;
+  }
+  
+  public OnTeammateDeleted(callback: TeammateDeletedCallback){
+    if(this.log){
+      console.log("teammate.deleted subscribed");
+    }
+    this.TeammateDeletedCallback = callback;
+  }
+  public OffTeammateDeleted(callback: TeammateDeletedCallback){
+    if(this.log){
+      console.log("teammate.deleted unsubscribed");
+    }
+	this.TeammateDeletedCallback = undefined;
+  }
+  
+}
+/* TeammateHub End */
 
 
 /* VoucherHub Start */
