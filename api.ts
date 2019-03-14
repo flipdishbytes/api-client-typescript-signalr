@@ -1525,6 +1525,13 @@ export interface OrderCreatedCallback{
 }
 
 /**
+ * OrderDispatched Subscription Callback
+*/
+export interface OrderDispatchedCallback{
+  (data: Flipdish.OrderDispatchedEvent): void;
+}
+
+/**
  * OrderRejected Subscription Callback
 */
 export interface OrderRejectedCallback{
@@ -1569,6 +1576,8 @@ export class OrderHub {
   
   private OrderCreatedCallback: OrderCreatedCallback;
   
+  private OrderDispatchedCallback: OrderDispatchedCallback;
+  
   private OrderRejectedCallback: OrderRejectedCallback;
   
   private OrderAcceptedCallback: OrderAcceptedCallback;
@@ -1582,6 +1591,8 @@ export class OrderHub {
   public constructor(proxy: Proxy, log: boolean){
     
     this.OrderCreatedCallback = undefined;
+    
+    this.OrderDispatchedCallback = undefined;
     
     this.OrderRejectedCallback = undefined;
     
@@ -1604,6 +1615,17 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.dispatched", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderDispatchedEvent = JSON.parse(eventData.Body);
+      if(this.OrderDispatchedCallback){
+        if(this.log){
+          console.log("order.dispatched received");
+          console.log(eventData.Body);
+        }
+        this.OrderDispatchedCallback(data);
       }
     });
       
@@ -1675,6 +1697,19 @@ export class OrderHub {
       console.log("order.created unsubscribed");
     }
 	this.OrderCreatedCallback = undefined;
+  }
+  
+  public OnOrderDispatched(callback: OrderDispatchedCallback){
+    if(this.log){
+      console.log("order.dispatched subscribed");
+    }
+    this.OrderDispatchedCallback = callback;
+  }
+  public OffOrderDispatched(callback: OrderDispatchedCallback){
+    if(this.log){
+      console.log("order.dispatched unsubscribed");
+    }
+	this.OrderDispatchedCallback = undefined;
   }
   
   public OnOrderRejected(callback: OrderRejectedCallback){
