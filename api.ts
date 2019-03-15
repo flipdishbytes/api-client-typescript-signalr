@@ -30,6 +30,8 @@ export class SignalR {
 
   public AuthorizationHub: AuthorizationHub;
   
+  public AppHub: AppHub;
+  
   public StoreGroupHub: StoreGroupHub;
   
   public TeammateHub: TeammateHub;
@@ -63,6 +65,8 @@ export class SignalR {
 
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
+    this.AppHub = new AppHub(SignalR.ActiveConnection.createHubProxy("AppHub"), signalRConfiguration.Log);
+	
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
 	
     this.TeammateHub = new TeammateHub(SignalR.ActiveConnection.createHubProxy("TeammateHub"), signalRConfiguration.Log);
@@ -177,6 +181,97 @@ export class AuthorizationHub {
     return this.proxy.invoke("Authenticate", "1.0");
   }
 }
+
+/* AppHub Start */
+
+/**
+ * AppCreated Subscription Callback
+*/
+export interface AppCreatedCallback{
+  (data: Flipdish.AppCreatedEvent): void;
+}
+
+/**
+ * AppUpdated Subscription Callback
+*/
+export interface AppUpdatedCallback{
+  (data: Flipdish.AppUpdatedEvent): void;
+}
+
+
+/**
+ * AppHub
+ */
+export class AppHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private AppCreatedCallback: AppCreatedCallback;
+  
+  private AppUpdatedCallback: AppUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.AppCreatedCallback = undefined;
+    
+    this.AppUpdatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("app.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.AppCreatedEvent = JSON.parse(eventData.Body);
+      if(this.AppCreatedCallback){
+        if(this.log){
+          console.log("app.created received");
+          console.log(eventData.Body);
+        }
+        this.AppCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("app.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.AppUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.AppUpdatedCallback){
+        if(this.log){
+          console.log("app.updated received");
+          console.log(eventData.Body);
+        }
+        this.AppUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnAppCreated(callback: AppCreatedCallback){
+    if(this.log){
+      console.log("app.created subscribed");
+    }
+    this.AppCreatedCallback = callback;
+  }
+  public OffAppCreated(callback: AppCreatedCallback){
+    if(this.log){
+      console.log("app.created unsubscribed");
+    }
+	this.AppCreatedCallback = undefined;
+  }
+  
+  public OnAppUpdated(callback: AppUpdatedCallback){
+    if(this.log){
+      console.log("app.updated subscribed");
+    }
+    this.AppUpdatedCallback = callback;
+  }
+  public OffAppUpdated(callback: AppUpdatedCallback){
+    if(this.log){
+      console.log("app.updated unsubscribed");
+    }
+	this.AppUpdatedCallback = undefined;
+  }
+  
+}
+/* AppHub End */
+
 
 /* StoreGroupHub Start */
 
