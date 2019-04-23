@@ -32,6 +32,8 @@ export class SignalR {
   
   public AppHub: AppHub;
   
+  public BankingHub: BankingHub;
+  
   public StoreGroupHub: StoreGroupHub;
   
   public TeammateHub: TeammateHub;
@@ -66,6 +68,8 @@ export class SignalR {
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
     this.AppHub = new AppHub(SignalR.ActiveConnection.createHubProxy("AppHub"), signalRConfiguration.Log);
+	
+    this.BankingHub = new BankingHub(SignalR.ActiveConnection.createHubProxy("BankingHub"), signalRConfiguration.Log);
 	
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
 	
@@ -271,6 +275,27 @@ export class AppHub {
   
 }
 /* AppHub End */
+
+
+/* BankingHub Start */
+
+
+/**
+ * BankingHub
+ */
+export class BankingHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+  }
+  
+}
+/* BankingHub End */
 
 
 /* StoreGroupHub Start */
