@@ -32,7 +32,7 @@ export class SignalR {
   
   public AppHub: AppHub;
   
-  public BankingHub: BankingHub;
+  public BankAccountHub: BankAccountHub;
   
   public StoreGroupHub: StoreGroupHub;
   
@@ -69,7 +69,7 @@ export class SignalR {
     
     this.AppHub = new AppHub(SignalR.ActiveConnection.createHubProxy("AppHub"), signalRConfiguration.Log);
 	
-    this.BankingHub = new BankingHub(SignalR.ActiveConnection.createHubProxy("BankingHub"), signalRConfiguration.Log);
+    this.BankAccountHub = new BankAccountHub(SignalR.ActiveConnection.createHubProxy("BankAccountHub"), signalRConfiguration.Log);
 	
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
 	
@@ -277,25 +277,95 @@ export class AppHub {
 /* AppHub End */
 
 
-/* BankingHub Start */
+/* BankAccountHub Start */
+
+/**
+ * BankAccountCreated Subscription Callback
+*/
+export interface BankAccountCreatedCallback{
+  (data: Flipdish.BankAccountCreatedEvent): void;
+}
+
+/**
+ * BankAccountUpdated Subscription Callback
+*/
+export interface BankAccountUpdatedCallback{
+  (data: Flipdish.BankAccountUpdatedEvent): void;
+}
 
 
 /**
- * BankingHub
+ * BankAccountHub
  */
-export class BankingHub {
+export class BankAccountHub {
   private proxy: Proxy;
   private log: boolean;
   
+  private BankAccountCreatedCallback: BankAccountCreatedCallback;
+  
+  private BankAccountUpdatedCallback: BankAccountUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
+    
+    this.BankAccountCreatedCallback = undefined;
+    
+    this.BankAccountUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
+    this.proxy.on("bankaccount.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.BankAccountCreatedEvent = JSON.parse(eventData.Body);
+      if(this.BankAccountCreatedCallback){
+        if(this.log){
+          console.log("bankaccount.created received");
+          console.log(eventData.Body);
+        }
+        this.BankAccountCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("bankaccount.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.BankAccountUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.BankAccountUpdatedCallback){
+        if(this.log){
+          console.log("bankaccount.updated received");
+          console.log(eventData.Body);
+        }
+        this.BankAccountUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnBankAccountCreated(callback: BankAccountCreatedCallback){
+    if(this.log){
+      console.log("bankaccount.created subscribed");
+    }
+    this.BankAccountCreatedCallback = callback;
+  }
+  public OffBankAccountCreated(callback: BankAccountCreatedCallback){
+    if(this.log){
+      console.log("bankaccount.created unsubscribed");
+    }
+	this.BankAccountCreatedCallback = undefined;
+  }
+  
+  public OnBankAccountUpdated(callback: BankAccountUpdatedCallback){
+    if(this.log){
+      console.log("bankaccount.updated subscribed");
+    }
+    this.BankAccountUpdatedCallback = callback;
+  }
+  public OffBankAccountUpdated(callback: BankAccountUpdatedCallback){
+    if(this.log){
+      console.log("bankaccount.updated unsubscribed");
+    }
+	this.BankAccountUpdatedCallback = undefined;
   }
   
 }
-/* BankingHub End */
+/* BankAccountHub End */
 
 
 /* StoreGroupHub Start */
