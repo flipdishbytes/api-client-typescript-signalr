@@ -293,6 +293,13 @@ export interface BankAccountUpdatedCallback{
   (data: Flipdish.BankAccountUpdatedEvent): void;
 }
 
+/**
+ * BankAccountDeleted Subscription Callback
+*/
+export interface BankAccountDeletedCallback{
+  (data: Flipdish.BankAccountDeletedEvent): void;
+}
+
 
 /**
  * BankAccountHub
@@ -305,11 +312,15 @@ export class BankAccountHub {
   
   private BankAccountUpdatedCallback: BankAccountUpdatedCallback;
   
+  private BankAccountDeletedCallback: BankAccountDeletedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.BankAccountCreatedCallback = undefined;
     
     this.BankAccountUpdatedCallback = undefined;
+    
+    this.BankAccountDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -333,6 +344,17 @@ export class BankAccountHub {
           console.log(eventData.Body);
         }
         this.BankAccountUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("bankaccount.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.BankAccountDeletedEvent = JSON.parse(eventData.Body);
+      if(this.BankAccountDeletedCallback){
+        if(this.log){
+          console.log("bankaccount.deleted received");
+          console.log(eventData.Body);
+        }
+        this.BankAccountDeletedCallback(data);
       }
     });
       
@@ -362,6 +384,19 @@ export class BankAccountHub {
       console.log("bankaccount.updated unsubscribed");
     }
 	this.BankAccountUpdatedCallback = undefined;
+  }
+  
+  public OnBankAccountDeleted(callback: BankAccountDeletedCallback){
+    if(this.log){
+      console.log("bankaccount.deleted subscribed");
+    }
+    this.BankAccountDeletedCallback = callback;
+  }
+  public OffBankAccountDeleted(callback: BankAccountDeletedCallback){
+    if(this.log){
+      console.log("bankaccount.deleted unsubscribed");
+    }
+	this.BankAccountDeletedCallback = undefined;
   }
   
 }
