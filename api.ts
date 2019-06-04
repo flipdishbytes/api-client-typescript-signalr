@@ -34,6 +34,8 @@ export class SignalR {
   
   public BankAccountHub: BankAccountHub;
   
+  public HydraHub: HydraHub;
+  
   public StoreGroupHub: StoreGroupHub;
   
   public TeammateHub: TeammateHub;
@@ -70,6 +72,8 @@ export class SignalR {
     this.AppHub = new AppHub(SignalR.ActiveConnection.createHubProxy("AppHub"), signalRConfiguration.Log);
 	
     this.BankAccountHub = new BankAccountHub(SignalR.ActiveConnection.createHubProxy("BankAccountHub"), signalRConfiguration.Log);
+	
+    this.HydraHub = new HydraHub(SignalR.ActiveConnection.createHubProxy("HydraHub"), signalRConfiguration.Log);
 	
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
 	
@@ -401,6 +405,167 @@ export class BankAccountHub {
   
 }
 /* BankAccountHub End */
+
+
+/* HydraHub Start */
+
+/**
+ * HydraAssigned Subscription Callback
+*/
+export interface HydraAssignedCallback{
+  (data: Flipdish.HydraAssignedEvent): void;
+}
+
+/**
+ * HydraRequestReset Subscription Callback
+*/
+export interface HydraRequestResetCallback{
+  (data: Flipdish.HydraRequestResetEvent): void;
+}
+
+/**
+ * HydraSettingChanged Subscription Callback
+*/
+export interface HydraSettingChangedCallback{
+  (data: Flipdish.HydraSettingChangedEvent): void;
+}
+
+/**
+ * HydraUnAssigned Subscription Callback
+*/
+export interface HydraUnAssignedCallback{
+  (data: Flipdish.HydraUnAssignedEvent): void;
+}
+
+
+/**
+ * HydraHub
+ */
+export class HydraHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private HydraAssignedCallback: HydraAssignedCallback;
+  
+  private HydraRequestResetCallback: HydraRequestResetCallback;
+  
+  private HydraSettingChangedCallback: HydraSettingChangedCallback;
+  
+  private HydraUnAssignedCallback: HydraUnAssignedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.HydraAssignedCallback = undefined;
+    
+    this.HydraRequestResetCallback = undefined;
+    
+    this.HydraSettingChangedCallback = undefined;
+    
+    this.HydraUnAssignedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("hydra.assigned", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraAssignedEvent = JSON.parse(eventData.Body);
+      if(this.HydraAssignedCallback){
+        if(this.log){
+          console.log("hydra.assigned received");
+          console.log(eventData.Body);
+        }
+        this.HydraAssignedCallback(data);
+      }
+    });
+      
+    this.proxy.on("hydra.request_reset", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraRequestResetEvent = JSON.parse(eventData.Body);
+      if(this.HydraRequestResetCallback){
+        if(this.log){
+          console.log("hydra.request_reset received");
+          console.log(eventData.Body);
+        }
+        this.HydraRequestResetCallback(data);
+      }
+    });
+      
+    this.proxy.on("hydra.setting_changed", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraSettingChangedEvent = JSON.parse(eventData.Body);
+      if(this.HydraSettingChangedCallback){
+        if(this.log){
+          console.log("hydra.setting_changed received");
+          console.log(eventData.Body);
+        }
+        this.HydraSettingChangedCallback(data);
+      }
+    });
+      
+    this.proxy.on("hydra.unassigned", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraUnAssignedEvent = JSON.parse(eventData.Body);
+      if(this.HydraUnAssignedCallback){
+        if(this.log){
+          console.log("hydra.unassigned received");
+          console.log(eventData.Body);
+        }
+        this.HydraUnAssignedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnHydraAssigned(callback: HydraAssignedCallback){
+    if(this.log){
+      console.log("hydra.assigned subscribed");
+    }
+    this.HydraAssignedCallback = callback;
+  }
+  public OffHydraAssigned(callback: HydraAssignedCallback){
+    if(this.log){
+      console.log("hydra.assigned unsubscribed");
+    }
+	this.HydraAssignedCallback = undefined;
+  }
+  
+  public OnHydraRequestReset(callback: HydraRequestResetCallback){
+    if(this.log){
+      console.log("hydra.request_reset subscribed");
+    }
+    this.HydraRequestResetCallback = callback;
+  }
+  public OffHydraRequestReset(callback: HydraRequestResetCallback){
+    if(this.log){
+      console.log("hydra.request_reset unsubscribed");
+    }
+	this.HydraRequestResetCallback = undefined;
+  }
+  
+  public OnHydraSettingChanged(callback: HydraSettingChangedCallback){
+    if(this.log){
+      console.log("hydra.setting_changed subscribed");
+    }
+    this.HydraSettingChangedCallback = callback;
+  }
+  public OffHydraSettingChanged(callback: HydraSettingChangedCallback){
+    if(this.log){
+      console.log("hydra.setting_changed unsubscribed");
+    }
+	this.HydraSettingChangedCallback = undefined;
+  }
+  
+  public OnHydraUnAssigned(callback: HydraUnAssignedCallback){
+    if(this.log){
+      console.log("hydra.unassigned subscribed");
+    }
+    this.HydraUnAssignedCallback = callback;
+  }
+  public OffHydraUnAssigned(callback: HydraUnAssignedCallback){
+    if(this.log){
+      console.log("hydra.unassigned unsubscribed");
+    }
+	this.HydraUnAssignedCallback = undefined;
+  }
+  
+}
+/* HydraHub End */
 
 
 /* StoreGroupHub Start */
