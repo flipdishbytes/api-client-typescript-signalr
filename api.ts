@@ -2461,6 +2461,13 @@ export interface StoreOpeningHoursUpdatedCallback{
 }
 
 /**
+ * StoreMenuAssigned Subscription Callback
+*/
+export interface StoreMenuAssignedCallback{
+  (data: Flipdish.StoreMenuAssignedEvent): void;
+}
+
+/**
  * DeliveryZoneCreated Subscription Callback
 */
 export interface DeliveryZoneCreatedCallback{
@@ -2534,6 +2541,8 @@ export class StoreHub {
   
   private StoreOpeningHoursUpdatedCallback: StoreOpeningHoursUpdatedCallback;
   
+  private StoreMenuAssignedCallback: StoreMenuAssignedCallback;
+  
   private DeliveryZoneCreatedCallback: DeliveryZoneCreatedCallback;
   
   private DeliveryZoneUpdatedCallback: DeliveryZoneUpdatedCallback;
@@ -2561,6 +2570,8 @@ export class StoreHub {
     this.StoreAddressUpdatedCallback = undefined;
     
     this.StoreOpeningHoursUpdatedCallback = undefined;
+    
+    this.StoreMenuAssignedCallback = undefined;
     
     this.DeliveryZoneCreatedCallback = undefined;
     
@@ -2633,6 +2644,17 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreOpeningHoursUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.menu.assigned", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreMenuAssignedEvent = JSON.parse(eventData.Body);
+      if(this.StoreMenuAssignedCallback){
+        if(this.log){
+          console.log("store.menu.assigned received");
+          console.log(eventData.Body);
+        }
+        this.StoreMenuAssignedCallback(data);
       }
     });
       
@@ -2789,6 +2811,19 @@ export class StoreHub {
       console.log("store.opening_hours.updated unsubscribed");
     }
 	this.StoreOpeningHoursUpdatedCallback = undefined;
+  }
+  
+  public OnStoreMenuAssigned(callback: StoreMenuAssignedCallback){
+    if(this.log){
+      console.log("store.menu.assigned subscribed");
+    }
+    this.StoreMenuAssignedCallback = callback;
+  }
+  public OffStoreMenuAssigned(callback: StoreMenuAssignedCallback){
+    if(this.log){
+      console.log("store.menu.assigned unsubscribed");
+    }
+	this.StoreMenuAssignedCallback = undefined;
   }
   
   public OnDeliveryZoneCreated(callback: DeliveryZoneCreatedCallback){
