@@ -2523,6 +2523,13 @@ export interface StoreBusinessHoursOverrideDeletedCallback{
   (data: Flipdish.StoreBusinessHoursOverrideDeletedEvent): void;
 }
 
+/**
+ * StorePreOrderConfigUpdated Subscription Callback
+*/
+export interface StorePreOrderConfigUpdatedCallback{
+  (data: Flipdish.StorePreOrderConfigUpdatedEvent): void;
+}
+
 
 /**
  * StoreHub
@@ -2559,6 +2566,8 @@ export class StoreHub {
   
   private StoreBusinessHoursOverrideDeletedCallback: StoreBusinessHoursOverrideDeletedCallback;
   
+  private StorePreOrderConfigUpdatedCallback: StorePreOrderConfigUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.StoreCreatedCallback = undefined;
@@ -2588,6 +2597,8 @@ export class StoreHub {
     this.StoreBusinessHoursOverrideCreatedCallback = undefined;
     
     this.StoreBusinessHoursOverrideDeletedCallback = undefined;
+    
+    this.StorePreOrderConfigUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2743,6 +2754,17 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreBusinessHoursOverrideDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.preorder_config.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StorePreOrderConfigUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StorePreOrderConfigUpdatedCallback){
+        if(this.log){
+          console.log("store.preorder_config.updated received");
+          console.log(eventData.Body);
+        }
+        this.StorePreOrderConfigUpdatedCallback(data);
       }
     });
       
@@ -2928,6 +2950,19 @@ export class StoreHub {
       console.log("store.business_hours_override.deleted unsubscribed");
     }
 	this.StoreBusinessHoursOverrideDeletedCallback = undefined;
+  }
+  
+  public OnStorePreOrderConfigUpdated(callback: StorePreOrderConfigUpdatedCallback){
+    if(this.log){
+      console.log("store.preorder_config.updated subscribed");
+    }
+    this.StorePreOrderConfigUpdatedCallback = callback;
+  }
+  public OffStorePreOrderConfigUpdated(callback: StorePreOrderConfigUpdatedCallback){
+    if(this.log){
+      console.log("store.preorder_config.updated unsubscribed");
+    }
+	this.StorePreOrderConfigUpdatedCallback = undefined;
   }
   
 }
