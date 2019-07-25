@@ -1956,6 +1956,13 @@ export interface OrderRatingUpdatedCallback{
   (data: Flipdish.OrderRatingUpdatedEvent): void;
 }
 
+/**
+ * OrderTerminalNotification Subscription Callback
+*/
+export interface OrderTerminalNotificationCallback{
+  (data: Flipdish.OrderTerminalNotificationEvent): void;
+}
+
 
 /**
  * OrderHub
@@ -1978,6 +1985,8 @@ export class OrderHub {
   
   private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
   
+  private OrderTerminalNotificationCallback: OrderTerminalNotificationCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.OrderCreatedCallback = undefined;
@@ -1993,6 +2002,8 @@ export class OrderHub {
     this.OrderTipUpdatedCallback = undefined;
     
     this.OrderRatingUpdatedCallback = undefined;
+    
+    this.OrderTerminalNotificationCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2071,6 +2082,17 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderRatingUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.terminal.notification", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderTerminalNotificationEvent = JSON.parse(eventData.Body);
+      if(this.OrderTerminalNotificationCallback){
+        if(this.log){
+          console.log("order.terminal.notification received");
+          console.log(eventData.Body);
+        }
+        this.OrderTerminalNotificationCallback(data);
       }
     });
       
@@ -2165,6 +2187,19 @@ export class OrderHub {
       console.log("order.rating.updated unsubscribed");
     }
 	this.OrderRatingUpdatedCallback = undefined;
+  }
+  
+  public OnOrderTerminalNotification(callback: OrderTerminalNotificationCallback){
+    if(this.log){
+      console.log("order.terminal.notification subscribed");
+    }
+    this.OrderTerminalNotificationCallback = callback;
+  }
+  public OffOrderTerminalNotification(callback: OrderTerminalNotificationCallback){
+    if(this.log){
+      console.log("order.terminal.notification unsubscribed");
+    }
+	this.OrderTerminalNotificationCallback = undefined;
   }
   
 }
