@@ -19,6 +19,12 @@ jobs:
             - v1-dependencies-
         - run: npm install
         - run: npm update
+        - run: |
+            if [ "${CIRCLE_BRANCH}" == 'master' ]; then
+                npm update @flipdish/api-client-typescript@latest
+            else
+                npm update @flipdish/api-client-typescript@dev
+            fi
         - run: npm prune
         - save_cache:
             paths:
