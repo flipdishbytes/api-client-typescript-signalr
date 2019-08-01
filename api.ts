@@ -1957,10 +1957,10 @@ export interface OrderRatingUpdatedCallback{
 }
 
 /**
- * OrderTerminalNotification Subscription Callback
+ * EmvNotification Subscription Callback
 */
-export interface OrderTerminalNotificationCallback{
-  (data: Flipdish.OrderTerminalNotificationEvent): void;
+export interface EmvNotificationCallback{
+  (data: Flipdish.EmvNotificationEvent): void;
 }
 
 
@@ -1985,7 +1985,7 @@ export class OrderHub {
   
   private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
   
-  private OrderTerminalNotificationCallback: OrderTerminalNotificationCallback;
+  private EmvNotificationCallback: EmvNotificationCallback;
   
   public constructor(proxy: Proxy, log: boolean){
     
@@ -2003,7 +2003,7 @@ export class OrderHub {
     
     this.OrderRatingUpdatedCallback = undefined;
     
-    this.OrderTerminalNotificationCallback = undefined;
+    this.EmvNotificationCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2086,13 +2086,13 @@ export class OrderHub {
     });
       
     this.proxy.on("order.terminal.notification", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderTerminalNotificationEvent = JSON.parse(eventData.Body);
-      if(this.OrderTerminalNotificationCallback){
+      var data:Flipdish.EmvNotificationEvent = JSON.parse(eventData.Body);
+      if(this.EmvNotificationCallback){
         if(this.log){
           console.log("order.terminal.notification received");
           console.log(eventData.Body);
         }
-        this.OrderTerminalNotificationCallback(data);
+        this.EmvNotificationCallback(data);
       }
     });
       
@@ -2189,17 +2189,17 @@ export class OrderHub {
 	this.OrderRatingUpdatedCallback = undefined;
   }
   
-  public OnOrderTerminalNotification(callback: OrderTerminalNotificationCallback){
+  public OnEmvNotification(callback: EmvNotificationCallback){
     if(this.log){
       console.log("order.terminal.notification subscribed");
     }
-    this.OrderTerminalNotificationCallback = callback;
+    this.EmvNotificationCallback = callback;
   }
-  public OffOrderTerminalNotification(callback: OrderTerminalNotificationCallback){
+  public OffEmvNotification(callback: EmvNotificationCallback){
     if(this.log){
       console.log("order.terminal.notification unsubscribed");
     }
-	this.OrderTerminalNotificationCallback = undefined;
+	this.EmvNotificationCallback = undefined;
   }
   
 }
