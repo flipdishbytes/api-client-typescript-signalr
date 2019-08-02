@@ -431,6 +431,13 @@ export interface HydraSettingChangedCallback{
 }
 
 /**
+ * HydraConnectionStatusChanged Subscription Callback
+*/
+export interface HydraConnectionStatusChangedCallback{
+  (data: Flipdish.HydraConnectionStatusChangedEvent): void;
+}
+
+/**
  * HydraUnAssigned Subscription Callback
 */
 export interface HydraUnAssignedCallback{
@@ -451,6 +458,8 @@ export class HydraHub {
   
   private HydraSettingChangedCallback: HydraSettingChangedCallback;
   
+  private HydraConnectionStatusChangedCallback: HydraConnectionStatusChangedCallback;
+  
   private HydraUnAssignedCallback: HydraUnAssignedCallback;
   
   public constructor(proxy: Proxy, log: boolean){
@@ -460,6 +469,8 @@ export class HydraHub {
     this.HydraRequestResetCallback = undefined;
     
     this.HydraSettingChangedCallback = undefined;
+    
+    this.HydraConnectionStatusChangedCallback = undefined;
     
     this.HydraUnAssignedCallback = undefined;
     
@@ -496,6 +507,17 @@ export class HydraHub {
           console.log(eventData.Body);
         }
         this.HydraSettingChangedCallback(data);
+      }
+    });
+      
+    this.proxy.on("hydra.conection_status_changed", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraConnectionStatusChangedEvent = JSON.parse(eventData.Body);
+      if(this.HydraConnectionStatusChangedCallback){
+        if(this.log){
+          console.log("hydra.conection_status_changed received");
+          console.log(eventData.Body);
+        }
+        this.HydraConnectionStatusChangedCallback(data);
       }
     });
       
@@ -549,6 +571,19 @@ export class HydraHub {
       console.log("hydra.setting_changed unsubscribed");
     }
 	this.HydraSettingChangedCallback = undefined;
+  }
+  
+  public OnHydraConnectionStatusChanged(callback: HydraConnectionStatusChangedCallback){
+    if(this.log){
+      console.log("hydra.conection_status_changed subscribed");
+    }
+    this.HydraConnectionStatusChangedCallback = callback;
+  }
+  public OffHydraConnectionStatusChanged(callback: HydraConnectionStatusChangedCallback){
+    if(this.log){
+      console.log("hydra.conection_status_changed unsubscribed");
+    }
+	this.HydraConnectionStatusChangedCallback = undefined;
   }
   
   public OnHydraUnAssigned(callback: HydraUnAssignedCallback){
