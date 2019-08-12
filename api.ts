@@ -1991,13 +1991,6 @@ export interface OrderRatingUpdatedCallback{
   (data: Flipdish.OrderRatingUpdatedEvent): void;
 }
 
-/**
- * EmvNotification Subscription Callback
-*/
-export interface EmvNotificationCallback{
-  (data: Flipdish.EmvNotificationEvent): void;
-}
-
 
 /**
  * OrderHub
@@ -2020,8 +2013,6 @@ export class OrderHub {
   
   private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
   
-  private EmvNotificationCallback: EmvNotificationCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
     
     this.OrderCreatedCallback = undefined;
@@ -2037,8 +2028,6 @@ export class OrderHub {
     this.OrderTipUpdatedCallback = undefined;
     
     this.OrderRatingUpdatedCallback = undefined;
-    
-    this.EmvNotificationCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2117,17 +2106,6 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderRatingUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.terminal.notification", (eventData:SignalrEvent) => {
-      var data:Flipdish.EmvNotificationEvent = JSON.parse(eventData.Body);
-      if(this.EmvNotificationCallback){
-        if(this.log){
-          console.log("order.terminal.notification received");
-          console.log(eventData.Body);
-        }
-        this.EmvNotificationCallback(data);
       }
     });
       
@@ -2222,19 +2200,6 @@ export class OrderHub {
       console.log("order.rating.updated unsubscribed");
     }
 	this.OrderRatingUpdatedCallback = undefined;
-  }
-  
-  public OnEmvNotification(callback: EmvNotificationCallback){
-    if(this.log){
-      console.log("order.terminal.notification subscribed");
-    }
-    this.EmvNotificationCallback = callback;
-  }
-  public OffEmvNotification(callback: EmvNotificationCallback){
-    if(this.log){
-      console.log("order.terminal.notification unsubscribed");
-    }
-	this.EmvNotificationCallback = undefined;
   }
   
 }
