@@ -42,7 +42,7 @@ export class SignalR {
   
   public VoucherHub: VoucherHub;
   
-  public OrderHub: OrderHub;
+  public WebsiteHub: WebsiteHub;
   
   public AnalyticsHub: AnalyticsHub;
   
@@ -83,7 +83,7 @@ export class SignalR {
 	
     this.VoucherHub = new VoucherHub(SignalR.ActiveConnection.createHubProxy("VoucherHub"), signalRConfiguration.Log);
 	
-    this.OrderHub = new OrderHub(SignalR.ActiveConnection.createHubProxy("OrderHub"), signalRConfiguration.Log);
+    this.WebsiteHub = new WebsiteHub(SignalR.ActiveConnection.createHubProxy("WebsiteHub"), signalRConfiguration.Log);
 	
     this.AnalyticsHub = new AnalyticsHub(SignalR.ActiveConnection.createHubProxy("AnalyticsHub"), signalRConfiguration.Log);
 	
@@ -1020,270 +1020,130 @@ export class VoucherHub {
 /* VoucherHub End */
 
 
-/* OrderHub Start */
+/* WebsiteHub Start */
 
 /**
- * OrderCreated Subscription Callback
+ * CertificateRenewed Subscription Callback
 */
-export interface OrderCreatedCallback{
-  (data: Flipdish.OrderCreatedEvent): void;
+export interface CertificateRenewedCallback{
+  (data: Flipdish.CertificateRenewedEvent): void;
 }
 
 /**
- * OrderDispatched Subscription Callback
+ * CertificateCreated Subscription Callback
 */
-export interface OrderDispatchedCallback{
-  (data: Flipdish.OrderDispatchedEvent): void;
+export interface CertificateCreatedCallback{
+  (data: Flipdish.CertificateCreatedEvent): void;
 }
 
 /**
- * OrderRejected Subscription Callback
+ * DnsVerified Subscription Callback
 */
-export interface OrderRejectedCallback{
-  (data: Flipdish.OrderRejectedEvent): void;
-}
-
-/**
- * OrderAccepted Subscription Callback
-*/
-export interface OrderAcceptedCallback{
-  (data: Flipdish.OrderAcceptedEvent): void;
-}
-
-/**
- * OrderRefunded Subscription Callback
-*/
-export interface OrderRefundedCallback{
-  (data: Flipdish.OrderRefundedEvent): void;
-}
-
-/**
- * OrderTipUpdated Subscription Callback
-*/
-export interface OrderTipUpdatedCallback{
-  (data: Flipdish.OrderTipUpdatedEvent): void;
-}
-
-/**
- * OrderRatingUpdated Subscription Callback
-*/
-export interface OrderRatingUpdatedCallback{
-  (data: Flipdish.OrderRatingUpdatedEvent): void;
+export interface DnsVerifiedCallback{
+  (data: Flipdish.DnsVerifiedEvent): void;
 }
 
 
 /**
- * OrderHub
+ * WebsiteHub
  */
-export class OrderHub {
+export class WebsiteHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private OrderCreatedCallback: OrderCreatedCallback;
+  private CertificateRenewedCallback: CertificateRenewedCallback;
   
-  private OrderDispatchedCallback: OrderDispatchedCallback;
+  private CertificateCreatedCallback: CertificateCreatedCallback;
   
-  private OrderRejectedCallback: OrderRejectedCallback;
-  
-  private OrderAcceptedCallback: OrderAcceptedCallback;
-  
-  private OrderRefundedCallback: OrderRefundedCallback;
-  
-  private OrderTipUpdatedCallback: OrderTipUpdatedCallback;
-  
-  private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
+  private DnsVerifiedCallback: DnsVerifiedCallback;
   
   public constructor(proxy: Proxy, log: boolean){
     
-    this.OrderCreatedCallback = undefined;
+    this.CertificateRenewedCallback = undefined;
     
-    this.OrderDispatchedCallback = undefined;
+    this.CertificateCreatedCallback = undefined;
     
-    this.OrderRejectedCallback = undefined;
-    
-    this.OrderAcceptedCallback = undefined;
-    
-    this.OrderRefundedCallback = undefined;
-    
-    this.OrderTipUpdatedCallback = undefined;
-    
-    this.OrderRatingUpdatedCallback = undefined;
+    this.DnsVerifiedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("order.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderCreatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderCreatedCallback){
+    this.proxy.on("website.certificate.renewed", (eventData:SignalrEvent) => {
+      var data:Flipdish.CertificateRenewedEvent = JSON.parse(eventData.Body);
+      if(this.CertificateRenewedCallback){
         if(this.log){
-          console.log("order.created received");
+          console.log("website.certificate.renewed received");
           console.log(eventData.Body);
         }
-        this.OrderCreatedCallback(data);
+        this.CertificateRenewedCallback(data);
       }
     });
       
-    this.proxy.on("order.dispatched", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderDispatchedEvent = JSON.parse(eventData.Body);
-      if(this.OrderDispatchedCallback){
+    this.proxy.on("website.certificate.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.CertificateCreatedEvent = JSON.parse(eventData.Body);
+      if(this.CertificateCreatedCallback){
         if(this.log){
-          console.log("order.dispatched received");
+          console.log("website.certificate.created received");
           console.log(eventData.Body);
         }
-        this.OrderDispatchedCallback(data);
+        this.CertificateCreatedCallback(data);
       }
     });
       
-    this.proxy.on("order.rejected", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderRejectedEvent = JSON.parse(eventData.Body);
-      if(this.OrderRejectedCallback){
+    this.proxy.on("website.dns.verified", (eventData:SignalrEvent) => {
+      var data:Flipdish.DnsVerifiedEvent = JSON.parse(eventData.Body);
+      if(this.DnsVerifiedCallback){
         if(this.log){
-          console.log("order.rejected received");
+          console.log("website.dns.verified received");
           console.log(eventData.Body);
         }
-        this.OrderRejectedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.accepted", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderAcceptedEvent = JSON.parse(eventData.Body);
-      if(this.OrderAcceptedCallback){
-        if(this.log){
-          console.log("order.accepted received");
-          console.log(eventData.Body);
-        }
-        this.OrderAcceptedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.refunded", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderRefundedEvent = JSON.parse(eventData.Body);
-      if(this.OrderRefundedCallback){
-        if(this.log){
-          console.log("order.refunded received");
-          console.log(eventData.Body);
-        }
-        this.OrderRefundedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.tip.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderTipUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderTipUpdatedCallback){
-        if(this.log){
-          console.log("order.tip.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderTipUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.rating.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderRatingUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderRatingUpdatedCallback){
-        if(this.log){
-          console.log("order.rating.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderRatingUpdatedCallback(data);
+        this.DnsVerifiedCallback(data);
       }
     });
       
   }
   
-  public OnOrderCreated(callback: OrderCreatedCallback){
+  public OnCertificateRenewed(callback: CertificateRenewedCallback){
     if(this.log){
-      console.log("order.created subscribed");
+      console.log("website.certificate.renewed subscribed");
     }
-    this.OrderCreatedCallback = callback;
+    this.CertificateRenewedCallback = callback;
   }
-  public OffOrderCreated(callback: OrderCreatedCallback){
+  public OffCertificateRenewed(callback: CertificateRenewedCallback){
     if(this.log){
-      console.log("order.created unsubscribed");
+      console.log("website.certificate.renewed unsubscribed");
     }
-	this.OrderCreatedCallback = undefined;
-  }
-  
-  public OnOrderDispatched(callback: OrderDispatchedCallback){
-    if(this.log){
-      console.log("order.dispatched subscribed");
-    }
-    this.OrderDispatchedCallback = callback;
-  }
-  public OffOrderDispatched(callback: OrderDispatchedCallback){
-    if(this.log){
-      console.log("order.dispatched unsubscribed");
-    }
-	this.OrderDispatchedCallback = undefined;
+	this.CertificateRenewedCallback = undefined;
   }
   
-  public OnOrderRejected(callback: OrderRejectedCallback){
+  public OnCertificateCreated(callback: CertificateCreatedCallback){
     if(this.log){
-      console.log("order.rejected subscribed");
+      console.log("website.certificate.created subscribed");
     }
-    this.OrderRejectedCallback = callback;
+    this.CertificateCreatedCallback = callback;
   }
-  public OffOrderRejected(callback: OrderRejectedCallback){
+  public OffCertificateCreated(callback: CertificateCreatedCallback){
     if(this.log){
-      console.log("order.rejected unsubscribed");
+      console.log("website.certificate.created unsubscribed");
     }
-	this.OrderRejectedCallback = undefined;
-  }
-  
-  public OnOrderAccepted(callback: OrderAcceptedCallback){
-    if(this.log){
-      console.log("order.accepted subscribed");
-    }
-    this.OrderAcceptedCallback = callback;
-  }
-  public OffOrderAccepted(callback: OrderAcceptedCallback){
-    if(this.log){
-      console.log("order.accepted unsubscribed");
-    }
-	this.OrderAcceptedCallback = undefined;
+	this.CertificateCreatedCallback = undefined;
   }
   
-  public OnOrderRefunded(callback: OrderRefundedCallback){
+  public OnDnsVerified(callback: DnsVerifiedCallback){
     if(this.log){
-      console.log("order.refunded subscribed");
+      console.log("website.dns.verified subscribed");
     }
-    this.OrderRefundedCallback = callback;
+    this.DnsVerifiedCallback = callback;
   }
-  public OffOrderRefunded(callback: OrderRefundedCallback){
+  public OffDnsVerified(callback: DnsVerifiedCallback){
     if(this.log){
-      console.log("order.refunded unsubscribed");
+      console.log("website.dns.verified unsubscribed");
     }
-	this.OrderRefundedCallback = undefined;
-  }
-  
-  public OnOrderTipUpdated(callback: OrderTipUpdatedCallback){
-    if(this.log){
-      console.log("order.tip.updated subscribed");
-    }
-    this.OrderTipUpdatedCallback = callback;
-  }
-  public OffOrderTipUpdated(callback: OrderTipUpdatedCallback){
-    if(this.log){
-      console.log("order.tip.updated unsubscribed");
-    }
-	this.OrderTipUpdatedCallback = undefined;
-  }
-  
-  public OnOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
-    if(this.log){
-      console.log("order.rating.updated subscribed");
-    }
-    this.OrderRatingUpdatedCallback = callback;
-  }
-  public OffOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
-    if(this.log){
-      console.log("order.rating.updated unsubscribed");
-    }
-	this.OrderRatingUpdatedCallback = undefined;
+	this.DnsVerifiedCallback = undefined;
   }
   
 }
-/* OrderHub End */
+/* WebsiteHub End */
 
 
 /* AnalyticsHub Start */
