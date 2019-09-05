@@ -42,6 +42,8 @@ export class SignalR {
   
   public VoucherHub: VoucherHub;
   
+  public WebsiteHub: WebsiteHub;
+  
   public AnalyticsHub: AnalyticsHub;
   
   public CampaignHub: CampaignHub;
@@ -80,6 +82,8 @@ export class SignalR {
     this.TeammateHub = new TeammateHub(SignalR.ActiveConnection.createHubProxy("TeammateHub"), signalRConfiguration.Log);
 	
     this.VoucherHub = new VoucherHub(SignalR.ActiveConnection.createHubProxy("VoucherHub"), signalRConfiguration.Log);
+	
+    this.WebsiteHub = new WebsiteHub(SignalR.ActiveConnection.createHubProxy("WebsiteHub"), signalRConfiguration.Log);
 	
     this.AnalyticsHub = new AnalyticsHub(SignalR.ActiveConnection.createHubProxy("AnalyticsHub"), signalRConfiguration.Log);
 	
@@ -1014,6 +1018,132 @@ export class VoucherHub {
   
 }
 /* VoucherHub End */
+
+
+/* WebsiteHub Start */
+
+/**
+ * CertificateRenewed Subscription Callback
+*/
+export interface CertificateRenewedCallback{
+  (data: Flipdish.CertificateRenewedEvent): void;
+}
+
+/**
+ * CertificateCreated Subscription Callback
+*/
+export interface CertificateCreatedCallback{
+  (data: Flipdish.CertificateCreatedEvent): void;
+}
+
+/**
+ * DnsVerified Subscription Callback
+*/
+export interface DnsVerifiedCallback{
+  (data: Flipdish.DnsVerifiedEvent): void;
+}
+
+
+/**
+ * WebsiteHub
+ */
+export class WebsiteHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private CertificateRenewedCallback: CertificateRenewedCallback;
+  
+  private CertificateCreatedCallback: CertificateCreatedCallback;
+  
+  private DnsVerifiedCallback: DnsVerifiedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.CertificateRenewedCallback = undefined;
+    
+    this.CertificateCreatedCallback = undefined;
+    
+    this.DnsVerifiedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("website.certificate.renewed", (eventData:SignalrEvent) => {
+      var data:Flipdish.CertificateRenewedEvent = JSON.parse(eventData.Body);
+      if(this.CertificateRenewedCallback){
+        if(this.log){
+          console.log("website.certificate.renewed received");
+          console.log(eventData.Body);
+        }
+        this.CertificateRenewedCallback(data);
+      }
+    });
+      
+    this.proxy.on("website.certificate.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.CertificateCreatedEvent = JSON.parse(eventData.Body);
+      if(this.CertificateCreatedCallback){
+        if(this.log){
+          console.log("website.certificate.created received");
+          console.log(eventData.Body);
+        }
+        this.CertificateCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("website.dns.verified", (eventData:SignalrEvent) => {
+      var data:Flipdish.DnsVerifiedEvent = JSON.parse(eventData.Body);
+      if(this.DnsVerifiedCallback){
+        if(this.log){
+          console.log("website.dns.verified received");
+          console.log(eventData.Body);
+        }
+        this.DnsVerifiedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnCertificateRenewed(callback: CertificateRenewedCallback){
+    if(this.log){
+      console.log("website.certificate.renewed subscribed");
+    }
+    this.CertificateRenewedCallback = callback;
+  }
+  public OffCertificateRenewed(callback: CertificateRenewedCallback){
+    if(this.log){
+      console.log("website.certificate.renewed unsubscribed");
+    }
+	this.CertificateRenewedCallback = undefined;
+  }
+  
+  public OnCertificateCreated(callback: CertificateCreatedCallback){
+    if(this.log){
+      console.log("website.certificate.created subscribed");
+    }
+    this.CertificateCreatedCallback = callback;
+  }
+  public OffCertificateCreated(callback: CertificateCreatedCallback){
+    if(this.log){
+      console.log("website.certificate.created unsubscribed");
+    }
+	this.CertificateCreatedCallback = undefined;
+  }
+  
+  public OnDnsVerified(callback: DnsVerifiedCallback){
+    if(this.log){
+      console.log("website.dns.verified subscribed");
+    }
+    this.DnsVerifiedCallback = callback;
+  }
+  public OffDnsVerified(callback: DnsVerifiedCallback){
+    if(this.log){
+      console.log("website.dns.verified unsubscribed");
+    }
+	this.DnsVerifiedCallback = undefined;
+  }
+  
+}
+/* WebsiteHub End */
 
 
 /* AnalyticsHub Start */
