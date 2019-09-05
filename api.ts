@@ -42,6 +42,8 @@ export class SignalR {
   
   public VoucherHub: VoucherHub;
   
+  public OrderHub: OrderHub;
+  
   public AnalyticsHub: AnalyticsHub;
   
   public CampaignHub: CampaignHub;
@@ -80,6 +82,8 @@ export class SignalR {
     this.TeammateHub = new TeammateHub(SignalR.ActiveConnection.createHubProxy("TeammateHub"), signalRConfiguration.Log);
 	
     this.VoucherHub = new VoucherHub(SignalR.ActiveConnection.createHubProxy("VoucherHub"), signalRConfiguration.Log);
+	
+    this.OrderHub = new OrderHub(SignalR.ActiveConnection.createHubProxy("OrderHub"), signalRConfiguration.Log);
 	
     this.AnalyticsHub = new AnalyticsHub(SignalR.ActiveConnection.createHubProxy("AnalyticsHub"), signalRConfiguration.Log);
 	
@@ -1014,6 +1018,272 @@ export class VoucherHub {
   
 }
 /* VoucherHub End */
+
+
+/* OrderHub Start */
+
+/**
+ * OrderCreated Subscription Callback
+*/
+export interface OrderCreatedCallback{
+  (data: Flipdish.OrderCreatedEvent): void;
+}
+
+/**
+ * OrderDispatched Subscription Callback
+*/
+export interface OrderDispatchedCallback{
+  (data: Flipdish.OrderDispatchedEvent): void;
+}
+
+/**
+ * OrderRejected Subscription Callback
+*/
+export interface OrderRejectedCallback{
+  (data: Flipdish.OrderRejectedEvent): void;
+}
+
+/**
+ * OrderAccepted Subscription Callback
+*/
+export interface OrderAcceptedCallback{
+  (data: Flipdish.OrderAcceptedEvent): void;
+}
+
+/**
+ * OrderRefunded Subscription Callback
+*/
+export interface OrderRefundedCallback{
+  (data: Flipdish.OrderRefundedEvent): void;
+}
+
+/**
+ * OrderTipUpdated Subscription Callback
+*/
+export interface OrderTipUpdatedCallback{
+  (data: Flipdish.OrderTipUpdatedEvent): void;
+}
+
+/**
+ * OrderRatingUpdated Subscription Callback
+*/
+export interface OrderRatingUpdatedCallback{
+  (data: Flipdish.OrderRatingUpdatedEvent): void;
+}
+
+
+/**
+ * OrderHub
+ */
+export class OrderHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private OrderCreatedCallback: OrderCreatedCallback;
+  
+  private OrderDispatchedCallback: OrderDispatchedCallback;
+  
+  private OrderRejectedCallback: OrderRejectedCallback;
+  
+  private OrderAcceptedCallback: OrderAcceptedCallback;
+  
+  private OrderRefundedCallback: OrderRefundedCallback;
+  
+  private OrderTipUpdatedCallback: OrderTipUpdatedCallback;
+  
+  private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.OrderCreatedCallback = undefined;
+    
+    this.OrderDispatchedCallback = undefined;
+    
+    this.OrderRejectedCallback = undefined;
+    
+    this.OrderAcceptedCallback = undefined;
+    
+    this.OrderRefundedCallback = undefined;
+    
+    this.OrderTipUpdatedCallback = undefined;
+    
+    this.OrderRatingUpdatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("order.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderCreatedEvent = JSON.parse(eventData.Body);
+      if(this.OrderCreatedCallback){
+        if(this.log){
+          console.log("order.created received");
+          console.log(eventData.Body);
+        }
+        this.OrderCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.dispatched", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderDispatchedEvent = JSON.parse(eventData.Body);
+      if(this.OrderDispatchedCallback){
+        if(this.log){
+          console.log("order.dispatched received");
+          console.log(eventData.Body);
+        }
+        this.OrderDispatchedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.rejected", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderRejectedEvent = JSON.parse(eventData.Body);
+      if(this.OrderRejectedCallback){
+        if(this.log){
+          console.log("order.rejected received");
+          console.log(eventData.Body);
+        }
+        this.OrderRejectedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.accepted", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderAcceptedEvent = JSON.parse(eventData.Body);
+      if(this.OrderAcceptedCallback){
+        if(this.log){
+          console.log("order.accepted received");
+          console.log(eventData.Body);
+        }
+        this.OrderAcceptedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.refunded", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderRefundedEvent = JSON.parse(eventData.Body);
+      if(this.OrderRefundedCallback){
+        if(this.log){
+          console.log("order.refunded received");
+          console.log(eventData.Body);
+        }
+        this.OrderRefundedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.tip.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderTipUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.OrderTipUpdatedCallback){
+        if(this.log){
+          console.log("order.tip.updated received");
+          console.log(eventData.Body);
+        }
+        this.OrderTipUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.rating.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderRatingUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.OrderRatingUpdatedCallback){
+        if(this.log){
+          console.log("order.rating.updated received");
+          console.log(eventData.Body);
+        }
+        this.OrderRatingUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnOrderCreated(callback: OrderCreatedCallback){
+    if(this.log){
+      console.log("order.created subscribed");
+    }
+    this.OrderCreatedCallback = callback;
+  }
+  public OffOrderCreated(callback: OrderCreatedCallback){
+    if(this.log){
+      console.log("order.created unsubscribed");
+    }
+	this.OrderCreatedCallback = undefined;
+  }
+  
+  public OnOrderDispatched(callback: OrderDispatchedCallback){
+    if(this.log){
+      console.log("order.dispatched subscribed");
+    }
+    this.OrderDispatchedCallback = callback;
+  }
+  public OffOrderDispatched(callback: OrderDispatchedCallback){
+    if(this.log){
+      console.log("order.dispatched unsubscribed");
+    }
+	this.OrderDispatchedCallback = undefined;
+  }
+  
+  public OnOrderRejected(callback: OrderRejectedCallback){
+    if(this.log){
+      console.log("order.rejected subscribed");
+    }
+    this.OrderRejectedCallback = callback;
+  }
+  public OffOrderRejected(callback: OrderRejectedCallback){
+    if(this.log){
+      console.log("order.rejected unsubscribed");
+    }
+	this.OrderRejectedCallback = undefined;
+  }
+  
+  public OnOrderAccepted(callback: OrderAcceptedCallback){
+    if(this.log){
+      console.log("order.accepted subscribed");
+    }
+    this.OrderAcceptedCallback = callback;
+  }
+  public OffOrderAccepted(callback: OrderAcceptedCallback){
+    if(this.log){
+      console.log("order.accepted unsubscribed");
+    }
+	this.OrderAcceptedCallback = undefined;
+  }
+  
+  public OnOrderRefunded(callback: OrderRefundedCallback){
+    if(this.log){
+      console.log("order.refunded subscribed");
+    }
+    this.OrderRefundedCallback = callback;
+  }
+  public OffOrderRefunded(callback: OrderRefundedCallback){
+    if(this.log){
+      console.log("order.refunded unsubscribed");
+    }
+	this.OrderRefundedCallback = undefined;
+  }
+  
+  public OnOrderTipUpdated(callback: OrderTipUpdatedCallback){
+    if(this.log){
+      console.log("order.tip.updated subscribed");
+    }
+    this.OrderTipUpdatedCallback = callback;
+  }
+  public OffOrderTipUpdated(callback: OrderTipUpdatedCallback){
+    if(this.log){
+      console.log("order.tip.updated unsubscribed");
+    }
+	this.OrderTipUpdatedCallback = undefined;
+  }
+  
+  public OnOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
+    if(this.log){
+      console.log("order.rating.updated subscribed");
+    }
+    this.OrderRatingUpdatedCallback = callback;
+  }
+  public OffOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
+    if(this.log){
+      console.log("order.rating.updated unsubscribed");
+    }
+	this.OrderRatingUpdatedCallback = undefined;
+  }
+  
+}
+/* OrderHub End */
 
 
 /* AnalyticsHub Start */
