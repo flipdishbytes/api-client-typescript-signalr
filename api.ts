@@ -36,6 +36,8 @@ export class SignalR {
   
   public HydraHub: HydraHub;
   
+  public MenuCheckpointHub: MenuCheckpointHub;
+  
   public StoreGroupHub: StoreGroupHub;
   
   public TeammateHub: TeammateHub;
@@ -76,6 +78,8 @@ export class SignalR {
     this.BankAccountHub = new BankAccountHub(SignalR.ActiveConnection.createHubProxy("BankAccountHub"), signalRConfiguration.Log);
 	
     this.HydraHub = new HydraHub(SignalR.ActiveConnection.createHubProxy("HydraHub"), signalRConfiguration.Log);
+	
+    this.MenuCheckpointHub = new MenuCheckpointHub(SignalR.ActiveConnection.createHubProxy("MenuCheckpointHub"), signalRConfiguration.Log);
 	
     this.StoreGroupHub = new StoreGroupHub(SignalR.ActiveConnection.createHubProxy("StoreGroupHub"), signalRConfiguration.Log);
 	
@@ -605,6 +609,62 @@ export class HydraHub {
   
 }
 /* HydraHub End */
+
+
+/* MenuCheckpointHub Start */
+
+/**
+ * MenuCheckpointCreated Subscription Callback
+*/
+export interface MenuCheckpointCreatedCallback{
+  (data: Flipdish.MenuCheckpointCreatedEvent): void;
+}
+
+
+/**
+ * MenuCheckpointHub
+ */
+export class MenuCheckpointHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private MenuCheckpointCreatedCallback: MenuCheckpointCreatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.MenuCheckpointCreatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("menu_checkpoint.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuCheckpointCreatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuCheckpointCreatedCallback){
+        if(this.log){
+          console.log("menu_checkpoint.created received");
+          console.log(eventData.Body);
+        }
+        this.MenuCheckpointCreatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
+    if(this.log){
+      console.log("menu_checkpoint.created subscribed");
+    }
+    this.MenuCheckpointCreatedCallback = callback;
+  }
+  public OffMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
+    if(this.log){
+      console.log("menu_checkpoint.created unsubscribed");
+    }
+	this.MenuCheckpointCreatedCallback = undefined;
+  }
+  
+}
+/* MenuCheckpointHub End */
 
 
 /* StoreGroupHub Start */
@@ -1659,6 +1719,13 @@ export interface MenuItemOptionSetItemDeletedCallback{
   (data: Flipdish.MenuItemOptionSetItemDeletedEvent): void;
 }
 
+/**
+ * MenuCheckpointCreated Subscription Callback
+*/
+export interface MenuCheckpointCreatedCallback{
+  (data: Flipdish.MenuCheckpointCreatedEvent): void;
+}
+
 
 /**
  * MenuHub
@@ -1695,6 +1762,8 @@ export class MenuHub {
   
   private MenuItemOptionSetItemDeletedCallback: MenuItemOptionSetItemDeletedCallback;
   
+  private MenuCheckpointCreatedCallback: MenuCheckpointCreatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.MenuCreatedCallback = undefined;
@@ -1724,6 +1793,8 @@ export class MenuHub {
     this.MenuItemOptionSetItemUpdatedCallback = undefined;
     
     this.MenuItemOptionSetItemDeletedCallback = undefined;
+    
+    this.MenuCheckpointCreatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -1879,6 +1950,17 @@ export class MenuHub {
           console.log(eventData.Body);
         }
         this.MenuItemOptionSetItemDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu_checkpoint.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuCheckpointCreatedEvent = JSON.parse(eventData.Body);
+      if(this.MenuCheckpointCreatedCallback){
+        if(this.log){
+          console.log("menu_checkpoint.created received");
+          console.log(eventData.Body);
+        }
+        this.MenuCheckpointCreatedCallback(data);
       }
     });
       
@@ -2064,6 +2146,19 @@ export class MenuHub {
       console.log("menu.option_set_item.deleted unsubscribed");
     }
 	this.MenuItemOptionSetItemDeletedCallback = undefined;
+  }
+  
+  public OnMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
+    if(this.log){
+      console.log("menu_checkpoint.created subscribed");
+    }
+    this.MenuCheckpointCreatedCallback = callback;
+  }
+  public OffMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
+    if(this.log){
+      console.log("menu_checkpoint.created unsubscribed");
+    }
+	this.MenuCheckpointCreatedCallback = undefined;
   }
   
 }
