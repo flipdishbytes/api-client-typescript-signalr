@@ -2216,6 +2216,13 @@ export interface OrderRatingUpdatedCallback{
   (data: Flipdish.OrderRatingUpdatedEvent): void;
 }
 
+/**
+ * OrderDeliveryTrackingStatusUpdated Subscription Callback
+*/
+export interface OrderDeliveryTrackingStatusUpdatedCallback{
+  (data: Flipdish.OrderDeliveryTrackingStatusUpdatedEvent): void;
+}
+
 
 /**
  * OrderHub
@@ -2238,6 +2245,8 @@ export class OrderHub {
   
   private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
   
+  private OrderDeliveryTrackingStatusUpdatedCallback: OrderDeliveryTrackingStatusUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.OrderCreatedCallback = undefined;
@@ -2253,6 +2262,8 @@ export class OrderHub {
     this.OrderTipUpdatedCallback = undefined;
     
     this.OrderRatingUpdatedCallback = undefined;
+    
+    this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2331,6 +2342,17 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderRatingUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.deliverytracking.status.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderDeliveryTrackingStatusUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.OrderDeliveryTrackingStatusUpdatedCallback){
+        if(this.log){
+          console.log("order.deliverytracking.status.updated received");
+          console.log(eventData.Body);
+        }
+        this.OrderDeliveryTrackingStatusUpdatedCallback(data);
       }
     });
       
@@ -2425,6 +2447,19 @@ export class OrderHub {
       console.log("order.rating.updated unsubscribed");
     }
 	this.OrderRatingUpdatedCallback = undefined;
+  }
+  
+  public OnOrderDeliveryTrackingStatusUpdated(callback: OrderDeliveryTrackingStatusUpdatedCallback){
+    if(this.log){
+      console.log("order.deliverytracking.status.updated subscribed");
+    }
+    this.OrderDeliveryTrackingStatusUpdatedCallback = callback;
+  }
+  public OffOrderDeliveryTrackingStatusUpdated(callback: OrderDeliveryTrackingStatusUpdatedCallback){
+    if(this.log){
+      console.log("order.deliverytracking.status.updated unsubscribed");
+    }
+	this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
   }
   
 }
