@@ -2735,6 +2735,27 @@ export interface StoreUpdatedCallback{
 }
 
 /**
+ * StoreArchived Subscription Callback
+*/
+export interface StoreArchivedCallback{
+  (data: Flipdish.StoreArchivedEvent): void;
+}
+
+/**
+ * StorePublished Subscription Callback
+*/
+export interface StorePublishedCallback{
+  (data: Flipdish.StorePublishedEvent): void;
+}
+
+/**
+ * StoreUnpublished Subscription Callback
+*/
+export interface StoreUnpublishedCallback{
+  (data: Flipdish.StoreUnpublishedEvent): void;
+}
+
+/**
  * StoreDeleted Subscription Callback
 */
 export interface StoreDeletedCallback{
@@ -2837,6 +2858,12 @@ export class StoreHub {
   
   private StoreUpdatedCallback: StoreUpdatedCallback;
   
+  private StoreArchivedCallback: StoreArchivedCallback;
+  
+  private StorePublishedCallback: StorePublishedCallback;
+  
+  private StoreUnpublishedCallback: StoreUnpublishedCallback;
+  
   private StoreDeletedCallback: StoreDeletedCallback;
   
   private StoreAddressUpdatedCallback: StoreAddressUpdatedCallback;
@@ -2868,6 +2895,12 @@ export class StoreHub {
     this.StoreCreatedCallback = undefined;
     
     this.StoreUpdatedCallback = undefined;
+    
+    this.StoreArchivedCallback = undefined;
+    
+    this.StorePublishedCallback = undefined;
+    
+    this.StoreUnpublishedCallback = undefined;
     
     this.StoreDeletedCallback = undefined;
     
@@ -2917,6 +2950,39 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.archived", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreArchivedEvent = JSON.parse(eventData.Body);
+      if(this.StoreArchivedCallback){
+        if(this.log){
+          console.log("store.archived received");
+          console.log(eventData.Body);
+        }
+        this.StoreArchivedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.published", (eventData:SignalrEvent) => {
+      var data:Flipdish.StorePublishedEvent = JSON.parse(eventData.Body);
+      if(this.StorePublishedCallback){
+        if(this.log){
+          console.log("store.published received");
+          console.log(eventData.Body);
+        }
+        this.StorePublishedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.unpublished", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreUnpublishedEvent = JSON.parse(eventData.Body);
+      if(this.StoreUnpublishedCallback){
+        if(this.log){
+          console.log("store.unpublished received");
+          console.log(eventData.Body);
+        }
+        this.StoreUnpublishedCallback(data);
       }
     });
       
@@ -3089,6 +3155,45 @@ export class StoreHub {
       console.log("store.updated unsubscribed");
     }
 	this.StoreUpdatedCallback = undefined;
+  }
+  
+  public OnStoreArchived(callback: StoreArchivedCallback){
+    if(this.log){
+      console.log("store.archived subscribed");
+    }
+    this.StoreArchivedCallback = callback;
+  }
+  public OffStoreArchived(callback: StoreArchivedCallback){
+    if(this.log){
+      console.log("store.archived unsubscribed");
+    }
+	this.StoreArchivedCallback = undefined;
+  }
+  
+  public OnStorePublished(callback: StorePublishedCallback){
+    if(this.log){
+      console.log("store.published subscribed");
+    }
+    this.StorePublishedCallback = callback;
+  }
+  public OffStorePublished(callback: StorePublishedCallback){
+    if(this.log){
+      console.log("store.published unsubscribed");
+    }
+	this.StorePublishedCallback = undefined;
+  }
+  
+  public OnStoreUnpublished(callback: StoreUnpublishedCallback){
+    if(this.log){
+      console.log("store.unpublished subscribed");
+    }
+    this.StoreUnpublishedCallback = callback;
+  }
+  public OffStoreUnpublished(callback: StoreUnpublishedCallback){
+    if(this.log){
+      console.log("store.unpublished unsubscribed");
+    }
+	this.StoreUnpublishedCallback = undefined;
   }
   
   public OnStoreDeleted(callback: StoreDeletedCallback){
