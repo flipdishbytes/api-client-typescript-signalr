@@ -2742,6 +2742,13 @@ export interface StoreArchivedCallback{
 }
 
 /**
+ * StoreUnarchived Subscription Callback
+*/
+export interface StoreUnarchivedCallback{
+  (data: Flipdish.StoreUnarchivedEvent): void;
+}
+
+/**
  * StorePublished Subscription Callback
 */
 export interface StorePublishedCallback{
@@ -2860,6 +2867,8 @@ export class StoreHub {
   
   private StoreArchivedCallback: StoreArchivedCallback;
   
+  private StoreUnarchivedCallback: StoreUnarchivedCallback;
+  
   private StorePublishedCallback: StorePublishedCallback;
   
   private StoreUnpublishedCallback: StoreUnpublishedCallback;
@@ -2897,6 +2906,8 @@ export class StoreHub {
     this.StoreUpdatedCallback = undefined;
     
     this.StoreArchivedCallback = undefined;
+    
+    this.StoreUnarchivedCallback = undefined;
     
     this.StorePublishedCallback = undefined;
     
@@ -2961,6 +2972,17 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreArchivedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.unarchived", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreUnarchivedEvent = JSON.parse(eventData.Body);
+      if(this.StoreUnarchivedCallback){
+        if(this.log){
+          console.log("store.unarchived received");
+          console.log(eventData.Body);
+        }
+        this.StoreUnarchivedCallback(data);
       }
     });
       
@@ -3168,6 +3190,19 @@ export class StoreHub {
       console.log("store.archived unsubscribed");
     }
 	this.StoreArchivedCallback = undefined;
+  }
+  
+  public OnStoreUnarchived(callback: StoreUnarchivedCallback){
+    if(this.log){
+      console.log("store.unarchived subscribed");
+    }
+    this.StoreUnarchivedCallback = callback;
+  }
+  public OffStoreUnarchived(callback: StoreUnarchivedCallback){
+    if(this.log){
+      console.log("store.unarchived unsubscribed");
+    }
+	this.StoreUnarchivedCallback = undefined;
   }
   
   public OnStorePublished(callback: StorePublishedCallback){
