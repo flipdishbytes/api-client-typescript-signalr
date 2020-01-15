@@ -2853,6 +2853,27 @@ export interface StorePreOrderConfigUpdatedCallback{
   (data: Flipdish.StorePreOrderConfigUpdatedEvent): void;
 }
 
+/**
+ * StoreLogoCreated Subscription Callback
+*/
+export interface StoreLogoCreatedCallback{
+  (data: Flipdish.StoreLogoCreatedEvent): void;
+}
+
+/**
+ * StoreLogoUpdated Subscription Callback
+*/
+export interface StoreLogoUpdatedCallback{
+  (data: Flipdish.StoreLogoUpdatedEvent): void;
+}
+
+/**
+ * StoreLogoDeleted Subscription Callback
+*/
+export interface StoreLogoDeletedCallback{
+  (data: Flipdish.StoreLogoDeletedEvent): void;
+}
+
 
 /**
  * StoreHub
@@ -2899,6 +2920,12 @@ export class StoreHub {
   
   private StorePreOrderConfigUpdatedCallback: StorePreOrderConfigUpdatedCallback;
   
+  private StoreLogoCreatedCallback: StoreLogoCreatedCallback;
+  
+  private StoreLogoUpdatedCallback: StoreLogoUpdatedCallback;
+  
+  private StoreLogoDeletedCallback: StoreLogoDeletedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.StoreCreatedCallback = undefined;
@@ -2938,6 +2965,12 @@ export class StoreHub {
     this.StoreBusinessHoursOverrideDeletedCallback = undefined;
     
     this.StorePreOrderConfigUpdatedCallback = undefined;
+    
+    this.StoreLogoCreatedCallback = undefined;
+    
+    this.StoreLogoUpdatedCallback = undefined;
+    
+    this.StoreLogoDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -3148,6 +3181,39 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StorePreOrderConfigUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.logo.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreLogoCreatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreLogoCreatedCallback){
+        if(this.log){
+          console.log("store.logo.created received");
+          console.log(eventData.Body);
+        }
+        this.StoreLogoCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.logo.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreLogoUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreLogoUpdatedCallback){
+        if(this.log){
+          console.log("store.logo.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreLogoUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.logo.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreLogoDeletedEvent = JSON.parse(eventData.Body);
+      if(this.StoreLogoDeletedCallback){
+        if(this.log){
+          console.log("store.logo.deleted received");
+          console.log(eventData.Body);
+        }
+        this.StoreLogoDeletedCallback(data);
       }
     });
       
@@ -3398,6 +3464,45 @@ export class StoreHub {
       console.log("store.preorder_config.updated unsubscribed");
     }
 	this.StorePreOrderConfigUpdatedCallback = undefined;
+  }
+  
+  public OnStoreLogoCreated(callback: StoreLogoCreatedCallback){
+    if(this.log){
+      console.log("store.logo.created subscribed");
+    }
+    this.StoreLogoCreatedCallback = callback;
+  }
+  public OffStoreLogoCreated(callback: StoreLogoCreatedCallback){
+    if(this.log){
+      console.log("store.logo.created unsubscribed");
+    }
+	this.StoreLogoCreatedCallback = undefined;
+  }
+  
+  public OnStoreLogoUpdated(callback: StoreLogoUpdatedCallback){
+    if(this.log){
+      console.log("store.logo.updated subscribed");
+    }
+    this.StoreLogoUpdatedCallback = callback;
+  }
+  public OffStoreLogoUpdated(callback: StoreLogoUpdatedCallback){
+    if(this.log){
+      console.log("store.logo.updated unsubscribed");
+    }
+	this.StoreLogoUpdatedCallback = undefined;
+  }
+  
+  public OnStoreLogoDeleted(callback: StoreLogoDeletedCallback){
+    if(this.log){
+      console.log("store.logo.deleted subscribed");
+    }
+    this.StoreLogoDeletedCallback = callback;
+  }
+  public OffStoreLogoDeleted(callback: StoreLogoDeletedCallback){
+    if(this.log){
+      console.log("store.logo.deleted unsubscribed");
+    }
+	this.StoreLogoDeletedCallback = undefined;
   }
   
 }
