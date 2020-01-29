@@ -2874,6 +2874,13 @@ export interface StoreLogoDeletedCallback{
   (data: Flipdish.StoreLogoDeletedEvent): void;
 }
 
+/**
+ * StoreKioskSettingUpdated Subscription Callback
+*/
+export interface StoreKioskSettingUpdatedCallback{
+  (data: Flipdish.StoreKioskSettingUpdatedEvent): void;
+}
+
 
 /**
  * StoreHub
@@ -2926,6 +2933,8 @@ export class StoreHub {
   
   private StoreLogoDeletedCallback: StoreLogoDeletedCallback;
   
+  private StoreKioskSettingUpdatedCallback: StoreKioskSettingUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.StoreCreatedCallback = undefined;
@@ -2971,6 +2980,8 @@ export class StoreHub {
     this.StoreLogoUpdatedCallback = undefined;
     
     this.StoreLogoDeletedCallback = undefined;
+    
+    this.StoreKioskSettingUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -3214,6 +3225,17 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreLogoDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.kiosk_setting.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreKioskSettingUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreKioskSettingUpdatedCallback){
+        if(this.log){
+          console.log("store.kiosk_setting.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreKioskSettingUpdatedCallback(data);
       }
     });
       
@@ -3503,6 +3525,19 @@ export class StoreHub {
       console.log("store.logo.deleted unsubscribed");
     }
 	this.StoreLogoDeletedCallback = undefined;
+  }
+  
+  public OnStoreKioskSettingUpdated(callback: StoreKioskSettingUpdatedCallback){
+    if(this.log){
+      console.log("store.kiosk_setting.updated subscribed");
+    }
+    this.StoreKioskSettingUpdatedCallback = callback;
+  }
+  public OffStoreKioskSettingUpdated(callback: StoreKioskSettingUpdatedCallback){
+    if(this.log){
+      console.log("store.kiosk_setting.updated unsubscribed");
+    }
+	this.StoreKioskSettingUpdatedCallback = undefined;
   }
   
 }
