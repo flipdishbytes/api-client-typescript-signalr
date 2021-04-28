@@ -30,6 +30,8 @@ export class SignalR {
 
   public AuthorizationHub: AuthorizationHub;
   
+  public CardReaderHub: CardReaderHub;
+  
   public AppHub: AppHub;
   
   public BankAccountHub: BankAccountHub;
@@ -73,6 +75,8 @@ export class SignalR {
 
     this.AuthorizationHub = new AuthorizationHub(SignalR.ActiveConnection.createHubProxy('AuthorizationHub'), signalRConfiguration.Log);
     
+    this.CardReaderHub = new CardReaderHub(SignalR.ActiveConnection.createHubProxy("CardReaderHub"), signalRConfiguration.Log);
+	
     this.AppHub = new AppHub(SignalR.ActiveConnection.createHubProxy("AppHub"), signalRConfiguration.Log);
 	
     this.BankAccountHub = new BankAccountHub(SignalR.ActiveConnection.createHubProxy("BankAccountHub"), signalRConfiguration.Log);
@@ -197,6 +201,62 @@ export class AuthorizationHub {
     return this.proxy.invoke("Authenticate", "1.0");
   }
 }
+
+/* CardReaderHub Start */
+
+/**
+ * KioskBluetoothTerminalUpdated Subscription Callback
+*/
+export interface KioskBluetoothTerminalUpdatedCallback{
+  (data: Flipdish.KioskBluetoothTerminalUpdatedEvent): void;
+}
+
+
+/**
+ * CardReaderHub
+ */
+export class CardReaderHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private KioskBluetoothTerminalUpdatedCallback: KioskBluetoothTerminalUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.KioskBluetoothTerminalUpdatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("cardreaders.kiosk.bluetooth.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothTerminalUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothTerminalUpdatedCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.updated received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothTerminalUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnKioskBluetoothTerminalUpdated(callback: KioskBluetoothTerminalUpdatedCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.updated subscribed");
+    }
+    this.KioskBluetoothTerminalUpdatedCallback = callback;
+  }
+  public OffKioskBluetoothTerminalUpdated(callback: KioskBluetoothTerminalUpdatedCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.updated unsubscribed");
+    }
+	this.KioskBluetoothTerminalUpdatedCallback = undefined;
+  }
+  
+}
+/* CardReaderHub End */
+
 
 /* AppHub Start */
 
@@ -452,6 +512,20 @@ export interface HydraUnAssignedCallback{
   (data: Flipdish.HydraUnAssignedEvent): void;
 }
 
+/**
+ * HydraStoreAssigned Subscription Callback
+*/
+export interface HydraStoreAssignedCallback{
+  (data: Flipdish.HydraStoreAssignedEvent): void;
+}
+
+/**
+ * HydraStoreUnassigned Subscription Callback
+*/
+export interface HydraStoreUnassignedCallback{
+  (data: Flipdish.HydraStoreUnassignedEvent): void;
+}
+
 
 /**
  * HydraHub
@@ -470,6 +544,10 @@ export class HydraHub {
   
   private HydraUnAssignedCallback: HydraUnAssignedCallback;
   
+  private HydraStoreAssignedCallback: HydraStoreAssignedCallback;
+  
+  private HydraStoreUnassignedCallback: HydraStoreUnassignedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.HydraAssignedCallback = undefined;
@@ -481,6 +559,10 @@ export class HydraHub {
     this.HydraConnectionStatusChangedCallback = undefined;
     
     this.HydraUnAssignedCallback = undefined;
+    
+    this.HydraStoreAssignedCallback = undefined;
+    
+    this.HydraStoreUnassignedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -537,6 +619,28 @@ export class HydraHub {
           console.log(eventData.Body);
         }
         this.HydraUnAssignedCallback(data);
+      }
+    });
+      
+    this.proxy.on("hydra.store.assigned", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraStoreAssignedEvent = JSON.parse(eventData.Body);
+      if(this.HydraStoreAssignedCallback){
+        if(this.log){
+          console.log("hydra.store.assigned received");
+          console.log(eventData.Body);
+        }
+        this.HydraStoreAssignedCallback(data);
+      }
+    });
+      
+    this.proxy.on("hydra.store.unassigned", (eventData:SignalrEvent) => {
+      var data:Flipdish.HydraStoreUnassignedEvent = JSON.parse(eventData.Body);
+      if(this.HydraStoreUnassignedCallback){
+        if(this.log){
+          console.log("hydra.store.unassigned received");
+          console.log(eventData.Body);
+        }
+        this.HydraStoreUnassignedCallback(data);
       }
     });
       
@@ -605,6 +709,32 @@ export class HydraHub {
       console.log("hydra.unassigned unsubscribed");
     }
 	this.HydraUnAssignedCallback = undefined;
+  }
+  
+  public OnHydraStoreAssigned(callback: HydraStoreAssignedCallback){
+    if(this.log){
+      console.log("hydra.store.assigned subscribed");
+    }
+    this.HydraStoreAssignedCallback = callback;
+  }
+  public OffHydraStoreAssigned(callback: HydraStoreAssignedCallback){
+    if(this.log){
+      console.log("hydra.store.assigned unsubscribed");
+    }
+	this.HydraStoreAssignedCallback = undefined;
+  }
+  
+  public OnHydraStoreUnassigned(callback: HydraStoreUnassignedCallback){
+    if(this.log){
+      console.log("hydra.store.unassigned subscribed");
+    }
+    this.HydraStoreUnassignedCallback = callback;
+  }
+  public OffHydraStoreUnassigned(callback: HydraStoreUnassignedCallback){
+    if(this.log){
+      console.log("hydra.store.unassigned unsubscribed");
+    }
+	this.HydraStoreUnassignedCallback = undefined;
   }
   
 }
@@ -1636,6 +1766,13 @@ export interface MenuUpdatedCallback{
 }
 
 /**
+ * MenuUploaded Subscription Callback
+*/
+export interface MenuUploadedCallback{
+  (data: Flipdish.MenuUploadedEvent): void;
+}
+
+/**
  * MenuSectionCreated Subscription Callback
 */
 export interface MenuSectionCreatedCallback{
@@ -1738,6 +1875,8 @@ export class MenuHub {
   
   private MenuUpdatedCallback: MenuUpdatedCallback;
   
+  private MenuUploadedCallback: MenuUploadedCallback;
+  
   private MenuSectionCreatedCallback: MenuSectionCreatedCallback;
   
   private MenuSectionUpdatedCallback: MenuSectionUpdatedCallback;
@@ -1769,6 +1908,8 @@ export class MenuHub {
     this.MenuCreatedCallback = undefined;
     
     this.MenuUpdatedCallback = undefined;
+    
+    this.MenuUploadedCallback = undefined;
     
     this.MenuSectionCreatedCallback = undefined;
     
@@ -1818,6 +1959,17 @@ export class MenuHub {
           console.log(eventData.Body);
         }
         this.MenuUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.uploaded", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuUploadedEvent = JSON.parse(eventData.Body);
+      if(this.MenuUploadedCallback){
+        if(this.log){
+          console.log("menu.uploaded received");
+          console.log(eventData.Body);
+        }
+        this.MenuUploadedCallback(data);
       }
     });
       
@@ -1990,6 +2142,19 @@ export class MenuHub {
       console.log("menu.updated unsubscribed");
     }
 	this.MenuUpdatedCallback = undefined;
+  }
+  
+  public OnMenuUploaded(callback: MenuUploadedCallback){
+    if(this.log){
+      console.log("menu.uploaded subscribed");
+    }
+    this.MenuUploadedCallback = callback;
+  }
+  public OffMenuUploaded(callback: MenuUploadedCallback){
+    if(this.log){
+      console.log("menu.uploaded unsubscribed");
+    }
+	this.MenuUploadedCallback = undefined;
   }
   
   public OnMenuSectionCreated(callback: MenuSectionCreatedCallback){
@@ -2223,6 +2388,13 @@ export interface OrderDeliveryTrackingStatusUpdatedCallback{
   (data: Flipdish.OrderDeliveryTrackingStatusUpdatedEvent): void;
 }
 
+/**
+ * OrderCapacityConfigUpdated Subscription Callback
+*/
+export interface OrderCapacityConfigUpdatedCallback{
+  (data: Flipdish.OrderCapacityConfigUpdatedEvent): void;
+}
+
 
 /**
  * OrderHub
@@ -2247,6 +2419,8 @@ export class OrderHub {
   
   private OrderDeliveryTrackingStatusUpdatedCallback: OrderDeliveryTrackingStatusUpdatedCallback;
   
+  private OrderCapacityConfigUpdatedCallback: OrderCapacityConfigUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.OrderCreatedCallback = undefined;
@@ -2264,6 +2438,8 @@ export class OrderHub {
     this.OrderRatingUpdatedCallback = undefined;
     
     this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
+    
+    this.OrderCapacityConfigUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2353,6 +2529,17 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderDeliveryTrackingStatusUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.capacity.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderCapacityConfigUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.OrderCapacityConfigUpdatedCallback){
+        if(this.log){
+          console.log("order.capacity.updated received");
+          console.log(eventData.Body);
+        }
+        this.OrderCapacityConfigUpdatedCallback(data);
       }
     });
       
@@ -2460,6 +2647,19 @@ export class OrderHub {
       console.log("order.deliverytracking.status.updated unsubscribed");
     }
 	this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
+  }
+  
+  public OnOrderCapacityConfigUpdated(callback: OrderCapacityConfigUpdatedCallback){
+    if(this.log){
+      console.log("order.capacity.updated subscribed");
+    }
+    this.OrderCapacityConfigUpdatedCallback = callback;
+  }
+  public OffOrderCapacityConfigUpdated(callback: OrderCapacityConfigUpdatedCallback){
+    if(this.log){
+      console.log("order.capacity.updated unsubscribed");
+    }
+	this.OrderCapacityConfigUpdatedCallback = undefined;
   }
   
 }
