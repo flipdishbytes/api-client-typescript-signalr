@@ -211,6 +211,13 @@ export interface KioskBluetoothTerminalUpdatedCallback{
   (data: Flipdish.KioskBluetoothTerminalUpdatedEvent): void;
 }
 
+/**
+ * KioskBluetoothTerminalInitiateUpdateCheck Subscription Callback
+*/
+export interface KioskBluetoothTerminalInitiateUpdateCheckCallback{
+  (data: Flipdish.KioskBluetoothTerminalInitiateUpdateCheckEvent): void;
+}
+
 
 /**
  * CardReaderHub
@@ -221,9 +228,13 @@ export class CardReaderHub {
   
   private KioskBluetoothTerminalUpdatedCallback: KioskBluetoothTerminalUpdatedCallback;
   
+  private KioskBluetoothTerminalInitiateUpdateCheckCallback: KioskBluetoothTerminalInitiateUpdateCheckCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.KioskBluetoothTerminalUpdatedCallback = undefined;
+    
+    this.KioskBluetoothTerminalInitiateUpdateCheckCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -236,6 +247,17 @@ export class CardReaderHub {
           console.log(eventData.Body);
         }
         this.KioskBluetoothTerminalUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("cardreaders.kiosk.bluetooth.checkforupdates", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothTerminalInitiateUpdateCheckEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothTerminalInitiateUpdateCheckCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.checkforupdates received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothTerminalInitiateUpdateCheckCallback(data);
       }
     });
       
@@ -252,6 +274,19 @@ export class CardReaderHub {
       console.log("cardreaders.kiosk.bluetooth.updated unsubscribed");
     }
 	this.KioskBluetoothTerminalUpdatedCallback = undefined;
+  }
+  
+  public OnKioskBluetoothTerminalInitiateUpdateCheck(callback: KioskBluetoothTerminalInitiateUpdateCheckCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.checkforupdates subscribed");
+    }
+    this.KioskBluetoothTerminalInitiateUpdateCheckCallback = callback;
+  }
+  public OffKioskBluetoothTerminalInitiateUpdateCheck(callback: KioskBluetoothTerminalInitiateUpdateCheckCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.checkforupdates unsubscribed");
+    }
+	this.KioskBluetoothTerminalInitiateUpdateCheckCallback = undefined;
   }
   
 }
