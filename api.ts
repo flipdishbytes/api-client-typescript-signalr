@@ -1808,6 +1808,13 @@ export interface MenuUploadedCallback{
 }
 
 /**
+ * MenuBulkEdit Subscription Callback
+*/
+export interface MenuBulkEditCallback{
+  (data: Flipdish.MenuBulkEditEvent): void;
+}
+
+/**
  * MenuSectionCreated Subscription Callback
 */
 export interface MenuSectionCreatedCallback{
@@ -1912,6 +1919,8 @@ export class MenuHub {
   
   private MenuUploadedCallback: MenuUploadedCallback;
   
+  private MenuBulkEditCallback: MenuBulkEditCallback;
+  
   private MenuSectionCreatedCallback: MenuSectionCreatedCallback;
   
   private MenuSectionUpdatedCallback: MenuSectionUpdatedCallback;
@@ -1945,6 +1954,8 @@ export class MenuHub {
     this.MenuUpdatedCallback = undefined;
     
     this.MenuUploadedCallback = undefined;
+    
+    this.MenuBulkEditCallback = undefined;
     
     this.MenuSectionCreatedCallback = undefined;
     
@@ -2005,6 +2016,17 @@ export class MenuHub {
           console.log(eventData.Body);
         }
         this.MenuUploadedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.bulk.edit", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuBulkEditEvent = JSON.parse(eventData.Body);
+      if(this.MenuBulkEditCallback){
+        if(this.log){
+          console.log("menu.bulk.edit received");
+          console.log(eventData.Body);
+        }
+        this.MenuBulkEditCallback(data);
       }
     });
       
@@ -2190,6 +2212,19 @@ export class MenuHub {
       console.log("menu.uploaded unsubscribed");
     }
 	this.MenuUploadedCallback = undefined;
+  }
+  
+  public OnMenuBulkEdit(callback: MenuBulkEditCallback){
+    if(this.log){
+      console.log("menu.bulk.edit subscribed");
+    }
+    this.MenuBulkEditCallback = callback;
+  }
+  public OffMenuBulkEdit(callback: MenuBulkEditCallback){
+    if(this.log){
+      console.log("menu.bulk.edit unsubscribed");
+    }
+	this.MenuBulkEditCallback = undefined;
   }
   
   public OnMenuSectionCreated(callback: MenuSectionCreatedCallback){
