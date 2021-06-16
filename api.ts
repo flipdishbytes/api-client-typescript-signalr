@@ -205,6 +205,13 @@ export class AuthorizationHub {
 /* CardReaderHub Start */
 
 /**
+ * KioskBluetoothPairingMode Subscription Callback
+*/
+export interface KioskBluetoothPairingModeCallback{
+  (data: Flipdish.KioskBluetoothPairingModeEvent): void;
+}
+
+/**
  * KioskBluetoothTerminalUpdated Subscription Callback
 */
 export interface KioskBluetoothTerminalUpdatedCallback{
@@ -218,6 +225,34 @@ export interface KioskBluetoothTerminalInitiateUpdateCheckCallback{
   (data: Flipdish.KioskBluetoothTerminalInitiateUpdateCheckEvent): void;
 }
 
+/**
+ * KioskBluetoothInstallUpdateInitiate Subscription Callback
+*/
+export interface KioskBluetoothInstallUpdateInitiateCallback{
+  (data: Flipdish.KioskBluetoothInstallUpdateInitiateEvent): void;
+}
+
+/**
+ * KioskBluetoothTerminalCancelUpdate Subscription Callback
+*/
+export interface KioskBluetoothTerminalCancelUpdateCallback{
+  (data: Flipdish.KioskBluetoothTerminalCancelUpdateEvent): void;
+}
+
+/**
+ * KioskBluetoothTerminalInstallationStatus Subscription Callback
+*/
+export interface KioskBluetoothTerminalInstallationStatusCallback{
+  (data: Flipdish.KioskBluetoothTerminalInstallationStatusEvent): void;
+}
+
+/**
+ * KioskBluetoothTerminalFirmwareVersionStatus Subscription Callback
+*/
+export interface KioskBluetoothTerminalFirmwareVersionStatusCallback{
+  (data: Flipdish.KioskBluetoothTerminalFirmwareVersionStatusEvent): void;
+}
+
 
 /**
  * CardReaderHub
@@ -226,19 +261,50 @@ export class CardReaderHub {
   private proxy: Proxy;
   private log: boolean;
   
+  private KioskBluetoothPairingModeCallback: KioskBluetoothPairingModeCallback;
+  
   private KioskBluetoothTerminalUpdatedCallback: KioskBluetoothTerminalUpdatedCallback;
   
   private KioskBluetoothTerminalInitiateUpdateCheckCallback: KioskBluetoothTerminalInitiateUpdateCheckCallback;
   
+  private KioskBluetoothInstallUpdateInitiateCallback: KioskBluetoothInstallUpdateInitiateCallback;
+  
+  private KioskBluetoothTerminalCancelUpdateCallback: KioskBluetoothTerminalCancelUpdateCallback;
+  
+  private KioskBluetoothTerminalInstallationStatusCallback: KioskBluetoothTerminalInstallationStatusCallback;
+  
+  private KioskBluetoothTerminalFirmwareVersionStatusCallback: KioskBluetoothTerminalFirmwareVersionStatusCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
+    
+    this.KioskBluetoothPairingModeCallback = undefined;
     
     this.KioskBluetoothTerminalUpdatedCallback = undefined;
     
     this.KioskBluetoothTerminalInitiateUpdateCheckCallback = undefined;
     
+    this.KioskBluetoothInstallUpdateInitiateCallback = undefined;
+    
+    this.KioskBluetoothTerminalCancelUpdateCallback = undefined;
+    
+    this.KioskBluetoothTerminalInstallationStatusCallback = undefined;
+    
+    this.KioskBluetoothTerminalFirmwareVersionStatusCallback = undefined;
+    
     this.proxy = proxy;
     this.log = log;
     
+    this.proxy.on("cardreaders.kiosk.bluetooth.initiatepairingmode", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothPairingModeEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothPairingModeCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.initiatepairingmode received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothPairingModeCallback(data);
+      }
+    });
+      
     this.proxy.on("cardreaders.kiosk.bluetooth.updated", (eventData:SignalrEvent) => {
       var data:Flipdish.KioskBluetoothTerminalUpdatedEvent = JSON.parse(eventData.Body);
       if(this.KioskBluetoothTerminalUpdatedCallback){
@@ -261,6 +327,63 @@ export class CardReaderHub {
       }
     });
       
+    this.proxy.on("cardreaders.kiosk.bluetooth.initiateinstallupdatemode", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothInstallUpdateInitiateEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothInstallUpdateInitiateCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.initiateinstallupdatemode received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothInstallUpdateInitiateCallback(data);
+      }
+    });
+      
+    this.proxy.on("cardreaders.kiosk.bluetooth.cancelupdateinstall", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothTerminalCancelUpdateEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothTerminalCancelUpdateCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.cancelupdateinstall received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothTerminalCancelUpdateCallback(data);
+      }
+    });
+      
+    this.proxy.on("cardreaders.kiosk.bluetooth.installationstatus", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothTerminalInstallationStatusEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothTerminalInstallationStatusCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.installationstatus received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothTerminalInstallationStatusCallback(data);
+      }
+    });
+      
+    this.proxy.on("cardreaders.kiosk.bluetooth.firmwareupdateversion", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothTerminalFirmwareVersionStatusEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothTerminalFirmwareVersionStatusCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.firmwareupdateversion received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothTerminalFirmwareVersionStatusCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnKioskBluetoothPairingMode(callback: KioskBluetoothPairingModeCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.initiatepairingmode subscribed");
+    }
+    this.KioskBluetoothPairingModeCallback = callback;
+  }
+  public OffKioskBluetoothPairingMode(callback: KioskBluetoothPairingModeCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.initiatepairingmode unsubscribed");
+    }
+	this.KioskBluetoothPairingModeCallback = undefined;
   }
   
   public OnKioskBluetoothTerminalUpdated(callback: KioskBluetoothTerminalUpdatedCallback){
@@ -287,6 +410,58 @@ export class CardReaderHub {
       console.log("cardreaders.kiosk.bluetooth.checkforupdates unsubscribed");
     }
 	this.KioskBluetoothTerminalInitiateUpdateCheckCallback = undefined;
+  }
+  
+  public OnKioskBluetoothInstallUpdateInitiate(callback: KioskBluetoothInstallUpdateInitiateCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.initiateinstallupdatemode subscribed");
+    }
+    this.KioskBluetoothInstallUpdateInitiateCallback = callback;
+  }
+  public OffKioskBluetoothInstallUpdateInitiate(callback: KioskBluetoothInstallUpdateInitiateCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.initiateinstallupdatemode unsubscribed");
+    }
+	this.KioskBluetoothInstallUpdateInitiateCallback = undefined;
+  }
+  
+  public OnKioskBluetoothTerminalCancelUpdate(callback: KioskBluetoothTerminalCancelUpdateCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.cancelupdateinstall subscribed");
+    }
+    this.KioskBluetoothTerminalCancelUpdateCallback = callback;
+  }
+  public OffKioskBluetoothTerminalCancelUpdate(callback: KioskBluetoothTerminalCancelUpdateCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.cancelupdateinstall unsubscribed");
+    }
+	this.KioskBluetoothTerminalCancelUpdateCallback = undefined;
+  }
+  
+  public OnKioskBluetoothTerminalInstallationStatus(callback: KioskBluetoothTerminalInstallationStatusCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.installationstatus subscribed");
+    }
+    this.KioskBluetoothTerminalInstallationStatusCallback = callback;
+  }
+  public OffKioskBluetoothTerminalInstallationStatus(callback: KioskBluetoothTerminalInstallationStatusCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.installationstatus unsubscribed");
+    }
+	this.KioskBluetoothTerminalInstallationStatusCallback = undefined;
+  }
+  
+  public OnKioskBluetoothTerminalFirmwareVersionStatus(callback: KioskBluetoothTerminalFirmwareVersionStatusCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.firmwareupdateversion subscribed");
+    }
+    this.KioskBluetoothTerminalFirmwareVersionStatusCallback = callback;
+  }
+  public OffKioskBluetoothTerminalFirmwareVersionStatus(callback: KioskBluetoothTerminalFirmwareVersionStatusCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.firmwareupdateversion unsubscribed");
+    }
+	this.KioskBluetoothTerminalFirmwareVersionStatusCallback = undefined;
   }
   
 }
