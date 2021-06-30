@@ -212,6 +212,13 @@ export interface KioskBluetoothPairingModeCallback{
 }
 
 /**
+ * KioskBluetoothTerminalUnpaired Subscription Callback
+*/
+export interface KioskBluetoothTerminalUnpairedCallback{
+  (data: Flipdish.KioskBluetoothTerminalUnpairedEvent): void;
+}
+
+/**
  * KioskBluetoothTerminalUpdated Subscription Callback
 */
 export interface KioskBluetoothTerminalUpdatedCallback{
@@ -263,6 +270,8 @@ export class CardReaderHub {
   
   private KioskBluetoothPairingModeCallback: KioskBluetoothPairingModeCallback;
   
+  private KioskBluetoothTerminalUnpairedCallback: KioskBluetoothTerminalUnpairedCallback;
+  
   private KioskBluetoothTerminalUpdatedCallback: KioskBluetoothTerminalUpdatedCallback;
   
   private KioskBluetoothTerminalInitiateUpdateCheckCallback: KioskBluetoothTerminalInitiateUpdateCheckCallback;
@@ -278,6 +287,8 @@ export class CardReaderHub {
   public constructor(proxy: Proxy, log: boolean){
     
     this.KioskBluetoothPairingModeCallback = undefined;
+    
+    this.KioskBluetoothTerminalUnpairedCallback = undefined;
     
     this.KioskBluetoothTerminalUpdatedCallback = undefined;
     
@@ -302,6 +313,17 @@ export class CardReaderHub {
           console.log(eventData.Body);
         }
         this.KioskBluetoothPairingModeCallback(data);
+      }
+    });
+      
+    this.proxy.on("cardreaders.kiosk.bluetooth.unpaired", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskBluetoothTerminalUnpairedEvent = JSON.parse(eventData.Body);
+      if(this.KioskBluetoothTerminalUnpairedCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.bluetooth.unpaired received");
+          console.log(eventData.Body);
+        }
+        this.KioskBluetoothTerminalUnpairedCallback(data);
       }
     });
       
@@ -384,6 +406,19 @@ export class CardReaderHub {
       console.log("cardreaders.kiosk.bluetooth.initiatepairingmode unsubscribed");
     }
 	this.KioskBluetoothPairingModeCallback = undefined;
+  }
+  
+  public OnKioskBluetoothTerminalUnpaired(callback: KioskBluetoothTerminalUnpairedCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.unpaired subscribed");
+    }
+    this.KioskBluetoothTerminalUnpairedCallback = callback;
+  }
+  public OffKioskBluetoothTerminalUnpaired(callback: KioskBluetoothTerminalUnpairedCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.bluetooth.unpaired unsubscribed");
+    }
+	this.KioskBluetoothTerminalUnpairedCallback = undefined;
   }
   
   public OnKioskBluetoothTerminalUpdated(callback: KioskBluetoothTerminalUpdatedCallback){
