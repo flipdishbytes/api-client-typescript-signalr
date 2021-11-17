@@ -519,6 +519,27 @@ export interface AppUpdatedCallback{
   (data: Flipdish.AppUpdatedEvent): void;
 }
 
+/**
+ * AppStoreConfigCreated Subscription Callback
+*/
+export interface AppStoreConfigCreatedCallback{
+  (data: Flipdish.AppStoreConfigCreatedEvent): void;
+}
+
+/**
+ * AppStoreConfigUpdated Subscription Callback
+*/
+export interface AppStoreConfigUpdatedCallback{
+  (data: Flipdish.AppStoreConfigUpdatedEvent): void;
+}
+
+/**
+ * AppStoreConfigDeleted Subscription Callback
+*/
+export interface AppStoreConfigDeletedCallback{
+  (data: Flipdish.AppStoreConfigDeletedEvent): void;
+}
+
 
 /**
  * AppHub
@@ -531,11 +552,23 @@ export class AppHub {
   
   private AppUpdatedCallback: AppUpdatedCallback;
   
+  private AppStoreConfigCreatedCallback: AppStoreConfigCreatedCallback;
+  
+  private AppStoreConfigUpdatedCallback: AppStoreConfigUpdatedCallback;
+  
+  private AppStoreConfigDeletedCallback: AppStoreConfigDeletedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.AppCreatedCallback = undefined;
     
     this.AppUpdatedCallback = undefined;
+    
+    this.AppStoreConfigCreatedCallback = undefined;
+    
+    this.AppStoreConfigUpdatedCallback = undefined;
+    
+    this.AppStoreConfigDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -559,6 +592,39 @@ export class AppHub {
           console.log(eventData.Body);
         }
         this.AppUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("appstore.configuration.created", (eventData:SignalrEvent) => {
+      var data:Flipdish.AppStoreConfigCreatedEvent = JSON.parse(eventData.Body);
+      if(this.AppStoreConfigCreatedCallback){
+        if(this.log){
+          console.log("appstore.configuration.created received");
+          console.log(eventData.Body);
+        }
+        this.AppStoreConfigCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("appstore.configuration.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.AppStoreConfigUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.AppStoreConfigUpdatedCallback){
+        if(this.log){
+          console.log("appstore.configuration.updated received");
+          console.log(eventData.Body);
+        }
+        this.AppStoreConfigUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("appstore.configuration.deleted", (eventData:SignalrEvent) => {
+      var data:Flipdish.AppStoreConfigDeletedEvent = JSON.parse(eventData.Body);
+      if(this.AppStoreConfigDeletedCallback){
+        if(this.log){
+          console.log("appstore.configuration.deleted received");
+          console.log(eventData.Body);
+        }
+        this.AppStoreConfigDeletedCallback(data);
       }
     });
       
@@ -588,6 +654,45 @@ export class AppHub {
       console.log("app.updated unsubscribed");
     }
 	this.AppUpdatedCallback = undefined;
+  }
+  
+  public OnAppStoreConfigCreated(callback: AppStoreConfigCreatedCallback){
+    if(this.log){
+      console.log("appstore.configuration.created subscribed");
+    }
+    this.AppStoreConfigCreatedCallback = callback;
+  }
+  public OffAppStoreConfigCreated(callback: AppStoreConfigCreatedCallback){
+    if(this.log){
+      console.log("appstore.configuration.created unsubscribed");
+    }
+	this.AppStoreConfigCreatedCallback = undefined;
+  }
+  
+  public OnAppStoreConfigUpdated(callback: AppStoreConfigUpdatedCallback){
+    if(this.log){
+      console.log("appstore.configuration.updated subscribed");
+    }
+    this.AppStoreConfigUpdatedCallback = callback;
+  }
+  public OffAppStoreConfigUpdated(callback: AppStoreConfigUpdatedCallback){
+    if(this.log){
+      console.log("appstore.configuration.updated unsubscribed");
+    }
+	this.AppStoreConfigUpdatedCallback = undefined;
+  }
+  
+  public OnAppStoreConfigDeleted(callback: AppStoreConfigDeletedCallback){
+    if(this.log){
+      console.log("appstore.configuration.deleted subscribed");
+    }
+    this.AppStoreConfigDeletedCallback = callback;
+  }
+  public OffAppStoreConfigDeleted(callback: AppStoreConfigDeletedCallback){
+    if(this.log){
+      console.log("appstore.configuration.deleted unsubscribed");
+    }
+	this.AppStoreConfigDeletedCallback = undefined;
   }
   
 }
