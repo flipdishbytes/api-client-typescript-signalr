@@ -477,6 +477,13 @@ export interface BankAccountDeletedCallback{
   (data: Flipdish.BankAccountDeletedEvent): void;
 }
 
+/**
+ * BankAccountAssigned Subscription Callback
+*/
+export interface BankAccountAssignedCallback{
+  (data: Flipdish.BankAccountAssignedEvent): void;
+}
+
 
 /**
  * BankAccountHub
@@ -491,6 +498,8 @@ export class BankAccountHub {
   
   private BankAccountDeletedCallback: BankAccountDeletedCallback;
   
+  private BankAccountAssignedCallback: BankAccountAssignedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.BankAccountCreatedCallback = undefined;
@@ -498,6 +507,8 @@ export class BankAccountHub {
     this.BankAccountUpdatedCallback = undefined;
     
     this.BankAccountDeletedCallback = undefined;
+    
+    this.BankAccountAssignedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -532,6 +543,17 @@ export class BankAccountHub {
           console.log(eventData.Body);
         }
         this.BankAccountDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("bankaccount.assigned", (eventData:SignalrEvent) => {
+      var data:Flipdish.BankAccountAssignedEvent = JSON.parse(eventData.Body);
+      if(this.BankAccountAssignedCallback){
+        if(this.log){
+          console.log("bankaccount.assigned received");
+          console.log(eventData.Body);
+        }
+        this.BankAccountAssignedCallback(data);
       }
     });
       
@@ -574,6 +596,19 @@ export class BankAccountHub {
       console.log("bankaccount.deleted unsubscribed");
     }
 	this.BankAccountDeletedCallback = undefined;
+  }
+  
+  public OnBankAccountAssigned(callback: BankAccountAssignedCallback){
+    if(this.log){
+      console.log("bankaccount.assigned subscribed");
+    }
+    this.BankAccountAssignedCallback = callback;
+  }
+  public OffBankAccountAssigned(callback: BankAccountAssignedCallback){
+    if(this.log){
+      console.log("bankaccount.assigned unsubscribed");
+    }
+	this.BankAccountAssignedCallback = undefined;
   }
   
 }
