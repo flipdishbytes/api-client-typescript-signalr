@@ -2270,6 +2270,13 @@ export interface OrderDeliveryTrackingStatusUpdatedCallback{
 }
 
 /**
+ * OrderFulfillmentStatusUpdated Subscription Callback
+*/
+export interface OrderFulfillmentStatusUpdatedCallback{
+  (data: Flipdish.OrderFulfillmentStatusUpdatedEvent): void;
+}
+
+/**
  * OrderCapacityConfigUpdated Subscription Callback
 */
 export interface OrderCapacityConfigUpdatedCallback{
@@ -2300,6 +2307,8 @@ export class OrderHub {
   
   private OrderDeliveryTrackingStatusUpdatedCallback: OrderDeliveryTrackingStatusUpdatedCallback;
   
+  private OrderFulfillmentStatusUpdatedCallback: OrderFulfillmentStatusUpdatedCallback;
+  
   private OrderCapacityConfigUpdatedCallback: OrderCapacityConfigUpdatedCallback;
   
   public constructor(proxy: Proxy, log: boolean){
@@ -2319,6 +2328,8 @@ export class OrderHub {
     this.OrderRatingUpdatedCallback = undefined;
     
     this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
+    
+    this.OrderFulfillmentStatusUpdatedCallback = undefined;
     
     this.OrderCapacityConfigUpdatedCallback = undefined;
     
@@ -2410,6 +2421,17 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderDeliveryTrackingStatusUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.fulfillment.status.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderFulfillmentStatusUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.OrderFulfillmentStatusUpdatedCallback){
+        if(this.log){
+          console.log("order.fulfillment.status.updated received");
+          console.log(eventData.Body);
+        }
+        this.OrderFulfillmentStatusUpdatedCallback(data);
       }
     });
       
@@ -2528,6 +2550,19 @@ export class OrderHub {
       console.log("order.deliverytracking.status.updated unsubscribed");
     }
 	this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
+  }
+  
+  public OnOrderFulfillmentStatusUpdated(callback: OrderFulfillmentStatusUpdatedCallback){
+    if(this.log){
+      console.log("order.fulfillment.status.updated subscribed");
+    }
+    this.OrderFulfillmentStatusUpdatedCallback = callback;
+  }
+  public OffOrderFulfillmentStatusUpdated(callback: OrderFulfillmentStatusUpdatedCallback){
+    if(this.log){
+      console.log("order.fulfillment.status.updated unsubscribed");
+    }
+	this.OrderFulfillmentStatusUpdatedCallback = undefined;
   }
   
   public OnOrderCapacityConfigUpdated(callback: OrderCapacityConfigUpdatedCallback){
