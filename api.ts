@@ -904,6 +904,13 @@ export interface KioskBluetoothTerminalFirmwareVersionStatusCallback{
   (data: Flipdish.KioskBluetoothTerminalFirmwareVersionStatusEvent): void;
 }
 
+/**
+ * KioskTerminalActionStateChanged Subscription Callback
+*/
+export interface KioskTerminalActionStateChangedCallback{
+  (data: Flipdish.KioskTerminalActionStateChangedEvent): void;
+}
+
 
 /**
  * CardReaderHub
@@ -928,6 +935,8 @@ export class CardReaderHub {
   
   private KioskBluetoothTerminalFirmwareVersionStatusCallback: KioskBluetoothTerminalFirmwareVersionStatusCallback;
   
+  private KioskTerminalActionStateChangedCallback: KioskTerminalActionStateChangedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.KioskBluetoothPairingModeCallback = undefined;
@@ -945,6 +954,8 @@ export class CardReaderHub {
     this.KioskBluetoothTerminalInstallationStatusCallback = undefined;
     
     this.KioskBluetoothTerminalFirmwareVersionStatusCallback = undefined;
+    
+    this.KioskTerminalActionStateChangedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -1034,6 +1045,17 @@ export class CardReaderHub {
           console.log(eventData.Body);
         }
         this.KioskBluetoothTerminalFirmwareVersionStatusCallback(data);
+      }
+    });
+      
+    this.proxy.on("cardreaders.kiosk.terminalactionstatechanged", (eventData:SignalrEvent) => {
+      var data:Flipdish.KioskTerminalActionStateChangedEvent = JSON.parse(eventData.Body);
+      if(this.KioskTerminalActionStateChangedCallback){
+        if(this.log){
+          console.log("cardreaders.kiosk.terminalactionstatechanged received");
+          console.log(eventData.Body);
+        }
+        this.KioskTerminalActionStateChangedCallback(data);
       }
     });
       
@@ -1141,6 +1163,19 @@ export class CardReaderHub {
       console.log("cardreaders.kiosk.bluetooth.firmwareupdateversion unsubscribed");
     }
 	this.KioskBluetoothTerminalFirmwareVersionStatusCallback = undefined;
+  }
+  
+  public OnKioskTerminalActionStateChanged(callback: KioskTerminalActionStateChangedCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.terminalactionstatechanged subscribed");
+    }
+    this.KioskTerminalActionStateChangedCallback = callback;
+  }
+  public OffKioskTerminalActionStateChanged(callback: KioskTerminalActionStateChangedCallback){
+    if(this.log){
+      console.log("cardreaders.kiosk.terminalactionstatechanged unsubscribed");
+    }
+	this.KioskTerminalActionStateChangedCallback = undefined;
   }
   
 }
