@@ -1048,11 +1048,11 @@ export class CardReaderHub {
       }
     });
       
-    this.proxy.on("cardreaders.kiosk.terminalactionstatechanged", (eventData:SignalrEvent) => {
+    this.proxy.on("cardreaders.kiosk.bluetooth.terminalactionstatechanged", (eventData:SignalrEvent) => {
       var data:Flipdish.KioskTerminalActionStateChangedEvent = JSON.parse(eventData.Body);
       if(this.KioskTerminalActionStateChangedCallback){
         if(this.log){
-          console.log("cardreaders.kiosk.terminalactionstatechanged received");
+          console.log("cardreaders.kiosk.bluetooth.terminalactionstatechanged received");
           console.log(eventData.Body);
         }
         this.KioskTerminalActionStateChangedCallback(data);
@@ -1167,13 +1167,13 @@ export class CardReaderHub {
   
   public OnKioskTerminalActionStateChanged(callback: KioskTerminalActionStateChangedCallback){
     if(this.log){
-      console.log("cardreaders.kiosk.terminalactionstatechanged subscribed");
+      console.log("cardreaders.kiosk.bluetooth.terminalactionstatechanged subscribed");
     }
     this.KioskTerminalActionStateChangedCallback = callback;
   }
   public OffKioskTerminalActionStateChanged(callback: KioskTerminalActionStateChangedCallback){
     if(this.log){
-      console.log("cardreaders.kiosk.terminalactionstatechanged unsubscribed");
+      console.log("cardreaders.kiosk.bluetooth.terminalactionstatechanged unsubscribed");
     }
 	this.KioskTerminalActionStateChangedCallback = undefined;
   }
