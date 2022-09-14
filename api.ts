@@ -2305,6 +2305,13 @@ export interface OrderDeliveryTrackingStatusUpdatedCallback{
 }
 
 /**
+ * OrderBatchPublished Subscription Callback
+*/
+export interface OrderBatchPublishedCallback{
+  (data: Flipdish.OrderBatchPublishedEvent): void;
+}
+
+/**
  * OrderFulfillmentStatusUpdated Subscription Callback
 */
 export interface OrderFulfillmentStatusUpdatedCallback{
@@ -2342,6 +2349,8 @@ export class OrderHub {
   
   private OrderDeliveryTrackingStatusUpdatedCallback: OrderDeliveryTrackingStatusUpdatedCallback;
   
+  private OrderBatchPublishedCallback: OrderBatchPublishedCallback;
+  
   private OrderFulfillmentStatusUpdatedCallback: OrderFulfillmentStatusUpdatedCallback;
   
   private OrderCapacityConfigUpdatedCallback: OrderCapacityConfigUpdatedCallback;
@@ -2363,6 +2372,8 @@ export class OrderHub {
     this.OrderRatingUpdatedCallback = undefined;
     
     this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
+    
+    this.OrderBatchPublishedCallback = undefined;
     
     this.OrderFulfillmentStatusUpdatedCallback = undefined;
     
@@ -2456,6 +2467,17 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderDeliveryTrackingStatusUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("order.batch.published", (eventData:SignalrEvent) => {
+      var data:Flipdish.OrderBatchPublishedEvent = JSON.parse(eventData.Body);
+      if(this.OrderBatchPublishedCallback){
+        if(this.log){
+          console.log("order.batch.published received");
+          console.log(eventData.Body);
+        }
+        this.OrderBatchPublishedCallback(data);
       }
     });
       
@@ -2585,6 +2607,19 @@ export class OrderHub {
       console.log("order.deliverytracking.status.updated unsubscribed");
     }
 	this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
+  }
+  
+  public OnOrderBatchPublished(callback: OrderBatchPublishedCallback){
+    if(this.log){
+      console.log("order.batch.published subscribed");
+    }
+    this.OrderBatchPublishedCallback = callback;
+  }
+  public OffOrderBatchPublished(callback: OrderBatchPublishedCallback){
+    if(this.log){
+      console.log("order.batch.published unsubscribed");
+    }
+	this.OrderBatchPublishedCallback = undefined;
   }
   
   public OnOrderFulfillmentStatusUpdated(callback: OrderFulfillmentStatusUpdatedCallback){
