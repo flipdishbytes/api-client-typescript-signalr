@@ -1,6 +1,6 @@
 {
   "name": "@flipdish/api-client-typescript-signalr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Typescript Flipdish SignalR Client",
   "repository": {
     "type": "git",
