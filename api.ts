@@ -1,7 +1,7 @@
-import * as Flipdish from '@flipdish/api-client-typescript';
-import { Connection, hubConnection, Proxy } from '@flipdish/signalr-no-jquery';
+import { Connection, hubConnection, Proxy } from "@flipdish/signalr-no-jquery";
+import * as Flipdish from "@flipdish/api-client-typescript";
 
-let defaultBasePath = "https://signalr.flipdish.com";
+let defaultBasePath = "https://api.flipdish.co";
 
 /**
 * This class defines signalr configuration
