@@ -3193,6 +3193,13 @@ export interface StoreKioskSettingUpdatedCallback{
   (data: Flipdish.StoreKioskSettingUpdatedEvent): void;
 }
 
+/**
+ * StoreFeeConfigUpdated Subscription Callback
+*/
+export interface StoreFeeConfigUpdatedCallback{
+  (data: Flipdish.StoreFeeConfigUpdatedEvent): void;
+}
+
 
 /**
  * StoreHub
@@ -3247,6 +3254,8 @@ export class StoreHub {
   
   private StoreKioskSettingUpdatedCallback: StoreKioskSettingUpdatedCallback;
   
+  private StoreFeeConfigUpdatedCallback: StoreFeeConfigUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.StoreCreatedCallback = undefined;
@@ -3294,6 +3303,8 @@ export class StoreHub {
     this.StoreLogoDeletedCallback = undefined;
     
     this.StoreKioskSettingUpdatedCallback = undefined;
+    
+    this.StoreFeeConfigUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -3548,6 +3559,17 @@ export class StoreHub {
           console.log(eventData.Body);
         }
         this.StoreKioskSettingUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("store.fee_config.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.StoreFeeConfigUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.StoreFeeConfigUpdatedCallback){
+        if(this.log){
+          console.log("store.fee_config.updated received");
+          console.log(eventData.Body);
+        }
+        this.StoreFeeConfigUpdatedCallback(data);
       }
     });
       
@@ -3850,6 +3872,19 @@ export class StoreHub {
       console.log("store.kiosk_setting.updated unsubscribed");
     }
 	this.StoreKioskSettingUpdatedCallback = undefined;
+  }
+  
+  public OnStoreFeeConfigUpdated(callback: StoreFeeConfigUpdatedCallback){
+    if(this.log){
+      console.log("store.fee_config.updated subscribed");
+    }
+    this.StoreFeeConfigUpdatedCallback = callback;
+  }
+  public OffStoreFeeConfigUpdated(callback: StoreFeeConfigUpdatedCallback){
+    if(this.log){
+      console.log("store.fee_config.updated unsubscribed");
+    }
+	this.StoreFeeConfigUpdatedCallback = undefined;
   }
   
 }
