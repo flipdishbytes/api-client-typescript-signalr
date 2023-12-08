@@ -4075,6 +4075,13 @@ export interface VoucherUpdatedCallback{
   (data: Flipdish.VoucherUpdatedEvent): void;
 }
 
+/**
+ * VoucherApplied Subscription Callback
+*/
+export interface VoucherAppliedCallback{
+  (data: Flipdish.VoucherAppliedEvent): void;
+}
+
 
 /**
  * VoucherHub
@@ -4089,6 +4096,8 @@ export class VoucherHub {
   
   private VoucherUpdatedCallback: VoucherUpdatedCallback;
   
+  private VoucherAppliedCallback: VoucherAppliedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.VoucherCreatedCallback = undefined;
@@ -4096,6 +4105,8 @@ export class VoucherHub {
     this.VoucherDeletedCallback = undefined;
     
     this.VoucherUpdatedCallback = undefined;
+    
+    this.VoucherAppliedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -4130,6 +4141,17 @@ export class VoucherHub {
           console.log(eventData.Body);
         }
         this.VoucherUpdatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("voucher.applied", (eventData:SignalrEvent) => {
+      var data:Flipdish.VoucherAppliedEvent = JSON.parse(eventData.Body);
+      if(this.VoucherAppliedCallback){
+        if(this.log){
+          console.log("voucher.applied received");
+          console.log(eventData.Body);
+        }
+        this.VoucherAppliedCallback(data);
       }
     });
       
@@ -4172,6 +4194,19 @@ export class VoucherHub {
       console.log("voucher.updated unsubscribed");
     }
 	this.VoucherUpdatedCallback = undefined;
+  }
+  
+  public OnVoucherApplied(callback: VoucherAppliedCallback){
+    if(this.log){
+      console.log("voucher.applied subscribed");
+    }
+    this.VoucherAppliedCallback = callback;
+  }
+  public OffVoucherApplied(callback: VoucherAppliedCallback){
+    if(this.log){
+      console.log("voucher.applied unsubscribed");
+    }
+	this.VoucherAppliedCallback = undefined;
   }
   
 }
