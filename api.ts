@@ -295,6 +295,13 @@ export interface AppStoreConfigDeletedCallback{
   (data: Flipdish.AppStoreConfigDeletedEvent): void;
 }
 
+/**
+ * AppStoreSubscriptionChangeJobUpdated Subscription Callback
+*/
+export interface AppStoreSubscriptionChangeJobUpdatedCallback{
+  (data: Flipdish.AppStoreSubscriptionChangeJobUpdatedEvent): void;
+}
+
 
 /**
  * AppHub
@@ -313,6 +320,8 @@ export class AppHub {
   
   private AppStoreConfigDeletedCallback: AppStoreConfigDeletedCallback;
   
+  private AppStoreSubscriptionChangeJobUpdatedCallback: AppStoreSubscriptionChangeJobUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.AppCreatedCallback = undefined;
@@ -324,6 +333,8 @@ export class AppHub {
     this.AppStoreConfigUpdatedCallback = undefined;
     
     this.AppStoreConfigDeletedCallback = undefined;
+    
+    this.AppStoreSubscriptionChangeJobUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -380,6 +391,17 @@ export class AppHub {
           console.log(eventData.Body);
         }
         this.AppStoreConfigDeletedCallback(data);
+      }
+    });
+      
+    this.proxy.on("appstore.subscription_change_job.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.AppStoreSubscriptionChangeJobUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.AppStoreSubscriptionChangeJobUpdatedCallback){
+        if(this.log){
+          console.log("appstore.subscription_change_job.updated received");
+          console.log(eventData.Body);
+        }
+        this.AppStoreSubscriptionChangeJobUpdatedCallback(data);
       }
     });
       
@@ -448,6 +470,19 @@ export class AppHub {
       console.log("appstore.configuration.deleted unsubscribed");
     }
 	this.AppStoreConfigDeletedCallback = undefined;
+  }
+  
+  public OnAppStoreSubscriptionChangeJobUpdated(callback: AppStoreSubscriptionChangeJobUpdatedCallback){
+    if(this.log){
+      console.log("appstore.subscription_change_job.updated subscribed");
+    }
+    this.AppStoreSubscriptionChangeJobUpdatedCallback = callback;
+  }
+  public OffAppStoreSubscriptionChangeJobUpdated(callback: AppStoreSubscriptionChangeJobUpdatedCallback){
+    if(this.log){
+      console.log("appstore.subscription_change_job.updated unsubscribed");
+    }
+	this.AppStoreSubscriptionChangeJobUpdatedCallback = undefined;
   }
   
 }
