@@ -4397,6 +4397,13 @@ export interface DnsVerifiedCallback{
   (data: Flipdish.DnsVerifiedEvent): void;
 }
 
+/**
+ * WebsiteVanityUrlUpdated Subscription Callback
+*/
+export interface WebsiteVanityUrlUpdatedCallback{
+  (data: Flipdish.WebsiteVanityUrlUpdatedEvent): void;
+}
+
 
 /**
  * WebsiteHub
@@ -4411,6 +4418,8 @@ export class WebsiteHub {
   
   private DnsVerifiedCallback: DnsVerifiedCallback;
   
+  private WebsiteVanityUrlUpdatedCallback: WebsiteVanityUrlUpdatedCallback;
+  
   public constructor(proxy: Proxy, log: boolean){
     
     this.CertificateRenewedCallback = undefined;
@@ -4418,6 +4427,8 @@ export class WebsiteHub {
     this.CertificateCreatedCallback = undefined;
     
     this.DnsVerifiedCallback = undefined;
+    
+    this.WebsiteVanityUrlUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -4452,6 +4463,17 @@ export class WebsiteHub {
           console.log(eventData.Body);
         }
         this.DnsVerifiedCallback(data);
+      }
+    });
+      
+    this.proxy.on("website.vanityUrl.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.WebsiteVanityUrlUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.WebsiteVanityUrlUpdatedCallback){
+        if(this.log){
+          console.log("website.vanityUrl.updated received");
+          console.log(eventData.Body);
+        }
+        this.WebsiteVanityUrlUpdatedCallback(data);
       }
     });
       
@@ -4494,6 +4516,19 @@ export class WebsiteHub {
       console.log("website.dns.verified unsubscribed");
     }
 	this.DnsVerifiedCallback = undefined;
+  }
+  
+  public OnWebsiteVanityUrlUpdated(callback: WebsiteVanityUrlUpdatedCallback){
+    if(this.log){
+      console.log("website.vanityUrl.updated subscribed");
+    }
+    this.WebsiteVanityUrlUpdatedCallback = callback;
+  }
+  public OffWebsiteVanityUrlUpdated(callback: WebsiteVanityUrlUpdatedCallback){
+    if(this.log){
+      console.log("website.vanityUrl.updated unsubscribed");
+    }
+	this.WebsiteVanityUrlUpdatedCallback = undefined;
   }
   
 }
