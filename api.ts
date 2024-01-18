@@ -60,6 +60,8 @@ export class SignalR {
   
   public TeammateHub: TeammateHub;
   
+  public TelephonyConfigHub: TelephonyConfigHub;
+  
   public VoucherHub: VoucherHub;
   
   public WebhookHub: WebhookHub;
@@ -104,6 +106,8 @@ export class SignalR {
     this.StoreHub = new StoreHub(SignalR.ActiveConnection.createHubProxy("StoreHub"), signalRConfiguration.Log);
 	
     this.TeammateHub = new TeammateHub(SignalR.ActiveConnection.createHubProxy("TeammateHub"), signalRConfiguration.Log);
+	
+    this.TelephonyConfigHub = new TelephonyConfigHub(SignalR.ActiveConnection.createHubProxy("TelephonyConfigHub"), signalRConfiguration.Log);
 	
     this.VoucherHub = new VoucherHub(SignalR.ActiveConnection.createHubProxy("VoucherHub"), signalRConfiguration.Log);
 	
@@ -4085,6 +4089,62 @@ export class TeammateHub {
   
 }
 /* TeammateHub End */
+
+
+/* TelephonyConfigHub Start */
+
+/**
+ * TelephonyConfigUpdated Subscription Callback
+*/
+export interface TelephonyConfigUpdatedCallback{
+  (data: Flipdish.TelephonyConfigUpdatedEvent): void;
+}
+
+
+/**
+ * TelephonyConfigHub
+ */
+export class TelephonyConfigHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private TelephonyConfigUpdatedCallback: TelephonyConfigUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.TelephonyConfigUpdatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("telephony_config.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.TelephonyConfigUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.TelephonyConfigUpdatedCallback){
+        if(this.log){
+          console.log("telephony_config.updated received");
+          console.log(eventData.Body);
+        }
+        this.TelephonyConfigUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnTelephonyConfigUpdated(callback: TelephonyConfigUpdatedCallback){
+    if(this.log){
+      console.log("telephony_config.updated subscribed");
+    }
+    this.TelephonyConfigUpdatedCallback = callback;
+  }
+  public OffTelephonyConfigUpdated(callback: TelephonyConfigUpdatedCallback){
+    if(this.log){
+      console.log("telephony_config.updated unsubscribed");
+    }
+	this.TelephonyConfigUpdatedCallback = undefined;
+  }
+  
+}
+/* TelephonyConfigHub End */
 
 
 /* VoucherHub Start */
