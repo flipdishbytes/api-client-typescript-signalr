@@ -1679,6 +1679,13 @@ export interface MenuCreatedCallback{
 }
 
 /**
+ * MenuAsyncCreationCompleted Subscription Callback
+*/
+export interface MenuAsyncCreationCompletedCallback{
+  (data: Flipdish.MenuAsyncCreationCompletedEvent): void;
+}
+
+/**
  * MenuUpdated Subscription Callback
 */
 export interface MenuUpdatedCallback{
@@ -1800,6 +1807,8 @@ export class MenuHub {
   
   private MenuCreatedCallback: MenuCreatedCallback;
   
+  private MenuAsyncCreationCompletedCallback: MenuAsyncCreationCompletedCallback;
+  
   private MenuUpdatedCallback: MenuUpdatedCallback;
   
   private MenuUploadedCallback: MenuUploadedCallback;
@@ -1835,6 +1844,8 @@ export class MenuHub {
   public constructor(proxy: Proxy, log: boolean){
     
     this.MenuCreatedCallback = undefined;
+    
+    this.MenuAsyncCreationCompletedCallback = undefined;
     
     this.MenuUpdatedCallback = undefined;
     
@@ -1879,6 +1890,17 @@ export class MenuHub {
           console.log(eventData.Body);
         }
         this.MenuCreatedCallback(data);
+      }
+    });
+      
+    this.proxy.on("menu.async_creation.completed", (eventData:SignalrEvent) => {
+      var data:Flipdish.MenuAsyncCreationCompletedEvent = JSON.parse(eventData.Body);
+      if(this.MenuAsyncCreationCompletedCallback){
+        if(this.log){
+          console.log("menu.async_creation.completed received");
+          console.log(eventData.Body);
+        }
+        this.MenuAsyncCreationCompletedCallback(data);
       }
     });
       
@@ -2071,6 +2093,19 @@ export class MenuHub {
       console.log("menu.created unsubscribed");
     }
 	this.MenuCreatedCallback = undefined;
+  }
+  
+  public OnMenuAsyncCreationCompleted(callback: MenuAsyncCreationCompletedCallback){
+    if(this.log){
+      console.log("menu.async_creation.completed subscribed");
+    }
+    this.MenuAsyncCreationCompletedCallback = callback;
+  }
+  public OffMenuAsyncCreationCompleted(callback: MenuAsyncCreationCompletedCallback){
+    if(this.log){
+      console.log("menu.async_creation.completed unsubscribed");
+    }
+	this.MenuAsyncCreationCompletedCallback = undefined;
   }
   
   public OnMenuUpdated(callback: MenuUpdatedCallback){
