@@ -40,6 +40,8 @@ export class SignalR {
   
   public CardReaderHub: CardReaderHub;
   
+  public ChannelHub: ChannelHub;
+  
   public CustomerHub: CustomerHub;
   
   public HydraHub: HydraHub;
@@ -86,6 +88,8 @@ export class SignalR {
     this.CampaignHub = new CampaignHub(SignalR.ActiveConnection.createHubProxy("CampaignHub"), signalRConfiguration.Log);
 	
     this.CardReaderHub = new CardReaderHub(SignalR.ActiveConnection.createHubProxy("CardReaderHub"), signalRConfiguration.Log);
+	
+    this.ChannelHub = new ChannelHub(SignalR.ActiveConnection.createHubProxy("ChannelHub"), signalRConfiguration.Log);
 	
     this.CustomerHub = new CustomerHub(SignalR.ActiveConnection.createHubProxy("CustomerHub"), signalRConfiguration.Log);
 	
@@ -1219,6 +1223,62 @@ export class CardReaderHub {
   
 }
 /* CardReaderHub End */
+
+
+/* ChannelHub Start */
+
+/**
+ * ChannelStoresUpdated Subscription Callback
+*/
+export interface ChannelStoresUpdatedCallback{
+  (data: Flipdish.ChannelStoresUpdatedEvent): void;
+}
+
+
+/**
+ * ChannelHub
+ */
+export class ChannelHub {
+  private proxy: Proxy;
+  private log: boolean;
+  
+  private ChannelStoresUpdatedCallback: ChannelStoresUpdatedCallback;
+  
+  public constructor(proxy: Proxy, log: boolean){
+    
+    this.ChannelStoresUpdatedCallback = undefined;
+    
+    this.proxy = proxy;
+    this.log = log;
+    
+    this.proxy.on("channel.stores.updated", (eventData:SignalrEvent) => {
+      var data:Flipdish.ChannelStoresUpdatedEvent = JSON.parse(eventData.Body);
+      if(this.ChannelStoresUpdatedCallback){
+        if(this.log){
+          console.log("channel.stores.updated received");
+          console.log(eventData.Body);
+        }
+        this.ChannelStoresUpdatedCallback(data);
+      }
+    });
+      
+  }
+  
+  public OnChannelStoresUpdated(callback: ChannelStoresUpdatedCallback){
+    if(this.log){
+      console.log("channel.stores.updated subscribed");
+    }
+    this.ChannelStoresUpdatedCallback = callback;
+  }
+  public OffChannelStoresUpdated(callback: ChannelStoresUpdatedCallback){
+    if(this.log){
+      console.log("channel.stores.updated unsubscribed");
+    }
+	this.ChannelStoresUpdatedCallback = undefined;
+  }
+  
+}
+/* ChannelHub End */
 
 
 /* CustomerHub Start */
