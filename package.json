@@ -1,33 +1,33 @@
 {
-  "name": "@flipdish/api-client-typescript-signalr",
-  "version": "1.0.1",
-  "description": "Typescript Flipdish SignalR Client",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/flipdishbytes/api-client-typescript-signalr.git"
-  },
-  "homepage": "https://github.com/flipdishbytes/api-client-typescript-signalr#readme",
-  "bugs": {
-    "url": "https://github.com/flipdishbytes/api-client-typescript-signalr/issues"
-  },
-  "scripts": {
-    "clean": "rm -Rf node_modules/ *.js",
-    "build": "tsc"
-  },
-  "keywords": [
-    "flipdish",
-    "client",
-    "typescript",
-    "signalr"
-  ],
-  "main": "api.js",
-  "author": "Flipdish",
-  "license": "Unlicensed",
-  "devDependencies": {
-    "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "@flipdish/api-client-typescript": "^1.0.76",
-    "@flipdish/signalr-no-jquery": "^1.0.13"
-  }
+	"name": "@flipdish/api-client-typescript-signalr",
+	"version": "1.0.2",
+	"description": "Typescript Flipdish SignalR Client",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/flipdishbytes/api-client-typescript-signalr.git"
+	},
+	"homepage": "https://github.com/flipdishbytes/api-client-typescript-signalr#readme",
+	"bugs": {
+		"url": "https://github.com/flipdishbytes/api-client-typescript-signalr/issues"
+	},
+	"scripts": {
+		"clean": "rm -Rf node_modules/ *.js",
+		"build": "tsc"
+	},
+	"keywords": [
+		"flipdish",
+		"client",
+		"typescript",
+		"signalr"
+	],
+	"main": "api.js",
+	"author": "Flipdish",
+	"license": "Unlicensed",
+	"devDependencies": {
+		"typescript": "^4.2.4"
+	},
+	"dependencies": {
+		"@flipdish/api-client-typescript": "^1.0.76",
+		"@flipdish/signalr-no-jquery": "^1.0.13"
+	}
 }
