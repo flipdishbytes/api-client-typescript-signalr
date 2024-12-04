@@ -282,34 +282,6 @@ export interface AppUpdatedCallback{
   (data: Flipdish.AppUpdatedEvent): void;
 }
 
-/**
- * AppStoreConfigCreated Subscription Callback
-*/
-export interface AppStoreConfigCreatedCallback{
-  (data: Flipdish.AppStoreConfigCreatedEvent): void;
-}
-
-/**
- * AppStoreConfigUpdated Subscription Callback
-*/
-export interface AppStoreConfigUpdatedCallback{
-  (data: Flipdish.AppStoreConfigUpdatedEvent): void;
-}
-
-/**
- * AppStoreConfigDeleted Subscription Callback
-*/
-export interface AppStoreConfigDeletedCallback{
-  (data: Flipdish.AppStoreConfigDeletedEvent): void;
-}
-
-/**
- * AppStoreSubscriptionChangeJobUpdated Subscription Callback
-*/
-export interface AppStoreSubscriptionChangeJobUpdatedCallback{
-  (data: Flipdish.AppStoreSubscriptionChangeJobUpdatedEvent): void;
-}
-
 
 /**
  * AppHub
@@ -322,27 +294,11 @@ export class AppHub {
   
   private AppUpdatedCallback: AppUpdatedCallback;
   
-  private AppStoreConfigCreatedCallback: AppStoreConfigCreatedCallback;
-  
-  private AppStoreConfigUpdatedCallback: AppStoreConfigUpdatedCallback;
-  
-  private AppStoreConfigDeletedCallback: AppStoreConfigDeletedCallback;
-  
-  private AppStoreSubscriptionChangeJobUpdatedCallback: AppStoreSubscriptionChangeJobUpdatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
     
     this.AppCreatedCallback = undefined;
     
     this.AppUpdatedCallback = undefined;
-    
-    this.AppStoreConfigCreatedCallback = undefined;
-    
-    this.AppStoreConfigUpdatedCallback = undefined;
-    
-    this.AppStoreConfigDeletedCallback = undefined;
-    
-    this.AppStoreSubscriptionChangeJobUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -366,50 +322,6 @@ export class AppHub {
           console.log(eventData.Body);
         }
         this.AppUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("appstore.configuration.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.AppStoreConfigCreatedEvent = JSON.parse(eventData.Body);
-      if(this.AppStoreConfigCreatedCallback){
-        if(this.log){
-          console.log("appstore.configuration.created received");
-          console.log(eventData.Body);
-        }
-        this.AppStoreConfigCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("appstore.configuration.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.AppStoreConfigUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.AppStoreConfigUpdatedCallback){
-        if(this.log){
-          console.log("appstore.configuration.updated received");
-          console.log(eventData.Body);
-        }
-        this.AppStoreConfigUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("appstore.configuration.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.AppStoreConfigDeletedEvent = JSON.parse(eventData.Body);
-      if(this.AppStoreConfigDeletedCallback){
-        if(this.log){
-          console.log("appstore.configuration.deleted received");
-          console.log(eventData.Body);
-        }
-        this.AppStoreConfigDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("appstore.subscription_change_job.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.AppStoreSubscriptionChangeJobUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.AppStoreSubscriptionChangeJobUpdatedCallback){
-        if(this.log){
-          console.log("appstore.subscription_change_job.updated received");
-          console.log(eventData.Body);
-        }
-        this.AppStoreSubscriptionChangeJobUpdatedCallback(data);
       }
     });
       
@@ -441,58 +353,6 @@ export class AppHub {
 	this.AppUpdatedCallback = undefined;
   }
   
-  public OnAppStoreConfigCreated(callback: AppStoreConfigCreatedCallback){
-    if(this.log){
-      console.log("appstore.configuration.created subscribed");
-    }
-    this.AppStoreConfigCreatedCallback = callback;
-  }
-  public OffAppStoreConfigCreated(callback: AppStoreConfigCreatedCallback){
-    if(this.log){
-      console.log("appstore.configuration.created unsubscribed");
-    }
-	this.AppStoreConfigCreatedCallback = undefined;
-  }
-  
-  public OnAppStoreConfigUpdated(callback: AppStoreConfigUpdatedCallback){
-    if(this.log){
-      console.log("appstore.configuration.updated subscribed");
-    }
-    this.AppStoreConfigUpdatedCallback = callback;
-  }
-  public OffAppStoreConfigUpdated(callback: AppStoreConfigUpdatedCallback){
-    if(this.log){
-      console.log("appstore.configuration.updated unsubscribed");
-    }
-	this.AppStoreConfigUpdatedCallback = undefined;
-  }
-  
-  public OnAppStoreConfigDeleted(callback: AppStoreConfigDeletedCallback){
-    if(this.log){
-      console.log("appstore.configuration.deleted subscribed");
-    }
-    this.AppStoreConfigDeletedCallback = callback;
-  }
-  public OffAppStoreConfigDeleted(callback: AppStoreConfigDeletedCallback){
-    if(this.log){
-      console.log("appstore.configuration.deleted unsubscribed");
-    }
-	this.AppStoreConfigDeletedCallback = undefined;
-  }
-  
-  public OnAppStoreSubscriptionChangeJobUpdated(callback: AppStoreSubscriptionChangeJobUpdatedCallback){
-    if(this.log){
-      console.log("appstore.subscription_change_job.updated subscribed");
-    }
-    this.AppStoreSubscriptionChangeJobUpdatedCallback = callback;
-  }
-  public OffAppStoreSubscriptionChangeJobUpdated(callback: AppStoreSubscriptionChangeJobUpdatedCallback){
-    if(this.log){
-      console.log("appstore.subscription_change_job.updated unsubscribed");
-    }
-	this.AppStoreSubscriptionChangeJobUpdatedCallback = undefined;
-  }
-  
 }
 /* AppHub End */
 
@@ -520,13 +380,6 @@ export interface BankAccountDeletedCallback{
   (data: Flipdish.BankAccountDeletedEvent): void;
 }
 
-/**
- * BankAccountAssigned Subscription Callback
-*/
-export interface BankAccountAssignedCallback{
-  (data: Flipdish.BankAccountAssignedEvent): void;
-}
-
 
 /**
  * BankAccountHub
@@ -541,8 +394,6 @@ export class BankAccountHub {
   
   private BankAccountDeletedCallback: BankAccountDeletedCallback;
   
-  private BankAccountAssignedCallback: BankAccountAssignedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
     
     this.BankAccountCreatedCallback = undefined;
@@ -550,8 +401,6 @@ export class BankAccountHub {
     this.BankAccountUpdatedCallback = undefined;
     
     this.BankAccountDeletedCallback = undefined;
-    
-    this.BankAccountAssignedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -586,17 +435,6 @@ export class BankAccountHub {
           console.log(eventData.Body);
         }
         this.BankAccountDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("bankaccount.assigned", (eventData:SignalrEvent) => {
-      var data:Flipdish.BankAccountAssignedEvent = JSON.parse(eventData.Body);
-      if(this.BankAccountAssignedCallback){
-        if(this.log){
-          console.log("bankaccount.assigned received");
-          console.log(eventData.Body);
-        }
-        this.BankAccountAssignedCallback(data);
       }
     });
       
@@ -641,66 +479,11 @@ export class BankAccountHub {
 	this.BankAccountDeletedCallback = undefined;
   }
   
-  public OnBankAccountAssigned(callback: BankAccountAssignedCallback){
-    if(this.log){
-      console.log("bankaccount.assigned subscribed");
-    }
-    this.BankAccountAssignedCallback = callback;
-  }
-  public OffBankAccountAssigned(callback: BankAccountAssignedCallback){
-    if(this.log){
-      console.log("bankaccount.assigned unsubscribed");
-    }
-	this.BankAccountAssignedCallback = undefined;
-  }
-  
 }
 /* BankAccountHub End */
 
 
 /* CampaignHub Start */
-
-/**
- * LoyaltyCampaignCreated Subscription Callback
-*/
-export interface LoyaltyCampaignCreatedCallback{
-  (data: Flipdish.LoyaltyCampaignCreatedEvent): void;
-}
-
-/**
- * LoyaltyCampaignDeleted Subscription Callback
-*/
-export interface LoyaltyCampaignDeletedCallback{
-  (data: Flipdish.LoyaltyCampaignDeletedEvent): void;
-}
-
-/**
- * LoyaltyCampaignUpdated Subscription Callback
-*/
-export interface LoyaltyCampaignUpdatedCallback{
-  (data: Flipdish.LoyaltyCampaignUpdatedEvent): void;
-}
-
-/**
- * RetentionCampaignCreated Subscription Callback
-*/
-export interface RetentionCampaignCreatedCallback{
-  (data: Flipdish.RetentionCampaignCreatedEvent): void;
-}
-
-/**
- * RetentionCampaignDeleted Subscription Callback
-*/
-export interface RetentionCampaignDeletedCallback{
-  (data: Flipdish.RetentionCampaignDeletedEvent): void;
-}
-
-/**
- * RetentionCampaignUpdated Subscription Callback
-*/
-export interface RetentionCampaignUpdatedCallback{
-  (data: Flipdish.RetentionCampaignUpdatedEvent): void;
-}
 
 
 /**
@@ -710,179 +493,11 @@ export class CampaignHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private LoyaltyCampaignCreatedCallback: LoyaltyCampaignCreatedCallback;
-  
-  private LoyaltyCampaignDeletedCallback: LoyaltyCampaignDeletedCallback;
-  
-  private LoyaltyCampaignUpdatedCallback: LoyaltyCampaignUpdatedCallback;
-  
-  private RetentionCampaignCreatedCallback: RetentionCampaignCreatedCallback;
-  
-  private RetentionCampaignDeletedCallback: RetentionCampaignDeletedCallback;
-  
-  private RetentionCampaignUpdatedCallback: RetentionCampaignUpdatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.LoyaltyCampaignCreatedCallback = undefined;
-    
-    this.LoyaltyCampaignDeletedCallback = undefined;
-    
-    this.LoyaltyCampaignUpdatedCallback = undefined;
-    
-    this.RetentionCampaignCreatedCallback = undefined;
-    
-    this.RetentionCampaignDeletedCallback = undefined;
-    
-    this.RetentionCampaignUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("campaign.loyalty.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.LoyaltyCampaignCreatedEvent = JSON.parse(eventData.Body);
-      if(this.LoyaltyCampaignCreatedCallback){
-        if(this.log){
-          console.log("campaign.loyalty.created received");
-          console.log(eventData.Body);
-        }
-        this.LoyaltyCampaignCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("campaign.loyalty.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.LoyaltyCampaignDeletedEvent = JSON.parse(eventData.Body);
-      if(this.LoyaltyCampaignDeletedCallback){
-        if(this.log){
-          console.log("campaign.loyalty.deleted received");
-          console.log(eventData.Body);
-        }
-        this.LoyaltyCampaignDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("campaign.loyalty.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.LoyaltyCampaignUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.LoyaltyCampaignUpdatedCallback){
-        if(this.log){
-          console.log("campaign.loyalty.updated received");
-          console.log(eventData.Body);
-        }
-        this.LoyaltyCampaignUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("campaign.retention.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.RetentionCampaignCreatedEvent = JSON.parse(eventData.Body);
-      if(this.RetentionCampaignCreatedCallback){
-        if(this.log){
-          console.log("campaign.retention.created received");
-          console.log(eventData.Body);
-        }
-        this.RetentionCampaignCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("campaign.retention.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.RetentionCampaignDeletedEvent = JSON.parse(eventData.Body);
-      if(this.RetentionCampaignDeletedCallback){
-        if(this.log){
-          console.log("campaign.retention.deleted received");
-          console.log(eventData.Body);
-        }
-        this.RetentionCampaignDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("campaign.retention.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.RetentionCampaignUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.RetentionCampaignUpdatedCallback){
-        if(this.log){
-          console.log("campaign.retention.updated received");
-          console.log(eventData.Body);
-        }
-        this.RetentionCampaignUpdatedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnLoyaltyCampaignCreated(callback: LoyaltyCampaignCreatedCallback){
-    if(this.log){
-      console.log("campaign.loyalty.created subscribed");
-    }
-    this.LoyaltyCampaignCreatedCallback = callback;
-  }
-  public OffLoyaltyCampaignCreated(callback: LoyaltyCampaignCreatedCallback){
-    if(this.log){
-      console.log("campaign.loyalty.created unsubscribed");
-    }
-	this.LoyaltyCampaignCreatedCallback = undefined;
-  }
-  
-  public OnLoyaltyCampaignDeleted(callback: LoyaltyCampaignDeletedCallback){
-    if(this.log){
-      console.log("campaign.loyalty.deleted subscribed");
-    }
-    this.LoyaltyCampaignDeletedCallback = callback;
-  }
-  public OffLoyaltyCampaignDeleted(callback: LoyaltyCampaignDeletedCallback){
-    if(this.log){
-      console.log("campaign.loyalty.deleted unsubscribed");
-    }
-	this.LoyaltyCampaignDeletedCallback = undefined;
-  }
-  
-  public OnLoyaltyCampaignUpdated(callback: LoyaltyCampaignUpdatedCallback){
-    if(this.log){
-      console.log("campaign.loyalty.updated subscribed");
-    }
-    this.LoyaltyCampaignUpdatedCallback = callback;
-  }
-  public OffLoyaltyCampaignUpdated(callback: LoyaltyCampaignUpdatedCallback){
-    if(this.log){
-      console.log("campaign.loyalty.updated unsubscribed");
-    }
-	this.LoyaltyCampaignUpdatedCallback = undefined;
-  }
-  
-  public OnRetentionCampaignCreated(callback: RetentionCampaignCreatedCallback){
-    if(this.log){
-      console.log("campaign.retention.created subscribed");
-    }
-    this.RetentionCampaignCreatedCallback = callback;
-  }
-  public OffRetentionCampaignCreated(callback: RetentionCampaignCreatedCallback){
-    if(this.log){
-      console.log("campaign.retention.created unsubscribed");
-    }
-	this.RetentionCampaignCreatedCallback = undefined;
-  }
-  
-  public OnRetentionCampaignDeleted(callback: RetentionCampaignDeletedCallback){
-    if(this.log){
-      console.log("campaign.retention.deleted subscribed");
-    }
-    this.RetentionCampaignDeletedCallback = callback;
-  }
-  public OffRetentionCampaignDeleted(callback: RetentionCampaignDeletedCallback){
-    if(this.log){
-      console.log("campaign.retention.deleted unsubscribed");
-    }
-	this.RetentionCampaignDeletedCallback = undefined;
-  }
-  
-  public OnRetentionCampaignUpdated(callback: RetentionCampaignUpdatedCallback){
-    if(this.log){
-      console.log("campaign.retention.updated subscribed");
-    }
-    this.RetentionCampaignUpdatedCallback = callback;
-  }
-  public OffRetentionCampaignUpdated(callback: RetentionCampaignUpdatedCallback){
-    if(this.log){
-      console.log("campaign.retention.updated unsubscribed");
-    }
-	this.RetentionCampaignUpdatedCallback = undefined;
   }
   
 }
@@ -1227,13 +842,6 @@ export class CardReaderHub {
 
 /* ChannelHub Start */
 
-/**
- * ChannelStoresUpdated Subscription Callback
-*/
-export interface ChannelStoresUpdatedCallback{
-  (data: Flipdish.ChannelStoresUpdatedEvent): void;
-}
-
 
 /**
  * ChannelHub
@@ -1242,39 +850,11 @@ export class ChannelHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private ChannelStoresUpdatedCallback: ChannelStoresUpdatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.ChannelStoresUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("channel.stores.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.ChannelStoresUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.ChannelStoresUpdatedCallback){
-        if(this.log){
-          console.log("channel.stores.updated received");
-          console.log(eventData.Body);
-        }
-        this.ChannelStoresUpdatedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnChannelStoresUpdated(callback: ChannelStoresUpdatedCallback){
-    if(this.log){
-      console.log("channel.stores.updated subscribed");
-    }
-    this.ChannelStoresUpdatedCallback = callback;
-  }
-  public OffChannelStoresUpdated(callback: ChannelStoresUpdatedCallback){
-    if(this.log){
-      console.log("channel.stores.updated unsubscribed");
-    }
-	this.ChannelStoresUpdatedCallback = undefined;
   }
   
 }
@@ -1675,13 +1255,6 @@ export class HydraHub {
 
 /* MenuCheckpointHub Start */
 
-/**
- * MenuCheckpointCreated Subscription Callback
-*/
-export interface MenuCheckpointCreatedCallback{
-  (data: Flipdish.MenuCheckpointCreatedEvent): void;
-}
-
 
 /**
  * MenuCheckpointHub
@@ -1690,39 +1263,11 @@ export class MenuCheckpointHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private MenuCheckpointCreatedCallback: MenuCheckpointCreatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.MenuCheckpointCreatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("menu_checkpoint.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuCheckpointCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuCheckpointCreatedCallback){
-        if(this.log){
-          console.log("menu_checkpoint.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuCheckpointCreatedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
-    if(this.log){
-      console.log("menu_checkpoint.created subscribed");
-    }
-    this.MenuCheckpointCreatedCallback = callback;
-  }
-  public OffMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
-    if(this.log){
-      console.log("menu_checkpoint.created unsubscribed");
-    }
-	this.MenuCheckpointCreatedCallback = undefined;
   }
   
 }
@@ -1730,132 +1275,6 @@ export class MenuCheckpointHub {
 
 
 /* MenuHub Start */
-
-/**
- * MenuCreated Subscription Callback
-*/
-export interface MenuCreatedCallback{
-  (data: Flipdish.MenuCreatedEvent): void;
-}
-
-/**
- * MenuAsyncCreationCompleted Subscription Callback
-*/
-export interface MenuAsyncCreationCompletedCallback{
-  (data: Flipdish.MenuAsyncCreationCompletedEvent): void;
-}
-
-/**
- * MenuUpdated Subscription Callback
-*/
-export interface MenuUpdatedCallback{
-  (data: Flipdish.MenuUpdatedEvent): void;
-}
-
-/**
- * MenuUploaded Subscription Callback
-*/
-export interface MenuUploadedCallback{
-  (data: Flipdish.MenuUploadedEvent): void;
-}
-
-/**
- * MenuBulkEdit Subscription Callback
-*/
-export interface MenuBulkEditCallback{
-  (data: Flipdish.MenuBulkEditEvent): void;
-}
-
-/**
- * MenuSectionCreated Subscription Callback
-*/
-export interface MenuSectionCreatedCallback{
-  (data: Flipdish.MenuSectionCreatedEvent): void;
-}
-
-/**
- * MenuSectionUpdated Subscription Callback
-*/
-export interface MenuSectionUpdatedCallback{
-  (data: Flipdish.MenuSectionUpdatedEvent): void;
-}
-
-/**
- * MenuSectionDeleted Subscription Callback
-*/
-export interface MenuSectionDeletedCallback{
-  (data: Flipdish.MenuSectionDeletedEvent): void;
-}
-
-/**
- * MenuSectionItemCreated Subscription Callback
-*/
-export interface MenuSectionItemCreatedCallback{
-  (data: Flipdish.MenuSectionItemCreatedEvent): void;
-}
-
-/**
- * MenuSectionItemUpdated Subscription Callback
-*/
-export interface MenuSectionItemUpdatedCallback{
-  (data: Flipdish.MenuSectionItemUpdatedEvent): void;
-}
-
-/**
- * MenuSectionItemDeleted Subscription Callback
-*/
-export interface MenuSectionItemDeletedCallback{
-  (data: Flipdish.MenuSectionItemDeletedEvent): void;
-}
-
-/**
- * MenuItemOptionSetCreated Subscription Callback
-*/
-export interface MenuItemOptionSetCreatedCallback{
-  (data: Flipdish.MenuItemOptionSetCreatedEvent): void;
-}
-
-/**
- * MenuItemOptionSetUpdated Subscription Callback
-*/
-export interface MenuItemOptionSetUpdatedCallback{
-  (data: Flipdish.MenuItemOptionSetUpdatedEvent): void;
-}
-
-/**
- * MenuItemOptionSetDeleted Subscription Callback
-*/
-export interface MenuItemOptionSetDeletedCallback{
-  (data: Flipdish.MenuItemOptionSetDeletedEvent): void;
-}
-
-/**
- * MenuItemOptionSetItemCreated Subscription Callback
-*/
-export interface MenuItemOptionSetItemCreatedCallback{
-  (data: Flipdish.MenuItemOptionSetItemCreatedEvent): void;
-}
-
-/**
- * MenuItemOptionSetItemUpdated Subscription Callback
-*/
-export interface MenuItemOptionSetItemUpdatedCallback{
-  (data: Flipdish.MenuItemOptionSetItemUpdatedEvent): void;
-}
-
-/**
- * MenuItemOptionSetItemDeleted Subscription Callback
-*/
-export interface MenuItemOptionSetItemDeletedCallback{
-  (data: Flipdish.MenuItemOptionSetItemDeletedEvent): void;
-}
-
-/**
- * MenuCheckpointCreated Subscription Callback
-*/
-export interface MenuCheckpointCreatedCallback{
-  (data: Flipdish.MenuCheckpointCreatedEvent): void;
-}
 
 
 /**
@@ -1865,515 +1284,11 @@ export class MenuHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private MenuCreatedCallback: MenuCreatedCallback;
-  
-  private MenuAsyncCreationCompletedCallback: MenuAsyncCreationCompletedCallback;
-  
-  private MenuUpdatedCallback: MenuUpdatedCallback;
-  
-  private MenuUploadedCallback: MenuUploadedCallback;
-  
-  private MenuBulkEditCallback: MenuBulkEditCallback;
-  
-  private MenuSectionCreatedCallback: MenuSectionCreatedCallback;
-  
-  private MenuSectionUpdatedCallback: MenuSectionUpdatedCallback;
-  
-  private MenuSectionDeletedCallback: MenuSectionDeletedCallback;
-  
-  private MenuSectionItemCreatedCallback: MenuSectionItemCreatedCallback;
-  
-  private MenuSectionItemUpdatedCallback: MenuSectionItemUpdatedCallback;
-  
-  private MenuSectionItemDeletedCallback: MenuSectionItemDeletedCallback;
-  
-  private MenuItemOptionSetCreatedCallback: MenuItemOptionSetCreatedCallback;
-  
-  private MenuItemOptionSetUpdatedCallback: MenuItemOptionSetUpdatedCallback;
-  
-  private MenuItemOptionSetDeletedCallback: MenuItemOptionSetDeletedCallback;
-  
-  private MenuItemOptionSetItemCreatedCallback: MenuItemOptionSetItemCreatedCallback;
-  
-  private MenuItemOptionSetItemUpdatedCallback: MenuItemOptionSetItemUpdatedCallback;
-  
-  private MenuItemOptionSetItemDeletedCallback: MenuItemOptionSetItemDeletedCallback;
-  
-  private MenuCheckpointCreatedCallback: MenuCheckpointCreatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.MenuCreatedCallback = undefined;
-    
-    this.MenuAsyncCreationCompletedCallback = undefined;
-    
-    this.MenuUpdatedCallback = undefined;
-    
-    this.MenuUploadedCallback = undefined;
-    
-    this.MenuBulkEditCallback = undefined;
-    
-    this.MenuSectionCreatedCallback = undefined;
-    
-    this.MenuSectionUpdatedCallback = undefined;
-    
-    this.MenuSectionDeletedCallback = undefined;
-    
-    this.MenuSectionItemCreatedCallback = undefined;
-    
-    this.MenuSectionItemUpdatedCallback = undefined;
-    
-    this.MenuSectionItemDeletedCallback = undefined;
-    
-    this.MenuItemOptionSetCreatedCallback = undefined;
-    
-    this.MenuItemOptionSetUpdatedCallback = undefined;
-    
-    this.MenuItemOptionSetDeletedCallback = undefined;
-    
-    this.MenuItemOptionSetItemCreatedCallback = undefined;
-    
-    this.MenuItemOptionSetItemUpdatedCallback = undefined;
-    
-    this.MenuItemOptionSetItemDeletedCallback = undefined;
-    
-    this.MenuCheckpointCreatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("menu.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuCreatedCallback){
-        if(this.log){
-          console.log("menu.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.async_creation.completed", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuAsyncCreationCompletedEvent = JSON.parse(eventData.Body);
-      if(this.MenuAsyncCreationCompletedCallback){
-        if(this.log){
-          console.log("menu.async_creation.completed received");
-          console.log(eventData.Body);
-        }
-        this.MenuAsyncCreationCompletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuUpdatedCallback){
-        if(this.log){
-          console.log("menu.updated received");
-          console.log(eventData.Body);
-        }
-        this.MenuUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.uploaded", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuUploadedEvent = JSON.parse(eventData.Body);
-      if(this.MenuUploadedCallback){
-        if(this.log){
-          console.log("menu.uploaded received");
-          console.log(eventData.Body);
-        }
-        this.MenuUploadedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.bulk.edit", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuBulkEditEvent = JSON.parse(eventData.Body);
-      if(this.MenuBulkEditCallback){
-        if(this.log){
-          console.log("menu.bulk.edit received");
-          console.log(eventData.Body);
-        }
-        this.MenuBulkEditCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.section.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuSectionCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuSectionCreatedCallback){
-        if(this.log){
-          console.log("menu.section.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuSectionCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.section.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuSectionUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuSectionUpdatedCallback){
-        if(this.log){
-          console.log("menu.section.updated received");
-          console.log(eventData.Body);
-        }
-        this.MenuSectionUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.section.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuSectionDeletedEvent = JSON.parse(eventData.Body);
-      if(this.MenuSectionDeletedCallback){
-        if(this.log){
-          console.log("menu.section.deleted received");
-          console.log(eventData.Body);
-        }
-        this.MenuSectionDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.section_item.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuSectionItemCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuSectionItemCreatedCallback){
-        if(this.log){
-          console.log("menu.section_item.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuSectionItemCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.section_item.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuSectionItemUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuSectionItemUpdatedCallback){
-        if(this.log){
-          console.log("menu.section_item.updated received");
-          console.log(eventData.Body);
-        }
-        this.MenuSectionItemUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.section_item.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuSectionItemDeletedEvent = JSON.parse(eventData.Body);
-      if(this.MenuSectionItemDeletedCallback){
-        if(this.log){
-          console.log("menu.section_item.deleted received");
-          console.log(eventData.Body);
-        }
-        this.MenuSectionItemDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.option_set.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuItemOptionSetCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuItemOptionSetCreatedCallback){
-        if(this.log){
-          console.log("menu.option_set.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuItemOptionSetCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.option_set.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuItemOptionSetUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuItemOptionSetUpdatedCallback){
-        if(this.log){
-          console.log("menu.option_set.updated received");
-          console.log(eventData.Body);
-        }
-        this.MenuItemOptionSetUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.option_set.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuItemOptionSetDeletedEvent = JSON.parse(eventData.Body);
-      if(this.MenuItemOptionSetDeletedCallback){
-        if(this.log){
-          console.log("menu.option_set.deleted received");
-          console.log(eventData.Body);
-        }
-        this.MenuItemOptionSetDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.option_set_item.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuItemOptionSetItemCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuItemOptionSetItemCreatedCallback){
-        if(this.log){
-          console.log("menu.option_set_item.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuItemOptionSetItemCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.option_set_item.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuItemOptionSetItemUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuItemOptionSetItemUpdatedCallback){
-        if(this.log){
-          console.log("menu.option_set_item.updated received");
-          console.log(eventData.Body);
-        }
-        this.MenuItemOptionSetItemUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu.option_set_item.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuItemOptionSetItemDeletedEvent = JSON.parse(eventData.Body);
-      if(this.MenuItemOptionSetItemDeletedCallback){
-        if(this.log){
-          console.log("menu.option_set_item.deleted received");
-          console.log(eventData.Body);
-        }
-        this.MenuItemOptionSetItemDeletedCallback(data);
-      }
-    });
-      
-    this.proxy.on("menu_checkpoint.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.MenuCheckpointCreatedEvent = JSON.parse(eventData.Body);
-      if(this.MenuCheckpointCreatedCallback){
-        if(this.log){
-          console.log("menu_checkpoint.created received");
-          console.log(eventData.Body);
-        }
-        this.MenuCheckpointCreatedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnMenuCreated(callback: MenuCreatedCallback){
-    if(this.log){
-      console.log("menu.created subscribed");
-    }
-    this.MenuCreatedCallback = callback;
-  }
-  public OffMenuCreated(callback: MenuCreatedCallback){
-    if(this.log){
-      console.log("menu.created unsubscribed");
-    }
-	this.MenuCreatedCallback = undefined;
-  }
-  
-  public OnMenuAsyncCreationCompleted(callback: MenuAsyncCreationCompletedCallback){
-    if(this.log){
-      console.log("menu.async_creation.completed subscribed");
-    }
-    this.MenuAsyncCreationCompletedCallback = callback;
-  }
-  public OffMenuAsyncCreationCompleted(callback: MenuAsyncCreationCompletedCallback){
-    if(this.log){
-      console.log("menu.async_creation.completed unsubscribed");
-    }
-	this.MenuAsyncCreationCompletedCallback = undefined;
-  }
-  
-  public OnMenuUpdated(callback: MenuUpdatedCallback){
-    if(this.log){
-      console.log("menu.updated subscribed");
-    }
-    this.MenuUpdatedCallback = callback;
-  }
-  public OffMenuUpdated(callback: MenuUpdatedCallback){
-    if(this.log){
-      console.log("menu.updated unsubscribed");
-    }
-	this.MenuUpdatedCallback = undefined;
-  }
-  
-  public OnMenuUploaded(callback: MenuUploadedCallback){
-    if(this.log){
-      console.log("menu.uploaded subscribed");
-    }
-    this.MenuUploadedCallback = callback;
-  }
-  public OffMenuUploaded(callback: MenuUploadedCallback){
-    if(this.log){
-      console.log("menu.uploaded unsubscribed");
-    }
-	this.MenuUploadedCallback = undefined;
-  }
-  
-  public OnMenuBulkEdit(callback: MenuBulkEditCallback){
-    if(this.log){
-      console.log("menu.bulk.edit subscribed");
-    }
-    this.MenuBulkEditCallback = callback;
-  }
-  public OffMenuBulkEdit(callback: MenuBulkEditCallback){
-    if(this.log){
-      console.log("menu.bulk.edit unsubscribed");
-    }
-	this.MenuBulkEditCallback = undefined;
-  }
-  
-  public OnMenuSectionCreated(callback: MenuSectionCreatedCallback){
-    if(this.log){
-      console.log("menu.section.created subscribed");
-    }
-    this.MenuSectionCreatedCallback = callback;
-  }
-  public OffMenuSectionCreated(callback: MenuSectionCreatedCallback){
-    if(this.log){
-      console.log("menu.section.created unsubscribed");
-    }
-	this.MenuSectionCreatedCallback = undefined;
-  }
-  
-  public OnMenuSectionUpdated(callback: MenuSectionUpdatedCallback){
-    if(this.log){
-      console.log("menu.section.updated subscribed");
-    }
-    this.MenuSectionUpdatedCallback = callback;
-  }
-  public OffMenuSectionUpdated(callback: MenuSectionUpdatedCallback){
-    if(this.log){
-      console.log("menu.section.updated unsubscribed");
-    }
-	this.MenuSectionUpdatedCallback = undefined;
-  }
-  
-  public OnMenuSectionDeleted(callback: MenuSectionDeletedCallback){
-    if(this.log){
-      console.log("menu.section.deleted subscribed");
-    }
-    this.MenuSectionDeletedCallback = callback;
-  }
-  public OffMenuSectionDeleted(callback: MenuSectionDeletedCallback){
-    if(this.log){
-      console.log("menu.section.deleted unsubscribed");
-    }
-	this.MenuSectionDeletedCallback = undefined;
-  }
-  
-  public OnMenuSectionItemCreated(callback: MenuSectionItemCreatedCallback){
-    if(this.log){
-      console.log("menu.section_item.created subscribed");
-    }
-    this.MenuSectionItemCreatedCallback = callback;
-  }
-  public OffMenuSectionItemCreated(callback: MenuSectionItemCreatedCallback){
-    if(this.log){
-      console.log("menu.section_item.created unsubscribed");
-    }
-	this.MenuSectionItemCreatedCallback = undefined;
-  }
-  
-  public OnMenuSectionItemUpdated(callback: MenuSectionItemUpdatedCallback){
-    if(this.log){
-      console.log("menu.section_item.updated subscribed");
-    }
-    this.MenuSectionItemUpdatedCallback = callback;
-  }
-  public OffMenuSectionItemUpdated(callback: MenuSectionItemUpdatedCallback){
-    if(this.log){
-      console.log("menu.section_item.updated unsubscribed");
-    }
-	this.MenuSectionItemUpdatedCallback = undefined;
-  }
-  
-  public OnMenuSectionItemDeleted(callback: MenuSectionItemDeletedCallback){
-    if(this.log){
-      console.log("menu.section_item.deleted subscribed");
-    }
-    this.MenuSectionItemDeletedCallback = callback;
-  }
-  public OffMenuSectionItemDeleted(callback: MenuSectionItemDeletedCallback){
-    if(this.log){
-      console.log("menu.section_item.deleted unsubscribed");
-    }
-	this.MenuSectionItemDeletedCallback = undefined;
-  }
-  
-  public OnMenuItemOptionSetCreated(callback: MenuItemOptionSetCreatedCallback){
-    if(this.log){
-      console.log("menu.option_set.created subscribed");
-    }
-    this.MenuItemOptionSetCreatedCallback = callback;
-  }
-  public OffMenuItemOptionSetCreated(callback: MenuItemOptionSetCreatedCallback){
-    if(this.log){
-      console.log("menu.option_set.created unsubscribed");
-    }
-	this.MenuItemOptionSetCreatedCallback = undefined;
-  }
-  
-  public OnMenuItemOptionSetUpdated(callback: MenuItemOptionSetUpdatedCallback){
-    if(this.log){
-      console.log("menu.option_set.updated subscribed");
-    }
-    this.MenuItemOptionSetUpdatedCallback = callback;
-  }
-  public OffMenuItemOptionSetUpdated(callback: MenuItemOptionSetUpdatedCallback){
-    if(this.log){
-      console.log("menu.option_set.updated unsubscribed");
-    }
-	this.MenuItemOptionSetUpdatedCallback = undefined;
-  }
-  
-  public OnMenuItemOptionSetDeleted(callback: MenuItemOptionSetDeletedCallback){
-    if(this.log){
-      console.log("menu.option_set.deleted subscribed");
-    }
-    this.MenuItemOptionSetDeletedCallback = callback;
-  }
-  public OffMenuItemOptionSetDeleted(callback: MenuItemOptionSetDeletedCallback){
-    if(this.log){
-      console.log("menu.option_set.deleted unsubscribed");
-    }
-	this.MenuItemOptionSetDeletedCallback = undefined;
-  }
-  
-  public OnMenuItemOptionSetItemCreated(callback: MenuItemOptionSetItemCreatedCallback){
-    if(this.log){
-      console.log("menu.option_set_item.created subscribed");
-    }
-    this.MenuItemOptionSetItemCreatedCallback = callback;
-  }
-  public OffMenuItemOptionSetItemCreated(callback: MenuItemOptionSetItemCreatedCallback){
-    if(this.log){
-      console.log("menu.option_set_item.created unsubscribed");
-    }
-	this.MenuItemOptionSetItemCreatedCallback = undefined;
-  }
-  
-  public OnMenuItemOptionSetItemUpdated(callback: MenuItemOptionSetItemUpdatedCallback){
-    if(this.log){
-      console.log("menu.option_set_item.updated subscribed");
-    }
-    this.MenuItemOptionSetItemUpdatedCallback = callback;
-  }
-  public OffMenuItemOptionSetItemUpdated(callback: MenuItemOptionSetItemUpdatedCallback){
-    if(this.log){
-      console.log("menu.option_set_item.updated unsubscribed");
-    }
-	this.MenuItemOptionSetItemUpdatedCallback = undefined;
-  }
-  
-  public OnMenuItemOptionSetItemDeleted(callback: MenuItemOptionSetItemDeletedCallback){
-    if(this.log){
-      console.log("menu.option_set_item.deleted subscribed");
-    }
-    this.MenuItemOptionSetItemDeletedCallback = callback;
-  }
-  public OffMenuItemOptionSetItemDeleted(callback: MenuItemOptionSetItemDeletedCallback){
-    if(this.log){
-      console.log("menu.option_set_item.deleted unsubscribed");
-    }
-	this.MenuItemOptionSetItemDeletedCallback = undefined;
-  }
-  
-  public OnMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
-    if(this.log){
-      console.log("menu_checkpoint.created subscribed");
-    }
-    this.MenuCheckpointCreatedCallback = callback;
-  }
-  public OffMenuCheckpointCreated(callback: MenuCheckpointCreatedCallback){
-    if(this.log){
-      console.log("menu_checkpoint.created unsubscribed");
-    }
-	this.MenuCheckpointCreatedCallback = undefined;
   }
   
 }
@@ -2387,13 +1302,6 @@ export class MenuHub {
 */
 export interface OrderCreatedCallback{
   (data: Flipdish.OrderCreatedEvent): void;
-}
-
-/**
- * OrderDispatched Subscription Callback
-*/
-export interface OrderDispatchedCallback{
-  (data: Flipdish.OrderDispatchedEvent): void;
 }
 
 /**
@@ -2417,48 +1325,6 @@ export interface OrderRefundedCallback{
   (data: Flipdish.OrderRefundedEvent): void;
 }
 
-/**
- * OrderTipUpdated Subscription Callback
-*/
-export interface OrderTipUpdatedCallback{
-  (data: Flipdish.OrderTipUpdatedEvent): void;
-}
-
-/**
- * OrderRatingUpdated Subscription Callback
-*/
-export interface OrderRatingUpdatedCallback{
-  (data: Flipdish.OrderRatingUpdatedEvent): void;
-}
-
-/**
- * OrderDeliveryTrackingStatusUpdated Subscription Callback
-*/
-export interface OrderDeliveryTrackingStatusUpdatedCallback{
-  (data: Flipdish.OrderDeliveryTrackingStatusUpdatedEvent): void;
-}
-
-/**
- * OrderBatchPublished Subscription Callback
-*/
-export interface OrderBatchPublishedCallback{
-  (data: Flipdish.OrderBatchPublishedEvent): void;
-}
-
-/**
- * OrderFulfillmentStatusUpdated Subscription Callback
-*/
-export interface OrderFulfillmentStatusUpdatedCallback{
-  (data: Flipdish.OrderFulfillmentStatusUpdatedEvent): void;
-}
-
-/**
- * OrderCapacityConfigUpdated Subscription Callback
-*/
-export interface OrderCapacityConfigUpdatedCallback{
-  (data: Flipdish.OrderCapacityConfigUpdatedEvent): void;
-}
-
 
 /**
  * OrderHub
@@ -2469,49 +1335,21 @@ export class OrderHub {
   
   private OrderCreatedCallback: OrderCreatedCallback;
   
-  private OrderDispatchedCallback: OrderDispatchedCallback;
-  
   private OrderRejectedCallback: OrderRejectedCallback;
   
   private OrderAcceptedCallback: OrderAcceptedCallback;
   
   private OrderRefundedCallback: OrderRefundedCallback;
   
-  private OrderTipUpdatedCallback: OrderTipUpdatedCallback;
-  
-  private OrderRatingUpdatedCallback: OrderRatingUpdatedCallback;
-  
-  private OrderDeliveryTrackingStatusUpdatedCallback: OrderDeliveryTrackingStatusUpdatedCallback;
-  
-  private OrderBatchPublishedCallback: OrderBatchPublishedCallback;
-  
-  private OrderFulfillmentStatusUpdatedCallback: OrderFulfillmentStatusUpdatedCallback;
-  
-  private OrderCapacityConfigUpdatedCallback: OrderCapacityConfigUpdatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
     
     this.OrderCreatedCallback = undefined;
-    
-    this.OrderDispatchedCallback = undefined;
     
     this.OrderRejectedCallback = undefined;
     
     this.OrderAcceptedCallback = undefined;
     
     this.OrderRefundedCallback = undefined;
-    
-    this.OrderTipUpdatedCallback = undefined;
-    
-    this.OrderRatingUpdatedCallback = undefined;
-    
-    this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
-    
-    this.OrderBatchPublishedCallback = undefined;
-    
-    this.OrderFulfillmentStatusUpdatedCallback = undefined;
-    
-    this.OrderCapacityConfigUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
@@ -2524,17 +1362,6 @@ export class OrderHub {
           console.log(eventData.Body);
         }
         this.OrderCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.dispatched", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderDispatchedEvent = JSON.parse(eventData.Body);
-      if(this.OrderDispatchedCallback){
-        if(this.log){
-          console.log("order.dispatched received");
-          console.log(eventData.Body);
-        }
-        this.OrderDispatchedCallback(data);
       }
     });
       
@@ -2571,72 +1398,6 @@ export class OrderHub {
       }
     });
       
-    this.proxy.on("order.tip.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderTipUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderTipUpdatedCallback){
-        if(this.log){
-          console.log("order.tip.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderTipUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.rating.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderRatingUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderRatingUpdatedCallback){
-        if(this.log){
-          console.log("order.rating.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderRatingUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.deliverytracking.status.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderDeliveryTrackingStatusUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderDeliveryTrackingStatusUpdatedCallback){
-        if(this.log){
-          console.log("order.deliverytracking.status.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderDeliveryTrackingStatusUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.batch.published", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderBatchPublishedEvent = JSON.parse(eventData.Body);
-      if(this.OrderBatchPublishedCallback){
-        if(this.log){
-          console.log("order.batch.published received");
-          console.log(eventData.Body);
-        }
-        this.OrderBatchPublishedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.fulfillment.status.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderFulfillmentStatusUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderFulfillmentStatusUpdatedCallback){
-        if(this.log){
-          console.log("order.fulfillment.status.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderFulfillmentStatusUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("order.capacity.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.OrderCapacityConfigUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.OrderCapacityConfigUpdatedCallback){
-        if(this.log){
-          console.log("order.capacity.updated received");
-          console.log(eventData.Body);
-        }
-        this.OrderCapacityConfigUpdatedCallback(data);
-      }
-    });
-      
   }
   
   public OnOrderCreated(callback: OrderCreatedCallback){
@@ -2650,19 +1411,6 @@ export class OrderHub {
       console.log("order.created unsubscribed");
     }
 	this.OrderCreatedCallback = undefined;
-  }
-  
-  public OnOrderDispatched(callback: OrderDispatchedCallback){
-    if(this.log){
-      console.log("order.dispatched subscribed");
-    }
-    this.OrderDispatchedCallback = callback;
-  }
-  public OffOrderDispatched(callback: OrderDispatchedCallback){
-    if(this.log){
-      console.log("order.dispatched unsubscribed");
-    }
-	this.OrderDispatchedCallback = undefined;
   }
   
   public OnOrderRejected(callback: OrderRejectedCallback){
@@ -2704,103 +1452,11 @@ export class OrderHub {
 	this.OrderRefundedCallback = undefined;
   }
   
-  public OnOrderTipUpdated(callback: OrderTipUpdatedCallback){
-    if(this.log){
-      console.log("order.tip.updated subscribed");
-    }
-    this.OrderTipUpdatedCallback = callback;
-  }
-  public OffOrderTipUpdated(callback: OrderTipUpdatedCallback){
-    if(this.log){
-      console.log("order.tip.updated unsubscribed");
-    }
-	this.OrderTipUpdatedCallback = undefined;
-  }
-  
-  public OnOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
-    if(this.log){
-      console.log("order.rating.updated subscribed");
-    }
-    this.OrderRatingUpdatedCallback = callback;
-  }
-  public OffOrderRatingUpdated(callback: OrderRatingUpdatedCallback){
-    if(this.log){
-      console.log("order.rating.updated unsubscribed");
-    }
-	this.OrderRatingUpdatedCallback = undefined;
-  }
-  
-  public OnOrderDeliveryTrackingStatusUpdated(callback: OrderDeliveryTrackingStatusUpdatedCallback){
-    if(this.log){
-      console.log("order.deliverytracking.status.updated subscribed");
-    }
-    this.OrderDeliveryTrackingStatusUpdatedCallback = callback;
-  }
-  public OffOrderDeliveryTrackingStatusUpdated(callback: OrderDeliveryTrackingStatusUpdatedCallback){
-    if(this.log){
-      console.log("order.deliverytracking.status.updated unsubscribed");
-    }
-	this.OrderDeliveryTrackingStatusUpdatedCallback = undefined;
-  }
-  
-  public OnOrderBatchPublished(callback: OrderBatchPublishedCallback){
-    if(this.log){
-      console.log("order.batch.published subscribed");
-    }
-    this.OrderBatchPublishedCallback = callback;
-  }
-  public OffOrderBatchPublished(callback: OrderBatchPublishedCallback){
-    if(this.log){
-      console.log("order.batch.published unsubscribed");
-    }
-	this.OrderBatchPublishedCallback = undefined;
-  }
-  
-  public OnOrderFulfillmentStatusUpdated(callback: OrderFulfillmentStatusUpdatedCallback){
-    if(this.log){
-      console.log("order.fulfillment.status.updated subscribed");
-    }
-    this.OrderFulfillmentStatusUpdatedCallback = callback;
-  }
-  public OffOrderFulfillmentStatusUpdated(callback: OrderFulfillmentStatusUpdatedCallback){
-    if(this.log){
-      console.log("order.fulfillment.status.updated unsubscribed");
-    }
-	this.OrderFulfillmentStatusUpdatedCallback = undefined;
-  }
-  
-  public OnOrderCapacityConfigUpdated(callback: OrderCapacityConfigUpdatedCallback){
-    if(this.log){
-      console.log("order.capacity.updated subscribed");
-    }
-    this.OrderCapacityConfigUpdatedCallback = callback;
-  }
-  public OffOrderCapacityConfigUpdated(callback: OrderCapacityConfigUpdatedCallback){
-    if(this.log){
-      console.log("order.capacity.updated unsubscribed");
-    }
-	this.OrderCapacityConfigUpdatedCallback = undefined;
-  }
-  
 }
 /* OrderHub End */
 
 
 /* PhoneCallHub Start */
-
-/**
- * PhoneCallStarted Subscription Callback
-*/
-export interface PhoneCallStartedCallback{
-  (data: Flipdish.PhoneCallStartedEvent): void;
-}
-
-/**
- * PhoneCallEnded Subscription Callback
-*/
-export interface PhoneCallEndedCallback{
-  (data: Flipdish.PhoneCallEndedEvent): void;
-}
 
 
 /**
@@ -2810,67 +1466,11 @@ export class PhoneCallHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private PhoneCallStartedCallback: PhoneCallStartedCallback;
-  
-  private PhoneCallEndedCallback: PhoneCallEndedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.PhoneCallStartedCallback = undefined;
-    
-    this.PhoneCallEndedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("phone_call.started", (eventData:SignalrEvent) => {
-      var data:Flipdish.PhoneCallStartedEvent = JSON.parse(eventData.Body);
-      if(this.PhoneCallStartedCallback){
-        if(this.log){
-          console.log("phone_call.started received");
-          console.log(eventData.Body);
-        }
-        this.PhoneCallStartedCallback(data);
-      }
-    });
-      
-    this.proxy.on("phone_call.ended", (eventData:SignalrEvent) => {
-      var data:Flipdish.PhoneCallEndedEvent = JSON.parse(eventData.Body);
-      if(this.PhoneCallEndedCallback){
-        if(this.log){
-          console.log("phone_call.ended received");
-          console.log(eventData.Body);
-        }
-        this.PhoneCallEndedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnPhoneCallStarted(callback: PhoneCallStartedCallback){
-    if(this.log){
-      console.log("phone_call.started subscribed");
-    }
-    this.PhoneCallStartedCallback = callback;
-  }
-  public OffPhoneCallStarted(callback: PhoneCallStartedCallback){
-    if(this.log){
-      console.log("phone_call.started unsubscribed");
-    }
-	this.PhoneCallStartedCallback = undefined;
-  }
-  
-  public OnPhoneCallEnded(callback: PhoneCallEndedCallback){
-    if(this.log){
-      console.log("phone_call.ended subscribed");
-    }
-    this.PhoneCallEndedCallback = callback;
-  }
-  public OffPhoneCallEnded(callback: PhoneCallEndedCallback){
-    if(this.log){
-      console.log("phone_call.ended unsubscribed");
-    }
-	this.PhoneCallEndedCallback = undefined;
   }
   
 }
@@ -2878,34 +1478,6 @@ export class PhoneCallHub {
 
 
 /* PrinterHub Start */
-
-/**
- * PrinterTurnedOn Subscription Callback
-*/
-export interface PrinterTurnedOnCallback{
-  (data: Flipdish.PrinterTurnedOnEvent): void;
-}
-
-/**
- * PrinterTurnedOff Subscription Callback
-*/
-export interface PrinterTurnedOffCallback{
-  (data: Flipdish.PrinterTurnedOffEvent): void;
-}
-
-/**
- * PrinterAssignedToStore Subscription Callback
-*/
-export interface PrinterAssignedToStoreCallback{
-  (data: Flipdish.PrinterAssignedToStoreEvent): void;
-}
-
-/**
- * PrinterUnassignedFromStore Subscription Callback
-*/
-export interface PrinterUnassignedFromStoreCallback{
-  (data: Flipdish.PrinterUnassignedFromStoreEvent): void;
-}
 
 
 /**
@@ -2915,123 +1487,11 @@ export class PrinterHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private PrinterTurnedOnCallback: PrinterTurnedOnCallback;
-  
-  private PrinterTurnedOffCallback: PrinterTurnedOffCallback;
-  
-  private PrinterAssignedToStoreCallback: PrinterAssignedToStoreCallback;
-  
-  private PrinterUnassignedFromStoreCallback: PrinterUnassignedFromStoreCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.PrinterTurnedOnCallback = undefined;
-    
-    this.PrinterTurnedOffCallback = undefined;
-    
-    this.PrinterAssignedToStoreCallback = undefined;
-    
-    this.PrinterUnassignedFromStoreCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("printer.turned_on", (eventData:SignalrEvent) => {
-      var data:Flipdish.PrinterTurnedOnEvent = JSON.parse(eventData.Body);
-      if(this.PrinterTurnedOnCallback){
-        if(this.log){
-          console.log("printer.turned_on received");
-          console.log(eventData.Body);
-        }
-        this.PrinterTurnedOnCallback(data);
-      }
-    });
-      
-    this.proxy.on("printer.turned_off", (eventData:SignalrEvent) => {
-      var data:Flipdish.PrinterTurnedOffEvent = JSON.parse(eventData.Body);
-      if(this.PrinterTurnedOffCallback){
-        if(this.log){
-          console.log("printer.turned_off received");
-          console.log(eventData.Body);
-        }
-        this.PrinterTurnedOffCallback(data);
-      }
-    });
-      
-    this.proxy.on("printer.assigned_to_store", (eventData:SignalrEvent) => {
-      var data:Flipdish.PrinterAssignedToStoreEvent = JSON.parse(eventData.Body);
-      if(this.PrinterAssignedToStoreCallback){
-        if(this.log){
-          console.log("printer.assigned_to_store received");
-          console.log(eventData.Body);
-        }
-        this.PrinterAssignedToStoreCallback(data);
-      }
-    });
-      
-    this.proxy.on("printer.unassigned_from_store", (eventData:SignalrEvent) => {
-      var data:Flipdish.PrinterUnassignedFromStoreEvent = JSON.parse(eventData.Body);
-      if(this.PrinterUnassignedFromStoreCallback){
-        if(this.log){
-          console.log("printer.unassigned_from_store received");
-          console.log(eventData.Body);
-        }
-        this.PrinterUnassignedFromStoreCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnPrinterTurnedOn(callback: PrinterTurnedOnCallback){
-    if(this.log){
-      console.log("printer.turned_on subscribed");
-    }
-    this.PrinterTurnedOnCallback = callback;
-  }
-  public OffPrinterTurnedOn(callback: PrinterTurnedOnCallback){
-    if(this.log){
-      console.log("printer.turned_on unsubscribed");
-    }
-	this.PrinterTurnedOnCallback = undefined;
-  }
-  
-  public OnPrinterTurnedOff(callback: PrinterTurnedOffCallback){
-    if(this.log){
-      console.log("printer.turned_off subscribed");
-    }
-    this.PrinterTurnedOffCallback = callback;
-  }
-  public OffPrinterTurnedOff(callback: PrinterTurnedOffCallback){
-    if(this.log){
-      console.log("printer.turned_off unsubscribed");
-    }
-	this.PrinterTurnedOffCallback = undefined;
-  }
-  
-  public OnPrinterAssignedToStore(callback: PrinterAssignedToStoreCallback){
-    if(this.log){
-      console.log("printer.assigned_to_store subscribed");
-    }
-    this.PrinterAssignedToStoreCallback = callback;
-  }
-  public OffPrinterAssignedToStore(callback: PrinterAssignedToStoreCallback){
-    if(this.log){
-      console.log("printer.assigned_to_store unsubscribed");
-    }
-	this.PrinterAssignedToStoreCallback = undefined;
-  }
-  
-  public OnPrinterUnassignedFromStore(callback: PrinterUnassignedFromStoreCallback){
-    if(this.log){
-      console.log("printer.unassigned_from_store subscribed");
-    }
-    this.PrinterUnassignedFromStoreCallback = callback;
-  }
-  public OffPrinterUnassignedFromStore(callback: PrinterUnassignedFromStoreCallback){
-    if(this.log){
-      console.log("printer.unassigned_from_store unsubscribed");
-    }
-	this.PrinterUnassignedFromStoreCallback = undefined;
   }
   
 }
@@ -4188,13 +2648,6 @@ export class TeammateHub {
 
 /* TelephonyConfigHub Start */
 
-/**
- * TelephonyConfigUpdated Subscription Callback
-*/
-export interface TelephonyConfigUpdatedCallback{
-  (data: Flipdish.TelephonyConfigUpdatedEvent): void;
-}
-
 
 /**
  * TelephonyConfigHub
@@ -4203,39 +2656,11 @@ export class TelephonyConfigHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private TelephonyConfigUpdatedCallback: TelephonyConfigUpdatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.TelephonyConfigUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("telephony_config.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.TelephonyConfigUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.TelephonyConfigUpdatedCallback){
-        if(this.log){
-          console.log("telephony_config.updated received");
-          console.log(eventData.Body);
-        }
-        this.TelephonyConfigUpdatedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnTelephonyConfigUpdated(callback: TelephonyConfigUpdatedCallback){
-    if(this.log){
-      console.log("telephony_config.updated subscribed");
-    }
-    this.TelephonyConfigUpdatedCallback = callback;
-  }
-  public OffTelephonyConfigUpdated(callback: TelephonyConfigUpdatedCallback){
-    if(this.log){
-      console.log("telephony_config.updated unsubscribed");
-    }
-	this.TelephonyConfigUpdatedCallback = undefined;
   }
   
 }
@@ -4405,27 +2830,6 @@ export class VoucherHub {
 
 /* WebhookHub Start */
 
-/**
- * WebhookSubscriptionCreated Subscription Callback
-*/
-export interface WebhookSubscriptionCreatedCallback{
-  (data: Flipdish.WebhookSubscriptionCreatedEvent): void;
-}
-
-/**
- * WebhookSubscriptionUpdated Subscription Callback
-*/
-export interface WebhookSubscriptionUpdatedCallback{
-  (data: Flipdish.WebhookSubscriptionUpdatedEvent): void;
-}
-
-/**
- * WebhookSubscriptionDeleted Subscription Callback
-*/
-export interface WebhookSubscriptionDeletedCallback{
-  (data: Flipdish.WebhookSubscriptionDeletedEvent): void;
-}
-
 
 /**
  * WebhookHub
@@ -4434,95 +2838,11 @@ export class WebhookHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private WebhookSubscriptionCreatedCallback: WebhookSubscriptionCreatedCallback;
-  
-  private WebhookSubscriptionUpdatedCallback: WebhookSubscriptionUpdatedCallback;
-  
-  private WebhookSubscriptionDeletedCallback: WebhookSubscriptionDeletedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.WebhookSubscriptionCreatedCallback = undefined;
-    
-    this.WebhookSubscriptionUpdatedCallback = undefined;
-    
-    this.WebhookSubscriptionDeletedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("webhook_subscription.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.WebhookSubscriptionCreatedEvent = JSON.parse(eventData.Body);
-      if(this.WebhookSubscriptionCreatedCallback){
-        if(this.log){
-          console.log("webhook_subscription.created received");
-          console.log(eventData.Body);
-        }
-        this.WebhookSubscriptionCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("webhook_subscription.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.WebhookSubscriptionUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.WebhookSubscriptionUpdatedCallback){
-        if(this.log){
-          console.log("webhook_subscription.updated received");
-          console.log(eventData.Body);
-        }
-        this.WebhookSubscriptionUpdatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("webhook_subscription.deleted", (eventData:SignalrEvent) => {
-      var data:Flipdish.WebhookSubscriptionDeletedEvent = JSON.parse(eventData.Body);
-      if(this.WebhookSubscriptionDeletedCallback){
-        if(this.log){
-          console.log("webhook_subscription.deleted received");
-          console.log(eventData.Body);
-        }
-        this.WebhookSubscriptionDeletedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnWebhookSubscriptionCreated(callback: WebhookSubscriptionCreatedCallback){
-    if(this.log){
-      console.log("webhook_subscription.created subscribed");
-    }
-    this.WebhookSubscriptionCreatedCallback = callback;
-  }
-  public OffWebhookSubscriptionCreated(callback: WebhookSubscriptionCreatedCallback){
-    if(this.log){
-      console.log("webhook_subscription.created unsubscribed");
-    }
-	this.WebhookSubscriptionCreatedCallback = undefined;
-  }
-  
-  public OnWebhookSubscriptionUpdated(callback: WebhookSubscriptionUpdatedCallback){
-    if(this.log){
-      console.log("webhook_subscription.updated subscribed");
-    }
-    this.WebhookSubscriptionUpdatedCallback = callback;
-  }
-  public OffWebhookSubscriptionUpdated(callback: WebhookSubscriptionUpdatedCallback){
-    if(this.log){
-      console.log("webhook_subscription.updated unsubscribed");
-    }
-	this.WebhookSubscriptionUpdatedCallback = undefined;
-  }
-  
-  public OnWebhookSubscriptionDeleted(callback: WebhookSubscriptionDeletedCallback){
-    if(this.log){
-      console.log("webhook_subscription.deleted subscribed");
-    }
-    this.WebhookSubscriptionDeletedCallback = callback;
-  }
-  public OffWebhookSubscriptionDeleted(callback: WebhookSubscriptionDeletedCallback){
-    if(this.log){
-      console.log("webhook_subscription.deleted unsubscribed");
-    }
-	this.WebhookSubscriptionDeletedCallback = undefined;
   }
   
 }
@@ -4530,34 +2850,6 @@ export class WebhookHub {
 
 
 /* WebsiteHub Start */
-
-/**
- * CertificateRenewed Subscription Callback
-*/
-export interface CertificateRenewedCallback{
-  (data: Flipdish.CertificateRenewedEvent): void;
-}
-
-/**
- * CertificateCreated Subscription Callback
-*/
-export interface CertificateCreatedCallback{
-  (data: Flipdish.CertificateCreatedEvent): void;
-}
-
-/**
- * DnsVerified Subscription Callback
-*/
-export interface DnsVerifiedCallback{
-  (data: Flipdish.DnsVerifiedEvent): void;
-}
-
-/**
- * WebsiteVanityUrlUpdated Subscription Callback
-*/
-export interface WebsiteVanityUrlUpdatedCallback{
-  (data: Flipdish.WebsiteVanityUrlUpdatedEvent): void;
-}
 
 
 /**
@@ -4567,123 +2859,11 @@ export class WebsiteHub {
   private proxy: Proxy;
   private log: boolean;
   
-  private CertificateRenewedCallback: CertificateRenewedCallback;
-  
-  private CertificateCreatedCallback: CertificateCreatedCallback;
-  
-  private DnsVerifiedCallback: DnsVerifiedCallback;
-  
-  private WebsiteVanityUrlUpdatedCallback: WebsiteVanityUrlUpdatedCallback;
-  
   public constructor(proxy: Proxy, log: boolean){
-    
-    this.CertificateRenewedCallback = undefined;
-    
-    this.CertificateCreatedCallback = undefined;
-    
-    this.DnsVerifiedCallback = undefined;
-    
-    this.WebsiteVanityUrlUpdatedCallback = undefined;
     
     this.proxy = proxy;
     this.log = log;
     
-    this.proxy.on("website.certificate.renewed", (eventData:SignalrEvent) => {
-      var data:Flipdish.CertificateRenewedEvent = JSON.parse(eventData.Body);
-      if(this.CertificateRenewedCallback){
-        if(this.log){
-          console.log("website.certificate.renewed received");
-          console.log(eventData.Body);
-        }
-        this.CertificateRenewedCallback(data);
-      }
-    });
-      
-    this.proxy.on("website.certificate.created", (eventData:SignalrEvent) => {
-      var data:Flipdish.CertificateCreatedEvent = JSON.parse(eventData.Body);
-      if(this.CertificateCreatedCallback){
-        if(this.log){
-          console.log("website.certificate.created received");
-          console.log(eventData.Body);
-        }
-        this.CertificateCreatedCallback(data);
-      }
-    });
-      
-    this.proxy.on("website.dns.verified", (eventData:SignalrEvent) => {
-      var data:Flipdish.DnsVerifiedEvent = JSON.parse(eventData.Body);
-      if(this.DnsVerifiedCallback){
-        if(this.log){
-          console.log("website.dns.verified received");
-          console.log(eventData.Body);
-        }
-        this.DnsVerifiedCallback(data);
-      }
-    });
-      
-    this.proxy.on("website.vanityUrl.updated", (eventData:SignalrEvent) => {
-      var data:Flipdish.WebsiteVanityUrlUpdatedEvent = JSON.parse(eventData.Body);
-      if(this.WebsiteVanityUrlUpdatedCallback){
-        if(this.log){
-          console.log("website.vanityUrl.updated received");
-          console.log(eventData.Body);
-        }
-        this.WebsiteVanityUrlUpdatedCallback(data);
-      }
-    });
-      
-  }
-  
-  public OnCertificateRenewed(callback: CertificateRenewedCallback){
-    if(this.log){
-      console.log("website.certificate.renewed subscribed");
-    }
-    this.CertificateRenewedCallback = callback;
-  }
-  public OffCertificateRenewed(callback: CertificateRenewedCallback){
-    if(this.log){
-      console.log("website.certificate.renewed unsubscribed");
-    }
-	this.CertificateRenewedCallback = undefined;
-  }
-  
-  public OnCertificateCreated(callback: CertificateCreatedCallback){
-    if(this.log){
-      console.log("website.certificate.created subscribed");
-    }
-    this.CertificateCreatedCallback = callback;
-  }
-  public OffCertificateCreated(callback: CertificateCreatedCallback){
-    if(this.log){
-      console.log("website.certificate.created unsubscribed");
-    }
-	this.CertificateCreatedCallback = undefined;
-  }
-  
-  public OnDnsVerified(callback: DnsVerifiedCallback){
-    if(this.log){
-      console.log("website.dns.verified subscribed");
-    }
-    this.DnsVerifiedCallback = callback;
-  }
-  public OffDnsVerified(callback: DnsVerifiedCallback){
-    if(this.log){
-      console.log("website.dns.verified unsubscribed");
-    }
-	this.DnsVerifiedCallback = undefined;
-  }
-  
-  public OnWebsiteVanityUrlUpdated(callback: WebsiteVanityUrlUpdatedCallback){
-    if(this.log){
-      console.log("website.vanityUrl.updated subscribed");
-    }
-    this.WebsiteVanityUrlUpdatedCallback = callback;
-  }
-  public OffWebsiteVanityUrlUpdated(callback: WebsiteVanityUrlUpdatedCallback){
-    if(this.log){
-      console.log("website.vanityUrl.updated unsubscribed");
-    }
-	this.WebsiteVanityUrlUpdatedCallback = undefined;
   }
   
 }
